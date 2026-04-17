@@ -50,7 +50,7 @@ function showOnboarding() {
       <!-- PASO 1: Bienvenida + nombre -->
       <div class="ob-step active" id="ob-step-1">
         <div class="ob-logo">
-          <div class="ob-logo-text">🐾 Wu<span>fly</span></div>
+          <img src="img/logo.png" alt="Wufly" style="height:48px;width:auto;object-fit:contain;filter:brightness(0) invert(1);">
         </div>
         <h1 class="ob-title">BIENVENIDOS A WUFLY</h1>
         <p class="ob-desc">Tu guía de mascotas personalizada en Valparaíso. Cuéntanos sobre ti para darte una mejor experiencia.</p>
@@ -277,11 +277,6 @@ function injectOnboardingStyles() {
     .ob-step.active { display:flex; animation:obFadeIn 0.3s ease; }
     #ob-step-1 { align-items:center; text-align:center; gap:14px; }
     .ob-logo { text-align:center; }
-    .ob-logo-text {
-      font-family:'Funnel Display', sans-serif;
-      font-size:36px; font-weight:800; color:white; letter-spacing:-1px;
-    }
-    .ob-logo-text span { color:#5DD6A8; }
     .ob-icon { font-size:52px; text-align:center; }
     .ob-label { font-size:11px; font-weight:700; color:rgba(255,255,255,0.7); letter-spacing:0.06em; text-transform:uppercase; }
     #ob-step-1 .ob-title {
