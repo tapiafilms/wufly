@@ -26,17 +26,36 @@ function renderTopbarAuth() {
   if (!el) return;
 
   if (currentUser) {
+    // Intentar obtener foto del dueño desde el DOM o desde localStorage
+    let fotoSrc = null;
+    const perfilOwnerImg = document.getElementById('perfilOwnerImg');
+    if (perfilOwnerImg && perfilOwnerImg.style.display !== 'none' && perfilOwnerImg.src) {
+      fotoSrc = perfilOwnerImg.src;
+    } else {
+      try {
+        const p = JSON.parse(localStorage.getItem('wufly_profile_v1') || '{}');
+        if (p.fotoDueno) fotoSrc = p.fotoDueno;
+      } catch {}
+    }
+
+    const inicial = currentUser.email.charAt(0).toUpperCase();
+    const avatarInner = fotoSrc
+      ? `<img src="${fotoSrc}" style="width:100%;height:100%;object-fit:cover;" alt="perfil">`
+      : `<span style="font-size:14px;font-weight:700;color:white;line-height:1;">${inicial}</span>`;
+
     el.innerHTML = `
-      <button onclick="abrirAuthModal('login')"
-        style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);color:white;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;"
-        title="${currentUser.email}">
-        ${currentUser.email.charAt(0).toUpperCase()}
+      <button onclick="switchTab('alergias')"
+        style="display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;">
+        <div style="width:34px;height:34px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;">
+          ${avatarInner}
+        </div>
+        <span style="font-size:9px;color:rgba(255,255,255,0.85);font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">Mi perfil</span>
       </button>`;
   } else {
     el.innerHTML = `
       <button onclick="abrirAuthModal('login')"
-        style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.4);border-radius:100px;padding:7px 13px;color:white;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
-        👤 Entrar
+        style="background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.4);border-radius:100px;padding:7px 14px;color:white;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+        Entrar
       </button>`;
   }
 }

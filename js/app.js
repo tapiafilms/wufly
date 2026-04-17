@@ -28,7 +28,7 @@ function switchTab(name, el, fromNav = false) {
 
   // Páginas secundarias no tienen tab activo en nav — solo las 5 principales
   const secondary = ['recetas', 'recordatorios', 'detail'];
-  const order = ['restaurantes', 'drwufly', 'comunidad', 'servicios', 'alergias'];
+  const order = ['home', 'restaurantes', 'drwufly', 'comunidad', 'servicios'];
   const idx = order.indexOf(name);
   if (!secondary.includes(name)) {
     document.querySelectorAll('.tab')[idx]?.classList.add('active');
