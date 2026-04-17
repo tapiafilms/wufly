@@ -263,13 +263,11 @@ function renderTiendas() {
 function openTienda(id) {
   const t = tiendas.find(x => x.id === id);
   if (!t) return;
-
-  // TODO: abrir página de detalle con productos, chat IA de la tienda, etc.
-  // Por ahora si tiene web, abrimos el sitio
+  registrarClick(t.id, t.nombre, 'tiendas');
   if (t.web) {
     window.open('https://' + t.web, '_blank');
-  } else {
-    alert(`${t.icon} ${t.nombre}\n\n${t.desc}\n\n📍 ${t.address || 'Online'}\n🕐 ${t.horario}`);
+  } else if (t.wsp) {
+    window.open('https://wa.me/' + t.wsp.replace(/\D/g, ''), '_blank');
   }
 }
 

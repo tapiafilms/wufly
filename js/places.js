@@ -294,10 +294,10 @@ function renderClinicas() {
 }
 
 function openClinica(id) {
-  // Buscar en estáticos y en geo results
   const c = clinicas.find(x => x.id === id)
          || (typeof geoResults !== 'undefined' && geoResults.clinicas.find(x => x.id === id));
   if (!c) return;
+  if (!c.fromOSM) registrarClick(c.id, c.name, 'clinicas');
   if (c.lat && c.lng) {
     window.open(`https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lng}`, '_blank');
   } else if (c.tel) {
