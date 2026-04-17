@@ -20,8 +20,31 @@ db.auth.onAuthStateChange(async (event, session) => {
   }
 });
 
+/* ══ TOPBAR: botón de cuenta ══ */
+function renderTopbarAuth() {
+  const el = document.getElementById('topbarAuthBtn');
+  if (!el) return;
+
+  if (currentUser) {
+    el.innerHTML = `
+      <button onclick="abrirAuthModal('login')"
+        style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);color:white;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;"
+        title="${currentUser.email}">
+        ${currentUser.email.charAt(0).toUpperCase()}
+      </button>`;
+  } else {
+    el.innerHTML = `
+      <button onclick="abrirAuthModal('login')"
+        style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.4);border-radius:100px;padding:7px 13px;color:white;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+        👤 Entrar
+      </button>`;
+  }
+}
+
 /* ══ BANNER DE SESIÓN en MI PERFIL ══ */
 function renderAuthBanner() {
+  renderTopbarAuth();
+
   const banner = document.getElementById('authBanner');
   if (!banner) return;
 
@@ -273,5 +296,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (currentUser) {
     await sincronizarPerfil();
     await sincronizarRecordatorios();
+  } else {
+    // Mostrar modal de login la primera vez que el usuario abre la app
+    const yaVisto = localStorage.getItem('wufly_welcome_shown');
+    if (!yaVisto) {
+      localStorage.setItem('wufly_welcome_shown', '1');
+      setTimeout(() => abrirAuthModal('register'), 1200);
+    }
   }
 });
