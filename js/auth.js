@@ -218,7 +218,7 @@ async function sincronizarPerfil() {
 
   const merged = {
     ...local,
-    nombre:        data.nombre         || local.nombre        || '',
+    nombre:        data.nombre         || local.nombre        || currentUser.email.split('@')[0],
     nombreMascota: data.nombre_mascota || local.nombreMascota || '',
     tipomascota:   data.tipo_mascota   || local.tipomascota   || 'perro',
     edadmascota:   data.edad_mascota   || local.edadmascota   || 'adulto',
@@ -229,6 +229,9 @@ async function sincronizarPerfil() {
 
   localStorage.setItem('wufly_profile_v1', JSON.stringify(merged));
   if (typeof renderPerfilUI === 'function') renderPerfilUI(merged);
+  // Si el onboarding está visible, cerrarlo ya que tenemos perfil de la nube
+  const overlay = document.getElementById('onboarding-overlay');
+  if (overlay) overlay.remove();
 }
 
 /* ══ GUARDAR PERFIL EN DB ══ */
@@ -296,12 +299,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (currentUser) {
     await sincronizarPerfil();
     await sincronizarRecordatorios();
+    // Si el onboarding ya está visible, cerrarlo porque tenemos perfil
+    const overlay = document.getElementById('onboarding-overlay');
+    if (overlay) overlay.remove();
   } else {
-    // Mostrar modal de login la primera vez que el usuario abre la app
+    // Mostrar modal de login la primera vez, pero SOLO si el onboarding no está activo
     const yaVisto = localStorage.getItem('wufly_welcome_shown');
     if (!yaVisto) {
       localStorage.setItem('wufly_welcome_shown', '1');
-      setTimeout(() => abrirAuthModal('register'), 1200);
+      setTimeout(() => {
+        if (!document.getElementById('onboarding-overlay')) {
+          abrirAuthModal('register');
+        }
+      }, 1400);
     }
   }
 });

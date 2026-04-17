@@ -230,6 +230,8 @@ function obFinish() {
 }
 
 function obClose() {
+  // Marcar welcome como visto para que el modal de login no aparezca encima
+  localStorage.setItem('wufly_welcome_shown', '1');
   const overlay = document.getElementById('onboarding-overlay');
   overlay.style.animation = 'obFadeOut 0.3s ease forwards';
   setTimeout(() => {
@@ -346,10 +348,18 @@ function injectOnboardingStyles() {
 }
 
 /* ── INIT ── */
+// Espera a que auth.js haya tenido tiempo de restaurar sesión y perfil
+// antes de decidir si mostrar el onboarding.
 document.addEventListener('DOMContentLoaded', () => {
-  const profile = loadProfile();
-  if (!profile) {
+  setTimeout(() => {
+    // Si ya hay perfil en localStorage (puesto por onboarding o por sincronizarPerfil), no mostrar
+    const profile = loadProfile();
+    if (profile && profile.nombre) return;
+
+    // Si hay un usuario logueado, sincronizarPerfil() habrá corrido — no mostrar onboarding
+    if (typeof currentUser !== 'undefined' && currentUser) return;
+
     injectOnboardingStyles();
     showOnboarding();
-  }
+  }, 800); // 800ms da tiempo a auth.js para getSession() y sincronizarPerfil()
 });
