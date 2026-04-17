@@ -161,7 +161,7 @@ function showOnboarding() {
         <h2 class="ob-title" id="ob-welcome-name">¡Todo listo!</h2>
         <p class="ob-desc">Tu perfil está guardado. Wufly AI usará esta información en cada consulta y recomendación.</p>
         <div class="ob-summary" id="ob-summary"></div>
-        <button class="ob-btn-primary" onclick="obClose()" style="margin-top:24px;">Ver clínicas cercanas →</button>
+        <button class="ob-btn-primary" onclick="obClose()" style="margin-top:24px;">¡Empezar! 🐾</button>
       </div>
 
     </div>
