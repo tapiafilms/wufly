@@ -264,11 +264,15 @@ function renderClinicas() {
            onclick="event.stopPropagation()">🗺 Cómo llegar</a>`
       : '';
 
+    const cardClass       = c.fromOSM ? 'place-card' : 'place-card-verificado';
+    const verificadoBadge = c.fromOSM ? '' : `<span class="badge-wufly">✓ Verificado Wufly</span><br>`;
+
     return separador + `
-    <div class="place-card" onclick="openClinica('${c.id}')">
+    <div class="${cardClass}" onclick="openClinica('${c.id}')">
       <div class="place-card-inner">
-        <div class="place-icon">${c.icon}</div>
+        <div class="place-icon" style="background:${c.fromOSM ? 'var(--bg)' : 'var(--purple-light)'};">${c.icon}</div>
         <div class="place-info">
+          ${verificadoBadge}
           ${distBadge}
           <div class="place-name">${c.name}</div>
           <div class="place-type">${c.type}</div>

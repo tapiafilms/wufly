@@ -206,11 +206,16 @@ function renderTiendas() {
            style="font-size:11px;color:var(--purple);font-weight:700;text-decoration:none;" onclick="event.stopPropagation()">🗺 Cómo llegar</a>`
       : '';
 
+    const cardClassT       = t.fromOSM ? 'place-card' : 'place-card-verificado';
+    const verificadoBadgeT = t.fromOSM ? '' : `<span class="badge-wufly">✓ Verificado Wufly</span><br>`;
+    const iconBgT          = t.fromOSM ? 'var(--bg)' : 'var(--purple-light)';
+
     return separador + `
-      <div class="place-card" onclick="openTienda('${t.id}')" style="cursor:pointer;">
+      <div class="${cardClassT}" onclick="openTienda('${t.id}')">
         <div class="place-card-inner">
-          <div class="place-icon" style="background:var(--purple-light);">${t.icon}</div>
+          <div class="place-icon" style="background:${iconBgT};">${t.icon}</div>
           <div class="place-info">
+            ${verificadoBadgeT}
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap;">
               ${distBadge}
               <div class="place-name">${t.nombre}</div>
