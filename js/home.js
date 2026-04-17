@@ -109,16 +109,18 @@ function renderHome() {
         </div>
       </div>
 
-      <!-- BANNER MEVETLAB -->
-      <div style="margin:0 16px 20px;border-radius:18px;overflow:hidden;box-shadow:0 4px 18px rgba(124,77,204,0.3);">
-        <div style="background:linear-gradient(135deg,#7C4DCC,#5DD6A8);padding:16px 18px;">
-          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.85);letter-spacing:0.06em;margin-bottom:6px;">🚨 Urgencias 24h — MEVETLAB</div>
-          <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:16px;color:white;margin-bottom:4px;">Clínica con laboratorio propio</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:14px;">Hospitalización 24h · Atención Fear Free · Quirófano equipado</div>
-          <button onclick="switchTab('restaurantes')"
-            style="background:rgba(255,255,255,0.22);border:1.5px solid rgba(255,255,255,0.5);border-radius:100px;padding:8px 18px;color:white;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
-            Ver clínicas →
-          </button>
+      <!-- CAROUSEL CLÍNICAS -->
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:10px;">
+          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">🏥 CLÍNICAS DESTACADAS</div>
+          <button onclick="switchTab('restaurantes')" style="background:none;border:none;font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Ver todas →</button>
+        </div>
+        <div id="clinicas-carousel" style="display:flex;gap:12px;overflow-x:auto;padding:4px 16px 10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+          ${_carouselClinicas()}
+        </div>
+        <!-- Dots -->
+        <div id="carousel-dots" style="display:flex;justify-content:center;gap:5px;margin-top:4px;">
+          ${[0,1,2,3,4].map(i => `<div class="cdot${i===0?' cdot-active':''}" style="width:${i===0?'18px':'6px'};height:6px;border-radius:100px;background:${i===0?'var(--purple)':'#D1D5DB'};transition:all 0.3s;"></div>`).join('')}
         </div>
       </div>
 
@@ -147,7 +149,91 @@ function renderHome() {
   `;
 }
 
+/* ── Datos del carousel (primeras 5 clínicas) ── */
+const _clinicasCarousel = [
+  {
+    nombre: 'MEVETLAB',
+    tipo: 'Clínica · Laboratorio · Urgencias 24h',
+    desc: 'Laboratorio propio, hospitalización 24h y atención Fear Free.',
+    icon: '🏥',
+    urgencia: true,
+    ciudad: 'Viña del Mar',
+    grad: 'linear-gradient(135deg,#5C2FA8,#7C4DCC)',
+  },
+  {
+    nombre: 'Clínica Artemisa',
+    tipo: 'Urgencias 24h · Exóticos · Peluquería',
+    desc: 'Urgencias permanentes, animales exóticos y farmacia.',
+    icon: '🐾',
+    urgencia: true,
+    ciudad: 'Viña del Mar',
+    grad: 'linear-gradient(135deg,#0F766E,#14B8A6)',
+  },
+  {
+    nombre: 'Centro Veterinario Recreo',
+    tipo: 'Emergencias · Cirugía · Vacunación',
+    desc: 'Especialización en emergencias y cirugía. Trato cercano.',
+    icon: '🐾',
+    urgencia: true,
+    ciudad: 'Valparaíso',
+    grad: 'linear-gradient(135deg,#B45309,#F59E0B)',
+  },
+  {
+    nombre: 'Centro Quirúrgico Veterinario',
+    tipo: 'Cirugía · Radiografías · Ecografías',
+    desc: 'Especialistas en cirugías complejas con equipo calificado.',
+    icon: '🔬',
+    urgencia: false,
+    ciudad: 'Viña del Mar',
+    grad: 'linear-gradient(135deg,#1D4ED8,#3B82F6)',
+  },
+  {
+    nombre: 'Veterinaria Concón Reñaca',
+    tipo: 'Medicina General · Pet Shop',
+    desc: 'Clínica con pet shop integrado. Vacunas y desparasitación.',
+    icon: '🐕',
+    urgencia: false,
+    ciudad: 'Concón',
+    grad: 'linear-gradient(135deg,#6D28D9,#8B5CF6)',
+  },
+];
+
+function _carouselClinicas() {
+  return _clinicasCarousel.map((c, i) => `
+    <div onclick="switchTab('restaurantes')" style="flex:0 0 72vw;max-width:280px;scroll-snap-align:start;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,0.15);">
+      <div style="background:${c.grad};padding:18px 18px 20px;">
+        ${c.urgencia ? `<div style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.22);border-radius:100px;padding:3px 10px;font-size:10px;font-weight:700;color:white;margin-bottom:10px;">🚨 Urgencias 24h</div>` : `<div style="height:22px;margin-bottom:10px;"></div>`}
+        <div style="font-size:26px;margin-bottom:8px;">${c.icon}</div>
+        <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:17px;color:white;margin-bottom:3px;line-height:1.2;">${c.nombre}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.75);font-weight:600;letter-spacing:0.04em;margin-bottom:8px;">${c.tipo}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.85);line-height:1.5;margin-bottom:14px;">${c.desc}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.7);">📍 ${c.ciudad}</div>
+          <div style="font-size:12px;font-weight:700;color:white;">Ver →</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Dots del carousel (se inicializan después del render) ── */
+function _initCarouselDots() {
+  const track = document.getElementById('clinicas-carousel');
+  if (!track) return;
+
+  track.addEventListener('scroll', () => {
+    const cardW = track.querySelector('div')?.offsetWidth + 12 || 292;
+    const idx   = Math.round(track.scrollLeft / cardW);
+    document.querySelectorAll('.cdot').forEach((d, i) => {
+      const active = i === idx;
+      d.style.width      = active ? '18px' : '6px';
+      d.style.background = active ? 'var(--purple)' : '#D1D5DB';
+    });
+  }, { passive: true });
+}
+
 /* ── Init ── */
 document.addEventListener('DOMContentLoaded', () => {
   renderHome();
+  setTimeout(_initCarouselDots, 100);
 });

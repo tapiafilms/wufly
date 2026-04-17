@@ -390,6 +390,10 @@ body {
 }
 .filter-btn.active, .filter-btn:hover { background:var(--green); color:white; border-color:var(--green); box-shadow:var(--shadow-green); }
 
+/* ── CAROUSEL ── */
+#clinicas-carousel::-webkit-scrollbar { display: none; }
+#clinicas-carousel { scrollbar-width: none; }
+
 /* ── PLACE CARDS ── */
 
 /* TIER 1 — Resultado orgánico (OpenStreetMap) — solo informativo, no clickeable */
