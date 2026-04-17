@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Wufly — Todo para tu mascota</title>
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="manifest.json">
+
+<!-- Theme & status bar -->
+<meta name="theme-color" content="#7C4DCC">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Wufly">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- Apple touch icons -->
+<link rel="apple-touch-icon" href="img/icon-192.svg">
+<link rel="apple-touch-icon" sizes="192x192" href="img/icon-192.svg">
+<link rel="apple-touch-icon" sizes="512x512" href="img/icon-512.svg">
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="img/icon-192.svg">
+
+<!-- SEO / Open Graph -->
+<meta name="description" content="Encuentra veterinarias, adopta mascotas, reporta perdidos y consulta a un asistente veterinario con IA. Para Viña del Mar, Valparaíso y Concón.">
+
+<link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-head">
+    <div class="logo">
+      <img src="img/logo-full.png" alt="Wufly">
+    </div>
+  </div>
+  <div class="tabs">
+      <div class="tab active" onclick="switchTab('restaurantes',this)">
+        <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
+        VETS
+      </div>
+      <div class="tab" onclick="switchTab('asistente',this)">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        ADOPTAR
+      </div>
+      <div class="tab" onclick="switchTab('perdidos',this)">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+        PERDIDOS
+      </div>
+      <div class="tab" onclick="switchTab('servicios',this)">
+        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+        SERVICIOS
+      </div>
+      <div class="tab" onclick="switchTab('alergias',this)">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        MI PERFIL
+      </div>
+    </div>
+</div>
+
+<!-- ══ SCANNER ══ -->
+<!-- DESKTOP LAYOUT WRAPPER -->
+<div class="desktop-layout">
+<div class="app-column">
+
+  <!-- Topbar propio de la columna izquierda (solo visible en desktop) -->
+  <div class="app-topbar">
+    <div class="topbar">
+      <div class="topbar-head">
+        <div class="logo"><div class="logo-text">🐾 Wu<span class="logo-accent">fly</span></div></div>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('restaurantes',this)">
+          <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
+          VETS
+        </div>
+        <div class="tab" onclick="switchTab('asistente',this)">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          ADOPTAR
+        </div>
+        <div class="tab" onclick="switchTab('perdidos',this)">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+          PERDIDOS
+        </div>
+        <div class="tab" onclick="switchTab('servicios',this)">
+          <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+          SERVICIOS
+        </div>
+        <div class="tab" onclick="switchTab('alergias',this)">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          MI PERFIL
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Área scrollable de las páginas -->
+  <div class="app-pages">
+
+<div class="page" id="page-perdidos">
+  <div class="page-title">Perdidos y Rescate</div>
+  <div class="page-sub">Ayuda a reunir mascotas con sus familias o a rescatar animales en la calle.</div>
+
+  <!-- Tabs internas -->
+  <div style="display:flex;background:var(--bg);border-radius:var(--r-xs);padding:4px;gap:4px;margin-bottom:16px;">
+    <button id="tab-perdidos" onclick="switchSubTab('perdidos')"
+      style="flex:1;padding:10px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;background:var(--purple);color:white;font-family:'Plus Jakarta Sans',sans-serif;">
+      🔍 Perdidos
+    </button>
+    <button id="tab-rescate" onclick="switchSubTab('rescate')"
+      style="flex:1;padding:10px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;">
+      🆘 Rescate
+    </button>
+  </div>
+
+  <!-- ══ SUB-SECCIÓN PERDIDOS ══ -->
+  <div id="sub-perdidos">
+    <button class="btn-primary" onclick="toggleFormPerdido('perdido')" id="btnPublicarPerdido"
+      style="margin-bottom:16px;background:linear-gradient(135deg,#D7897F,#E8A860);width:100%;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Reportar mascota perdida
+    </button>
+
+    <div id="formPerdido" style="display:none;background:var(--surface);border-radius:var(--r);border:1.5px solid rgba(215,137,127,0.3);padding:18px;margin-bottom:16px;">
+      <h3 style="font-family:'Funnel Display',sans-serif;font-size:16px;color:var(--text);margin-bottom:14px;">🔍 Mascota perdida</h3>
+      <div style="display:flex;flex-direction:column;gap:11px;">
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">FOTO</label>
+          <div class="upload-zone" id="perdidoUploadZone" style="margin-top:4px;padding:12px;">
+            <input type="file" accept="image/*" id="perdidoFileInput" style="display:none;">
+            <div class="cam-icon"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            <p style="font-size:12px;color:var(--text-muted);">Toca para subir foto</p>
+            <img id="perdidoPreviewImg" alt="" style="display:none;max-height:130px;border-radius:8px;margin-top:6px;">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">ESPECIE</label>
+            <select id="perdidoEspecie" style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
+              <option value="perro">🐕 Perro</option>
+              <option value="gato">🐈 Gato</option>
+              <option value="otro">🐾 Otro</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">FECHA EXTRAVÍO</label>
+            <input type="date" id="perdidoFecha" style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;">
+          </div>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">DESCRIPCIÓN FÍSICA</label>
+          <textarea id="perdidoDesc" placeholder="Color, raza, collar, señas particulares..." style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;resize:vertical;min-height:70px;"></textarea>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">ÚLTIMA UBICACIÓN VISTA</label>
+          <input type="text" id="perdidoUbicacion" placeholder="Ej: Av. Perú con 3 Norte, Viña del Mar" style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">WHATSAPP CONTACTO</label>
+          <input type="tel" id="perdidoWsp" placeholder="+56 9 XXXX XXXX" style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;">
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-ghost" onclick="toggleFormPerdido('perdido')" style="flex:1;">Cancelar</button>
+          <button class="btn-primary" onclick="publicarPerdido('perdido')" style="flex:2;background:linear-gradient(135deg,#D7897F,#E8A860);">Publicar 🔍</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="perdidoFeed" style="display:flex;flex-direction:column;gap:12px;">
+      <div style="text-align:center;padding:30px 20px;color:var(--text-muted);">
+        <div style="font-size:32px;margin-bottom:8px;">🔍</div>
+        <div style="font-size:13px;">Cargando...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SUB-SECCIÓN RESCATE ══ -->
+  <div id="sub-rescate" style="display:none;">
+    <button class="btn-primary" onclick="toggleFormRescate()" id="btnPublicarRescate"
+      style="margin-bottom:16px;background:linear-gradient(135deg,#F9B95C,#E8C84A);color:#2D1B6B;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#2D1B6B;fill:none;stroke-width:2.5;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Reportar animal en la calle
+    </button>
+
+    <div id="formRescate" style="display:none;background:var(--surface);border-radius:var(--r);border:1.5px solid rgba(249,185,92,0.35);padding:18px;margin-bottom:16px;">
+      <h3 style="font-family:'Funnel Display',sans-serif;font-size:16px;color:var(--text);margin-bottom:14px;">🆘 Animal en la calle</h3>
+      <div style="display:flex;flex-direction:column;gap:11px;">
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">FOTO DEL ANIMAL</label>
+          <div class="upload-zone" id="rescateUploadZone" style="margin-top:4px;padding:12px;">
+            <input type="file" accept="image/*" id="rescateFileInput" style="display:none;">
+            <div class="cam-icon"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            <p style="font-size:12px;color:var(--text-muted);">Toca para subir foto</p>
+            <img id="rescatePreviewImg" alt="" style="display:none;max-height:130px;border-radius:8px;margin-top:6px;">
+          </div>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">ESPECIE</label>
+          <select id="rescateEspecie" style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
+            <option value="perro">🐕 Perro</option>
+            <option value="gato">🐈 Gato</option>
+            <option value="otro">🐾 Otro</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">DESCRIPCIÓN Y ESTADO</label>
+          <textarea id="rescateDesc" placeholder="Color, tamaño, condición (herido, asustado, flaco...). Cualquier detalle ayuda." style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;resize:vertical;min-height:70px;"></textarea>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">UBICACIÓN EXACTA</label>
+          <input type="text" id="rescateUbicacion" placeholder="Ej: Calle Las Copelias cerca del supermercado" style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;">
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-ghost" onclick="toggleFormRescate()" style="flex:1;">Cancelar</button>
+          <button class="btn-primary" onclick="publicarPerdido('rescate')" style="flex:2;background:linear-gradient(135deg,#F9B95C,#E8C84A);color:#2D1B6B;">Reportar 🆘</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="rescateFeed" style="display:flex;flex-direction:column;gap:12px;">
+      <div style="text-align:center;padding:30px 20px;color:var(--text-muted);">
+        <div style="font-size:32px;margin-bottom:8px;">🆘</div>
+        <div style="font-size:13px;">Cargando...</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ ADOPTAR ══ -->
+<div class="page" id="page-asistente">
+  <div class="page-title">Adoptar</div>
+  <div class="page-sub">Mascotas que buscan un hogar. Publica o contacta directamente.</div>
+
+  <!-- Botón publicar -->
+  <button class="btn-primary" onclick="mostrarFormAdopcion()" id="btnPublicar" style="margin-bottom:16px;">
+    <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Publicar mascota en adopción
+  </button>
+
+  <!-- Formulario de publicación (oculto inicialmente) -->
+  <div id="formAdopcion" style="display:none;background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border-md);padding:18px;margin-bottom:16px;">
+    <h3 style="font-family:'Funnel Display',sans-serif;font-size:17px;color:var(--text);margin-bottom:14px;">Nueva publicación</h3>
+
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">FOTO DE LA MASCOTA</label>
+        <div class="upload-zone" id="adoptUploadZone" style="margin-top:6px;padding:16px;">
+          <input type="file" accept="image/*" id="adoptFileInput" style="display:none;">
+          <div class="cam-icon"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          <p style="font-size:12px;color:var(--text-muted);">Toca para subir foto</p>
+          <img id="adoptPreviewImg" alt="Vista previa" style="display:none;max-height:150px;border-radius:10px;margin-top:8px;">
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">NOMBRE</label>
+          <input type="text" id="adoptNombre" placeholder="Ej: Luna" style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">ESPECIE</label>
+          <select id="adoptEspecie" style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
+            <option value="perro">🐕 Perro</option>
+            <option value="gato">🐈 Gato</option>
+            <option value="otro">🐾 Otro</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">EDAD</label>
+          <select id="adoptEdad" style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
+            <option value="Cachorro">Cachorro</option>
+            <option value="Joven">Joven</option>
+            <option value="Adulto">Adulto</option>
+            <option value="Senior">Senior</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">TAMAÑO</label>
+          <select id="adoptTamano" style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
+            <option value="Pequeño">Pequeño</option>
+            <option value="Mediano">Mediano</option>
+            <option value="Grande">Grande</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">DESCRIPCIÓN</label>
+        <textarea id="adoptDesc" placeholder="Cuéntanos sobre su personalidad, historia y por qué busca hogar..." style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;resize:vertical;min-height:80px;"></textarea>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">WHATSAPP</label>
+          <input type="tel" id="adoptWsp" placeholder="+56 9 XXXX XXXX" style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">CIUDAD</label>
+          <select id="adoptCiudad" style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
+            <option value="Viña del Mar">Viña del Mar</option>
+            <option value="Valparaíso">Valparaíso</option>
+            <option value="Concón">Concón</option>
+            <option value="Otra">Otra</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;">
+        <button class="btn-ghost" onclick="ocultarFormAdopcion()" style="flex:1;">Cancelar</button>
+        <button class="btn-primary" onclick="publicarAdopcion()" style="flex:2;">Publicar 🐾</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilterAdopcion(this,'todos')">Todos</button>
+    <button class="filter-btn" onclick="setFilterAdopcion(this,'perro')">🐕 Perros</button>
+    <button class="filter-btn" onclick="setFilterAdopcion(this,'gato')">🐈 Gatos</button>
+    <button class="filter-btn" onclick="setFilterAdopcion(this,'otro')">🐾 Otros</button>
+  </div>
+
+  <!-- Feed -->
+  <div id="adoptFeed" style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+    <div style="text-align:center;padding:40px 20px;color:var(--text-muted);">
+      <div style="font-size:36px;margin-bottom:8px;">🐾</div>
+      <div style="font-size:14px;">Cargando publicaciones...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CLÍNICAS VETERINARIAS ══ -->
+<div class="page active" id="page-restaurantes">
+
+  <!-- DESTACADO -->
+  <div style="background:#fff;border-radius:20px;border:1.5px solid rgba(124,77,204,0.15);overflow:hidden;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,0.08);cursor:pointer;" onclick="openClinica('mevetlab')">
+    <div style="background:linear-gradient(135deg,#7C4DCC,#5DD6A8);color:white;font-size:11px;font-weight:700;padding:8px 16px;letter-spacing:0.05em;">
+      🚨 Urgencias 24h — Destacada
+    </div>
+    <div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <div style="width:44px;height:44px;min-width:44px;background:#F0EAFB;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">🏥</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:17px;color:#2D1B6B;margin-bottom:2px;">MEVETLAB Clínica Veterinaria</div>
+          <div style="font-size:10px;font-weight:700;color:#B0B8C1;letter-spacing:0.04em;margin-bottom:6px;">CLÍNICA · LABORATORIO · URGENCIAS 24H</div>
+          <div style="font-size:13px;color:#6B7280;line-height:1.5;margin-bottom:8px;">Clínica integral con laboratorio propio, quirófano equipado y hospitalización 24h. Atención Fear Free para que tu mascota esté tranquila.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;">
+            <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px;background:#F0EAFB;color:#7C4DCC;">Urgencias 24h</span>
+            <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px;background:#E6F9F3;color:#3DAF87;">Laboratorio propio</span>
+            <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px;background:#5DD6A8;color:white;">✓ Hospitalización</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(0,0,0,0.06);padding-top:10px;font-size:12px;color:#6B7280;">
+        <span>📍 Álvarez 2172, Chorrillos, Viña del Mar</span>
+        <a href="https://mevetlab.cl" target="_blank" style="color:#7C4DCC;font-weight:600;text-decoration:none;">mevetlab.cl →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="hero-banner">
+    <h2>Veterinarios cerca de ti</h2>
+    <p>Clínicas verificadas en Viña del Mar, Valparaíso y Concón</p>
+    <div class="stat-row">
+      <div class="stat"><div class="stat-num">11</div><div class="stat-label">Clínicas</div></div>
+      <div class="stat"><div class="stat-num">5</div><div class="stat-label">Urgencias 24h</div></div>
+      <div class="stat"><div class="stat-num">3</div><div class="stat-label">Ciudades</div></div>
+    </div>
+  </div>
+
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input type="text" placeholder="Buscar clínica..." id="searchClinica" oninput="renderClinicas()">
+  </div>
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter(this,'clinica','todos')">Todas</button>
+    <button class="filter-btn" onclick="setFilter(this,'clinica','urgencia')">🚨 Urgencias</button>
+    <button class="filter-btn" onclick="setFilter(this,'clinica','viña')">Viña del Mar</button>
+    <button class="filter-btn" onclick="setFilter(this,'clinica','valpo')">Valparaíso</button>
+    <button class="filter-btn" onclick="setFilter(this,'clinica','concon')">Concón</button>
+  </div>
+  <div id="clinicaList"></div>
+</div>
+
+<!-- ══ SERVICIOS ══ -->
+<div class="page" id="page-servicios">
+
+  <!-- Sub-tabs de servicios -->
+  <div style="display:flex;background:var(--bg);border-radius:var(--r-xs);padding:4px;gap:4px;margin-bottom:16px;">
+    <button id="stab-tiendas" onclick="switchServiciosTab('tiendas')"
+      style="flex:1;padding:9px 4px;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;background:var(--purple);color:white;font-family:'Plus Jakarta Sans',sans-serif;">
+      📦 Tiendas
+    </button>
+    <button id="stab-grooming" onclick="switchServiciosTab('grooming')"
+      style="flex:1;padding:9px 4px;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;">
+      ✂️ Grooming
+    </button>
+    <button id="stab-paseadores" onclick="switchServiciosTab('paseadores')"
+      style="flex:1;padding:9px 4px;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;">
+      🐕 Paseadores
+    </button>
+  </div>
+
+  <!-- ── SUB: TIENDAS ── -->
+  <div id="ssub-tiendas">
+    <div class="hero-banner">
+      <h2>Tiendas para tu mascota</h2>
+      <p>Pet shops, tiendas especializadas y online en Viña del Mar, Valparaíso y Concón</p>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-num">10</div><div class="stat-label">Tiendas</div></div>
+        <div class="stat"><div class="stat-num">4</div><div class="stat-label">Online</div></div>
+        <div class="stat"><div class="stat-num">3</div><div class="stat-label">Ciudades</div></div>
+      </div>
+    </div>
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" placeholder="Buscar tienda o producto..." id="searchTienda" oninput="renderTiendas()">
+    </div>
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="setFilterTienda(this,'todos')">Todas</button>
+      <button class="filter-btn" onclick="setFilterTienda(this,'fisica')">📍 Física</button>
+      <button class="filter-btn" onclick="setFilterTienda(this,'online')">🌐 Online</button>
+      <button class="filter-btn" onclick="setFilterTienda(this,'viña')">Viña</button>
+      <button class="filter-btn" onclick="setFilterTienda(this,'valpo')">Valpo</button>
+      <button class="filter-btn" onclick="setFilterTienda(this,'concon')">Concón</button>
+    </div>
+    <div id="tiendaList" style="display:flex;flex-direction:column;gap:12px;margin-top:8px;"></div>
+  </div>
+
+  <!-- ── SUB: GROOMING ── -->
+  <div id="ssub-grooming" style="display:none;">
+    <div class="hero-banner">
+      <h2>Peluquerías y Grooming</h2>
+      <p>Baño, corte, spa y más para que tu mascota esté siempre impecable</p>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-num">7</div><div class="stat-label">Locales</div></div>
+        <div class="stat"><div class="stat-num">3</div><div class="stat-label">Ciudades</div></div>
+        <div class="stat"><div class="stat-num">2</div><div class="stat-label">A domicilio</div></div>
+      </div>
+    </div>
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" placeholder="Buscar peluquería o servicio..." id="searchGrooming" oninput="renderGrooming()">
+    </div>
+    <div class="filter-row sub-filter-grooming">
+      <button class="filter-btn active" onclick="setFilterGrooming(this,'todos')">Todas</button>
+      <button class="filter-btn" onclick="setFilterGrooming(this,'viña')">Viña del Mar</button>
+      <button class="filter-btn" onclick="setFilterGrooming(this,'valpo')">Valparaíso</button>
+      <button class="filter-btn" onclick="setFilterGrooming(this,'concon')">Concón</button>
+    </div>
+    <div id="groomingList"></div>
+  </div>
+
+  <!-- ── SUB: PASEADORES ── -->
+  <div id="ssub-paseadores" style="display:none;">
+    <div class="hero-banner">
+      <h2>Paseadores de perros</h2>
+      <p>Profesionales verificados en Viña del Mar, Valparaíso y Concón</p>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-num">6</div><div class="stat-label">Paseadores</div></div>
+        <div class="stat"><div class="stat-num">4</div><div class="stat-label">Certificados</div></div>
+        <div class="stat"><div class="stat-num">3</div><div class="stat-label">Ciudades</div></div>
+      </div>
+    </div>
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" placeholder="Buscar paseador o zona..." id="searchPaseadores" oninput="renderPaseadores()">
+    </div>
+    <div class="filter-row sub-filter-paseadores">
+      <button class="filter-btn active" onclick="setFilterPaseadores(this,'todos')">Todos</button>
+      <button class="filter-btn" onclick="setFilterPaseadores(this,'viña')">Viña del Mar</button>
+      <button class="filter-btn" onclick="setFilterPaseadores(this,'valpo')">Valparaíso</button>
+      <button class="filter-btn" onclick="setFilterPaseadores(this,'concon')">Concón</button>
+    </div>
+    <div id="paseadoresList"></div>
+  </div>
+
+</div>
+
+<!-- ══ MI PERFIL ══ -->
+<div class="page" id="page-alergias" style="padding:0;position:relative;height:calc(100vh - 140px);overflow:hidden;">
+
+  <!-- HERO: foto mascota -->
+  <div id="perfilHero" style="position:relative;width:100%;height:420px;background:linear-gradient(135deg,#5C2FA8,#3DAF87);flex-shrink:0;">
+
+    <!-- Foto mascota -->
+    <div id="perfilMascotaPlaceholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:90px;">🐾</div>
+    <img id="perfilMascotaImg" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" alt="mascota">
+
+    <!-- Avatar dueño -->
+    <div style="position:absolute;top:16px;left:16px;z-index:10;">
+      <div id="perfilOwnerAvatar" onclick="document.getElementById('ownerFileInput').click()"
+        style="width:52px;height:52px;border-radius:50%;border:3px solid white;background:var(--purple);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.3);">
+        <span id="perfilOwnerInitial" style="font-size:22px;font-weight:700;color:white;line-height:1;">😊</span>
+        <img id="perfilOwnerImg" style="display:none;width:100%;height:100%;object-fit:cover;" alt="dueño">
+      </div>
+      <input type="file" id="ownerFileInput" accept="image/*" style="display:none;" onchange="cargarFotoDueno(this)">
+    </div>
+
+    <!-- Botón editar foto mascota -->
+    <button onclick="document.getElementById('mascotaFileInput').click()"
+      style="position:absolute;top:16px;right:16px;z-index:10;width:38px;height:38px;border-radius:50%;border:2px solid rgba(255,255,255,0.7);background:rgba(255,255,255,0.2);backdrop-filter:blur(4px);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    </button>
+    <input type="file" id="mascotaFileInput" accept="image/*" style="display:none;" onchange="cargarFotoMascota(this)">
+
+    <!-- Nombre mascota pill -->
+    <div style="position:absolute;bottom:90px;left:50%;transform:translateX(-50%);z-index:10;">
+      <div id="perfilMascotaPill"
+        style="background:rgba(255,255,255,0.25);backdrop-filter:blur(8px);border:1.5px solid rgba(255,255,255,0.4);border-radius:100px;padding:8px 20px;display:flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap;"
+        onclick="editarNombreMascota()">
+        <span style="font-size:16px;">🐾</span>
+        <span id="perfilMascotaNombre" style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:16px;color:white;">Mi mascota</span>
+        <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:rgba(255,255,255,0.8);fill:none;stroke-width:2;stroke-linecap:round;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD DESLIZABLE -->
+  <div id="perfilCard"
+    style="position:absolute;bottom:0;left:0;right:0;background:white;border-radius:24px 24px 0 0;transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);transform:translateY(calc(100% - 70px));z-index:20;box-shadow:0 -4px 30px rgba(0,0,0,0.15);height:calc(100vh - 140px - 350px);overflow-y:auto;">
+
+    <!-- Handle drag -->
+    <div id="perfilHandle" style="padding:12px 0 4px;display:flex;justify-content:center;cursor:pointer;" onclick="togglePerfilCard()">
+      <div style="width:40px;height:4px;background:#E0D8F0;border-radius:4px;"></div>
+    </div>
+
+    <!-- Nombre dueño visible siempre -->
+    <div style="padding:0 20px 14px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div id="perfilNombreDueno" style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:20px;color:var(--text);">Hola 👋</div>
+        <div id="perfilSubtitulo" style="font-size:12px;color:var(--text-muted);margin-top:2px;">Toca para ver tu perfil</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div id="perfilEspecieBadge" style="font-size:22px;"></div>
+        <!-- Botón editar -->
+        <button onclick="activarEdicion()"
+          style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border-md);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+          <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--purple);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Contenido dinámico (lectura o edición) -->
+    <div id="perfilCardContenido" style="padding:0 20px 16px;"></div>
+
+    <!-- Accesos rápidos -->
+    <div style="padding:0 20px 28px;display:flex;gap:10px;">
+      <button onclick="switchTab('recetas')"
+        style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:var(--peach-light);border:1.5px solid rgba(249,185,92,0.4);border-radius:var(--r);cursor:pointer;transition:all 0.2s;"
+        onmouseover="this.style.background='#fde9c4'" onmouseout="this.style.background='var(--peach-light)'">
+        <span style="font-size:26px;">🍲</span>
+        <span style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:13px;color:var(--text);">Recetas</span>
+        <span style="font-size:11px;color:var(--text-muted);">Para perros y gatos</span>
+      </button>
+      <button onclick="switchTab('recordatorios')"
+        style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:var(--purple-light);border:1.5px solid rgba(124,77,204,0.2);border-radius:var(--r);cursor:pointer;transition:all 0.2s;"
+        onmouseover="this.style.background='#e4d8f8'" onmouseout="this.style.background='var(--purple-light)'">
+        <span style="font-size:26px;">📅</span>
+        <span style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:13px;color:var(--text);">Recordatorios</span>
+        <span style="font-size:11px;color:var(--text-muted);">Vacunas y controles</span>
+      </button>
+    </div>
+
+  </div><!-- /perfilCard -->
+</div><!-- /page-alergias -->
+
+<!-- DETALLE CLÍNICA — página real dentro del sistema de tabs -->
+<div class="page" id="page-detail"></div>
+
+<!-- ══ RECETAS CASERAS ══ -->
+<div class="page" id="page-recetas">
+  <!-- mini nav de vuelta -->
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+    <button onclick="switchTab('alergias')" style="width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border-md);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--purple);fill:none;stroke-width:2.5;stroke-linecap:round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:22px;color:var(--text);">🍲 Recetas caseras</div>
+  </div>
+  <div style="font-size:14px;color:var(--text-muted);margin-bottom:18px;line-height:1.5;">Comida y snacks naturales para preparar en casa. Sin conservantes, sin aditivos.</div>
+
+  <div class="filter-row" id="sub-recetas">
+    <button class="filter-btn active" onclick="setFiltroRecetas(this,'todos')">Todos</button>
+    <button class="filter-btn" onclick="setFiltroRecetas(this,'perro')">🐕 Perros</button>
+    <button class="filter-btn" onclick="setFiltroRecetas(this,'gato')">🐈 Gatos</button>
+  </div>
+
+  <div id="recetasFeed"></div>
+</div>
+
+<!-- Modal detalle receta -->
+<div id="recetaModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.5);align-items:flex-end;justify-content:center;">
+  <div id="recetaModalBody" style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;"></div>
+</div>
+
+<!-- ══ RECORDATORIOS ══ -->
+<div class="page" id="page-recordatorios">
+  <!-- mini nav de vuelta -->
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+    <button onclick="switchTab('alergias')" style="width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border-md);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--purple);fill:none;stroke-width:2.5;stroke-linecap:round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:22px;color:var(--text);">📅 Recordatorios</div>
+  </div>
+  <div style="font-size:14px;color:var(--text-muted);margin-bottom:18px;line-height:1.5;">Vacunas, desparasitación y controles de tu mascota en un solo lugar.</div>
+  <div id="recordatoriosList"></div>
+  <button onclick="abrirFormRecordatorio()" class="btn-primary" style="margin-top:8px;">
+    <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Agregar recordatorio
+  </button>
+  <!-- Form recordatorio (oculto) -->
+  <div id="formRecordatorio" style="display:none;background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border-md);padding:18px;margin-top:16px;">
+    <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:16px;margin-bottom:14px;">Nuevo recordatorio</div>
+    <div style="display:flex;flex-direction:column;gap:11px;">
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">TIPO</label>
+        <select id="recTipo" style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
+          <option value="vacuna">💉 Vacuna</option>
+          <option value="desparasitacion">🐛 Desparasitación</option>
+          <option value="control">🩺 Control veterinario</option>
+          <option value="medicamento">💊 Medicamento</option>
+          <option value="grooming">✂️ Peluquería / Grooming</option>
+          <option value="otro">📌 Otro</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">DESCRIPCIÓN</label>
+        <input type="text" id="recDescripcion" placeholder="Ej: Vacuna antirrábica anual" style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">FECHA</label>
+        <input type="date" id="recFecha" style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">NOTAS (opcional)</label>
+        <textarea id="recNotas" placeholder="Clínica, dosis, observaciones..." style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;resize:vertical;min-height:60px;"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-ghost" onclick="cerrarFormRecordatorio()" style="flex:1;">Cancelar</button>
+        <button class="btn-primary" onclick="guardarRecordatorio()" style="flex:2;">Guardar 📅</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </div><!-- /app-pages -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="switchTab('restaurantes',this,true)">
+    <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
+    VETS
+  </button>
+  <button class="nav-btn" onclick="switchTab('asistente',this,true)">
+    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    ASISTENTE
+  </button>
+  <button class="nav-btn" onclick="switchTab('perdidos',this,true)">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+    PERDIDOS
+  </button>
+  <button class="nav-btn" onclick="switchTab('servicios',this,true)">
+    <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+    TIENDA
+  </button>
+  <button class="nav-btn" onclick="switchTab('alergias',this,true)" id="navAlergias">
+    <div class="nav-dot" id="navDot"></div>
+    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    MI PERFIL
+  </button>
+</nav>
+
+</div><!-- /app-column -->
+
+<!-- COLUMNA INFORMATIVA (solo visible en desktop) -->
+<div class="info-column">
+
+  <!-- Card 1: Sabías que -->
+  <div class="info-card">
+    <div class="info-card-tag">💡 ¿Sabías que?</div>
+    <h2>El 40% de los perros tiene sobrepeso en Chile</h2>
+    <p>La obesidad es la enfermedad nutricional más común en mascotas. Puede reducir hasta 2 años de vida y aumentar el riesgo de diabetes, artritis y problemas cardíacos.</p>
+    <div class="info-card-divider"></div>
+    <div class="info-stat-row">
+      <div class="info-stat">
+        <div class="info-stat-num">40%</div>
+        <div class="info-stat-label">con sobrepeso</div>
+      </div>
+      <div class="info-stat">
+        <div class="info-stat-num">-2</div>
+        <div class="info-stat-label">años de vida</div>
+      </div>
+      <div class="info-stat">
+        <div class="info-stat-num">80%</div>
+        <div class="info-stat-label">prevenible</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 2: Tips -->
+  <div class="info-card">
+    <div class="info-card-tag">🐾 Tips de cuidado animal</div>
+    <h2>Hábitos que alargan la vida de tu mascota</h2>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
+      <div class="info-tip">
+        <div class="info-tip-icon">🦷</div>
+        <div class="info-tip-text">
+          <strong>Cuida su dentadura</strong>
+          El 80% de los perros mayores de 3 años tiene enfermedad periodontal. Cepilla sus dientes 3 veces por semana.
+        </div>
+      </div>
+      <div class="info-tip">
+        <div class="info-tip-icon">💉</div>
+        <div class="info-tip-text">
+          <strong>Vacunas al día</strong>
+          Las vacunas anuales previenen enfermedades graves como moquillo, parvovirus y leptospirosis.
+        </div>
+      </div>
+      <div class="info-tip">
+        <div class="info-tip-icon">🔬</div>
+        <div class="info-tip-text">
+          <strong>Chequeo anual</strong>
+          Un examen veterinario al año detecta enfermedades a tiempo. Para seniors, cada 6 meses.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 3: Alimentos peligrosos -->
+  <div class="info-card">
+    <div class="info-card-tag">⚠️ Alimentos tóxicos para mascotas</div>
+    <h2>Nunca darle estos alimentos a tu perro o gato</h2>
+    <p>Algunos alimentos humanos son muy peligrosos para las mascotas:</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;">
+      <span style="background:rgba(93,214,168,0.2);color:#3DAF87;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid rgba(93,214,168,0.3);">🍫 Chocolate</span>
+      <span style="background:rgba(93,214,168,0.2);color:#3DAF87;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid rgba(93,214,168,0.3);">🧅 Cebolla y ajo</span>
+      <span style="background:rgba(93,214,168,0.2);color:#3DAF87;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid rgba(93,214,168,0.3);">🍇 Uvas y pasas</span>
+      <span style="background:rgba(93,214,168,0.2);color:#3DAF87;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid rgba(93,214,168,0.3);">🥑 Palta</span>
+      <span style="background:rgba(93,214,168,0.2);color:#3DAF87;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid rgba(93,214,168,0.3);">☕ Cafeína</span>
+      <span style="background:rgba(93,214,168,0.2);color:#3DAF87;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid rgba(93,214,168,0.3);">🍬 Xilitol</span>
+      <span style="background:rgba(93,214,168,0.2);color:#3DAF87;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid rgba(93,214,168,0.3);">🦴 Huesos cocidos</span>
+      <span style="background:rgba(93,214,168,0.2);color:#3DAF87;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid rgba(93,214,168,0.3);">🧂 Sal en exceso</span>
+    </div>
+  </div>
+
+</div><!-- /info-column -->
+</div><!-- /desktop-layout -->
+
+<!-- JS -->
+<script src="js/places.js"></script>
+<script src="js/onboarding.js"></script>
+<script src="js/app.js"></script>
+<script src="js/perdidos.js"></script>
+<script src="js/adoptar.js"></script>
+<script src="js/tiendas.js"></script>
+<script src="js/grooming.js"></script>
+<script src="js/paseadores.js"></script>
+<script src="js/recetas.js"></script>
+<script src="js/recordatorios.js"></script>
+<script src="js/perfil.js"></script>
+
+<!-- PWA: Service Worker registration -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('[Wufly SW] Registrado:', reg.scope))
+        .catch(err => console.warn('[Wufly SW] Error al registrar:', err));
+    });
+  }
+
+  // Manejar tab desde URL (para shortcuts del manifest)
+  const urlParams = new URLSearchParams(location.search);
+  const tabParam = urlParams.get('tab');
+  if (tabParam) {
+    window.addEventListener('DOMContentLoaded', () => {
+      const valid = ['restaurantes','asistente','scanner','tiendas','alergias'];
+      if (valid.includes(tabParam)) switchTab(tabParam);
+    });
+  }
+</script>
+
+</body>
+</html>

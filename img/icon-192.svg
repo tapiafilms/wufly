@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <rect width="192" height="192" rx="42" fill="#7C4DCC"/>
+  <!-- Paw print -->
+  <!-- Main pad -->
+  <ellipse cx="96" cy="112" rx="28" ry="24" fill="white" opacity="0.95"/>
+  <!-- Toe pads -->
+  <ellipse cx="64" cy="82" rx="12" ry="14" fill="white" opacity="0.95"/>
+  <ellipse cx="84" cy="68" rx="11" ry="13" fill="white" opacity="0.95"/>
+  <ellipse cx="108" cy="68" rx="11" ry="13" fill="white" opacity="0.95"/>
+  <ellipse cx="128" cy="82" rx="12" ry="14" fill="white" opacity="0.95"/>
+  <!-- Accent dot -->
+  <circle cx="140" cy="52" r="8" fill="#5DD6A8"/>
+</svg>

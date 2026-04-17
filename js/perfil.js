@@ -1,0 +1,322 @@
+/* ══════════════════════════════════════
+   PERFIL WUFLY — Card deslizable
+   Modo lectura / modo edición
+   ══════════════════════════════════════ */
+
+const PERFIL_KEY = 'wufly_profile_v1';
+let perfilCardOpen = false;
+let perfilModoEdicion = false;
+
+const saludOpciones = [
+  { val: 'Alergia alimentaria',   emoji: '🥣' },
+  { val: 'Problemas digestivos',  emoji: '🫁' },
+  { val: 'Diabetes',              emoji: '💉' },
+  { val: 'Enfermedad renal',      emoji: '🫘' },
+  { val: 'Problemas articulares', emoji: '🦴' },
+  { val: 'Problemas de piel',     emoji: '🐾' },
+  { val: 'Sobrepeso',             emoji: '⚖️' },
+  { val: 'Saludable',             emoji: '✅' },
+];
+
+const especieEmoji = { perro: '🐕', gato: '🐈', otro: '🐾' };
+const edadLabel = { cachorro:'Cachorro', joven:'Joven', adulto:'Adulto', senior:'Senior' };
+
+/* ── Storage ── */
+function cargarPerfilLocal() {
+  try { const r = localStorage.getItem(PERFIL_KEY); return r ? JSON.parse(r) : {}; }
+  catch { return {}; }
+}
+
+/* ── Toggle card deslizable ── */
+function togglePerfilCard() {
+  perfilCardOpen = !perfilCardOpen;
+  const card = document.getElementById('perfilCard');
+  if (!card) return;
+  card.style.transform = perfilCardOpen ? 'translateY(0)' : 'translateY(calc(100% - 70px))';
+}
+
+/* ── Activar modo edición ── */
+function activarEdicion() {
+  perfilModoEdicion = true;
+  const p = cargarPerfilLocal();
+  renderCardContenido(p, true);
+  // Abrir card si estaba cerrada
+  if (!perfilCardOpen) {
+    perfilCardOpen = true;
+    document.getElementById('perfilCard').style.transform = 'translateY(0)';
+  }
+}
+
+/* ── Guardar y volver a modo lectura ── */
+function guardarPerfilEdits() {
+  const p = cargarPerfilLocal();
+  p.nombre        = document.getElementById('editNombreDueno')?.value.trim()  || p.nombre  || '';
+  p.nombreMascota = document.getElementById('editNombreMascota')?.value.trim() || p.nombreMascota || '';
+  p.tipomascota   = document.getElementById('editEspecie')?.value  || p.tipomascota || 'perro';
+  p.edadmascota   = document.getElementById('editEdad')?.value     || p.edadmascota || 'adulto';
+  p.salud = [...document.querySelectorAll('#saludChipsEdit .salud-chip.selected')].map(c => c.dataset.val);
+  localStorage.setItem(PERFIL_KEY, JSON.stringify(p));
+
+  perfilModoEdicion = false;
+  renderPerfilUI(p);
+
+  // Feedback en botón
+  const btn = document.getElementById('btnGuardarPerfil');
+  if (btn) {
+    btn.textContent = '✓ Guardado';
+    btn.style.background = 'var(--mint)';
+    setTimeout(() => { btn.textContent = 'Guardar cambios'; btn.style.background = ''; }, 1800);
+  }
+}
+
+/* ── Cancelar edición ── */
+function cancelarEdicion() {
+  perfilModoEdicion = false;
+  renderPerfilUI(cargarPerfilLocal());
+}
+
+/* ── Render principal ── */
+function renderPerfilUI(p) {
+  if (!p) return;
+
+  // Pill nombre mascota
+  const pillNombre = document.getElementById('perfilMascotaNombre');
+  if (pillNombre) pillNombre.textContent = p.nombreMascota || 'Mi mascota';
+
+  // Nombre dueño
+  const nombreDueno = document.getElementById('perfilNombreDueno');
+  if (nombreDueno) nombreDueno.textContent = p.nombre ? `Hola, ${p.nombre} 👋` : 'Hola 👋';
+
+  // Subtítulo
+  const subtitulo = document.getElementById('perfilSubtitulo');
+  if (subtitulo) {
+    const nombre = p.nombreMascota || 'tu mascota';
+    const especie = especieEmoji[p.tipomascota] || '🐾';
+    const edad = edadLabel[p.edadmascota] || '';
+    subtitulo.textContent = `${especie} ${nombre}${edad ? ' · ' + edad : ''}`;
+  }
+
+  // Badge especie
+  const badge = document.getElementById('perfilEspecieBadge');
+  if (badge) badge.textContent = especieEmoji[p.tipomascota] || '🐾';
+
+  // Avatar inicial
+  const initial = document.getElementById('perfilOwnerInitial');
+  if (initial) initial.textContent = p.nombre ? p.nombre.charAt(0).toUpperCase() : '😊';
+
+  // Fotos
+  if (p.fotoMascota) {
+    const img = document.getElementById('perfilMascotaImg');
+    const ph  = document.getElementById('perfilMascotaPlaceholder');
+    if (img) { img.src = p.fotoMascota; img.style.display = 'block'; }
+    if (ph)  ph.style.display = 'none';
+  }
+  if (p.fotoDueno) {
+    const img  = document.getElementById('perfilOwnerImg');
+    const init = document.getElementById('perfilOwnerInitial');
+    if (img)  { img.src = p.fotoDueno; img.style.display = 'block'; }
+    if (init) init.style.display = 'none';
+  }
+
+  // Contenido card según modo
+  renderCardContenido(p, perfilModoEdicion);
+}
+
+/* ── Render contenido card (lectura o edición) ── */
+function renderCardContenido(p, edicion) {
+  const wrap = document.getElementById('perfilCardContenido');
+  if (!wrap) return;
+
+  if (edicion) {
+    // ── MODO EDICIÓN ──
+    wrap.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:14px;">
+
+        <div style="background:var(--bg);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">DUEÑO</div>
+          <input type="text" id="editNombreDueno" value="${p.nombre || ''}" placeholder="Tu nombre..."
+            style="border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
+        </div>
+
+        <div style="background:var(--bg);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">MASCOTA</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--text-muted);">NOMBRE</label>
+              <input type="text" id="editNombreMascota" value="${p.nombreMascota || ''}" placeholder="Nombre..."
+                style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--text-muted);">ESPECIE</label>
+              <select id="editEspecie"
+                style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
+                <option value="perro" ${p.tipomascota==='perro'?'selected':''}>🐕 Perro</option>
+                <option value="gato"  ${p.tipomascota==='gato'?'selected':''}>🐈 Gato</option>
+                <option value="otro"  ${p.tipomascota==='otro'?'selected':''}>🐾 Otro</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--text-muted);">EDAD</label>
+            <select id="editEdad"
+              style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
+              <option value="cachorro" ${p.edadmascota==='cachorro'?'selected':''}>🍼 Cachorro — menos de 1 año</option>
+              <option value="joven"    ${p.edadmascota==='joven'?'selected':''}>⚡ Joven — 1 a 3 años</option>
+              <option value="adulto"   ${p.edadmascota==='adulto'?'selected':''}>🌟 Adulto — 3 a 8 años</option>
+              <option value="senior"   ${p.edadmascota==='senior'?'selected':''}>🏅 Senior — más de 8 años</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="background:var(--bg);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">CONDICIONES DE SALUD</div>
+          <div id="saludChipsEdit" style="display:flex;flex-wrap:wrap;gap:8px;">
+            ${saludOpciones.map(s => {
+              const sel = (p.salud || []).includes(s.val);
+              return `<div class="salud-chip ${sel ? 'selected' : ''}" data-val="${s.val}" onclick="toggleSaludChip(this)"
+                style="display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;border:1.5px solid;
+                ${sel ? 'background:#5DD6A8;color:#1a3a2a;border-color:#5DD6A8;' : 'background:white;color:var(--text-muted);border-color:var(--border-md);'}">
+                ${s.emoji} ${s.val}
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <button class="btn-ghost" onclick="cancelarEdicion()" style="flex:1;">Cancelar</button>
+          <button id="btnGuardarPerfil" class="btn-primary" onclick="guardarPerfilEdits()" style="flex:2;">Guardar cambios</button>
+        </div>
+      </div>`;
+
+  } else {
+    // ── MODO LECTURA ──
+    const tieneData = p.nombre || p.nombreMascota;
+    const salud = (p.salud || []).filter(s => s !== 'Saludable');
+
+    wrap.innerHTML = tieneData ? `
+      <div style="display:flex;flex-direction:column;gap:12px;">
+
+        <div style="background:var(--bg);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">DUEÑO</div>
+          </div>
+          <div style="font-size:15px;font-weight:600;color:var(--text);">${p.nombre || '—'}</div>
+        </div>
+
+        <div style="background:var(--bg);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">MASCOTA</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:28px;">${especieEmoji[p.tipomascota] || '🐾'}</span>
+            <div>
+              <div style="font-family:'Funnel Display',sans-serif;font-size:18px;font-weight:700;color:var(--text);">${p.nombreMascota || '—'}</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:1px;">${edadLabel[p.edadmascota] || ''}</div>
+            </div>
+          </div>
+        </div>
+
+        ${salud.length > 0 ? `
+        <div style="background:var(--bg);border-radius:14px;padding:14px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:8px;">CONDICIONES DE SALUD</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            ${salud.map(s => {
+              const op = saludOpciones.find(x => x.val === s);
+              return `<span style="font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;background:var(--mint-light);color:var(--mint-dark);">${op ? op.emoji : '•'} ${s}</span>`;
+            }).join('')}
+          </div>
+        </div>` : `
+        <div style="background:var(--bg);border-radius:14px;padding:14px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:4px;">CONDICIONES DE SALUD</div>
+          <div style="font-size:13px;color:var(--text-hint);">✅ Sin condiciones especiales</div>
+        </div>`}
+
+      </div>` : `
+      <div style="text-align:center;padding:20px;color:var(--text-muted);">
+        <div style="font-size:36px;margin-bottom:8px;">🐾</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Completa tu perfil</div>
+        <div style="font-size:12px;margin-bottom:16px;">La IA usará esta info para personalizar cada consulta</div>
+        <button class="btn-primary" onclick="activarEdicion()">Completar perfil</button>
+      </div>`;
+  }
+}
+
+function toggleSaludChip(el) {
+  el.classList.toggle('selected');
+  const sel = el.classList.contains('selected');
+  el.style.background  = sel ? '#5DD6A8' : 'white';
+  el.style.color       = sel ? '#1a3a2a' : 'var(--text-muted)';
+  el.style.borderColor = sel ? '#5DD6A8' : 'var(--border-md)';
+}
+
+/* ── Fotos ── */
+function cargarFotoMascota(input) {
+  const f = input.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    const img = document.getElementById('perfilMascotaImg');
+    const ph  = document.getElementById('perfilMascotaPlaceholder');
+    if (img) { img.src = ev.target.result; img.style.display = 'block'; }
+    if (ph)  ph.style.display = 'none';
+    const p = cargarPerfilLocal(); p.fotoMascota = ev.target.result;
+    localStorage.setItem(PERFIL_KEY, JSON.stringify(p));
+  };
+  r.readAsDataURL(f);
+}
+
+function cargarFotoDueno(input) {
+  const f = input.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    const img  = document.getElementById('perfilOwnerImg');
+    const init = document.getElementById('perfilOwnerInitial');
+    if (img)  { img.src = ev.target.result; img.style.display = 'block'; }
+    if (init) init.style.display = 'none';
+    const p = cargarPerfilLocal(); p.fotoDueno = ev.target.result;
+    localStorage.setItem(PERFIL_KEY, JSON.stringify(p));
+  };
+  r.readAsDataURL(f);
+}
+
+/* ── Nombre mascota en pill ── */
+function editarNombreMascota() {
+  if (!perfilModoEdicion) { activarEdicion(); return; }
+  const pill = document.getElementById('perfilMascotaNombre');
+  if (!pill) return;
+  const nuevo = prompt('Nombre de tu mascota:', pill.textContent);
+  if (nuevo?.trim()) { pill.textContent = nuevo.trim(); }
+}
+
+/* ── Swipe gesture ── */
+function initSwipeGesture() {
+  const card   = document.getElementById('perfilCard');
+  const handle = document.getElementById('perfilHandle');
+  if (!card || !handle) return;
+  let startY = 0;
+
+  handle.addEventListener('touchstart', e => {
+    startY = e.touches[0].clientY;
+    card.style.transition = 'none';
+  }, { passive: true });
+
+  handle.addEventListener('touchmove', e => {
+    const dy = e.touches[0].clientY - startY;
+    const cardH = card.offsetHeight;
+    const current = perfilCardOpen ? 0 : cardH - 70;
+    const newVal = Math.max(0, Math.min(cardH - 70, current + dy));
+    card.style.transform = `translateY(${newVal}px)`;
+  }, { passive: true });
+
+  handle.addEventListener('touchend', e => {
+    card.style.transition = 'transform 0.4s cubic-bezier(0.4,0,0.2,1)';
+    const dy = e.changedTouches[0].clientY - startY;
+    if (dy < -40)      { perfilCardOpen = true;  card.style.transform = 'translateY(0)'; }
+    else if (dy > 40)  { perfilCardOpen = false; card.style.transform = 'translateY(calc(100% - 70px))'; }
+    else togglePerfilCard();
+  }, { passive: true });
+}
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', () => {
+  const p = cargarPerfilLocal();
+  renderPerfilUI(p);
+  initSwipeGesture();
+});
