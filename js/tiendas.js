@@ -226,11 +226,14 @@ function renderTiendas() {
            style="font-size:11px;color:var(--purple);font-weight:700;text-decoration:none;" onclick="event.stopPropagation()">🗺 Cómo llegar</a>`
       : '';
 
-    const cardClassT = t.fromOSM ? 'place-card' : 'place-card-conectado';
+    const tieneVitrina = !t.fromOSM && typeof vitrinas !== 'undefined' && vitrinas.some(v => v.negocioId === t.id);
+    const cardClassT = t.fromOSM ? 'place-card' : (tieneVitrina ? 'place-card-vitrina' : 'place-card-conectado');
     const tierBadgeT = t.fromOSM
       ? `<span style="display:inline-flex;align-items:center;gap:3px;background:var(--bg);color:var(--text-hint);font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;border:1px solid var(--border);margin-bottom:6px;">📍 Básico</span><br>`
+      : tieneVitrina
+      ? `<span class="badge-vitrina">⭐ Vitrina</span><br>`
       : `<span class="badge-conectado">⚡ Conectado</span><br>`;
-    const iconBgT    = t.fromOSM ? 'var(--bg)' : '#DCFCE7';
+    const iconBgT    = t.fromOSM ? 'var(--bg)' : (tieneVitrina ? '#FEF3C7' : '#DCFCE7');
     const clickAttrT = t.fromOSM ? '' : `onclick="openTienda('${t.id}')"`;
 
     return separador + `
@@ -266,6 +269,9 @@ function renderTiendas() {
 function openTienda(id) {
   const t = tiendas.find(x => x.id === id);
   if (!t) return;
+  // Si tiene vitrina, abrirla (registrarClick se hace dentro de abrirVitrina)
+  if (typeof abrirVitrina === 'function' && abrirVitrina(id, 'tiendas')) return;
+  // Si no, flujo normal
   registrarClick(t.id, t.nombre, 'tiendas');
   if (t.web) {
     window.open('https://' + t.web, '_blank');
