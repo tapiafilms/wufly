@@ -264,15 +264,19 @@ function renderClinicas() {
            onclick="event.stopPropagation()">🗺 Cómo llegar</a>`
       : '';
 
-    const cardClass       = c.fromOSM ? 'place-card' : 'place-card-verificado';
-    const verificadoBadge = c.fromOSM ? '' : `<span class="badge-wufly">✓ Verificado Wufly</span><br>`;
+    const cardClass = c.fromOSM ? 'place-card' : 'place-card-conectado';
+    const tierBadge = c.fromOSM
+      ? `<span style="display:inline-flex;align-items:center;gap:3px;background:var(--bg);color:var(--text-hint);font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;border:1px solid var(--border);margin-bottom:6px;">📍 Básico</span><br>`
+      : `<span class="badge-conectado">⚡ Conectado</span><br>`;
+    const iconBg    = c.fromOSM ? 'var(--bg)' : '#DCFCE7';
+    const clickAttr = c.fromOSM ? '' : `onclick="openClinica('${c.id}')"`;
 
     return separador + `
-    <div class="${cardClass}" onclick="openClinica('${c.id}')">
+    <div class="${cardClass}" ${clickAttr}>
       <div class="place-card-inner">
-        <div class="place-icon" style="background:${c.fromOSM ? 'var(--bg)' : 'var(--purple-light)'};">${c.icon}</div>
+        <div class="place-icon" style="background:${iconBg};">${c.icon}</div>
         <div class="place-info">
-          ${verificadoBadge}
+          ${tierBadge}
           ${distBadge}
           <div class="place-name">${c.name}</div>
           <div class="place-type">${c.type}</div>
@@ -286,7 +290,7 @@ function renderClinicas() {
             <span class="place-address">📍 ${c.address || '—'}</span>
             ${c.tel ? `<a href="tel:${c.tel}" class="place-tel" onclick="event.stopPropagation()">${c.tel}</a>` : ''}
           </div>
-          ${mapLink}
+          ${c.fromOSM ? '' : mapLink}
         </div>
       </div>
     </div>`;

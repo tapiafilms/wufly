@@ -392,43 +392,107 @@ body {
 
 /* ── PLACE CARDS ── */
 
-/* Resultado orgánico (OpenStreetMap) */
+/* TIER 1 — Resultado orgánico (OpenStreetMap) — solo informativo, no clickeable */
 .place-card {
   background: var(--surface);
   border-radius: var(--r);
   border: 1.5px solid var(--border);
   padding: 16px;
   margin-bottom: 12px;
-  transition: all 0.2s;
-  cursor: pointer;
   box-shadow: var(--shadow-sm);
+  cursor: default;
+  opacity: 0.82;
 }
-.place-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
 
-/* Listing verificado por Wufly (premium) */
-.place-card-verificado {
-  background: linear-gradient(150deg, #FAFBFF 0%, #F3EEFF 100%);
+/* TIER 2 — Conectado (pagado regular) — clickeable, color ámbar/verde */
+.place-card-conectado {
+  background: linear-gradient(150deg, #F6FFF9 0%, #EDFAF3 100%);
   border-radius: var(--r);
-  border: 1.5px solid rgba(124,77,204,0.22);
-  border-left: 4px solid var(--purple);
+  border: 1.5px solid rgba(16,185,129,0.22);
+  border-left: 4px solid #10B981;
   padding: 16px;
   margin-bottom: 12px;
   transition: all 0.2s;
   cursor: pointer;
-  box-shadow: 0 2px 14px rgba(124,77,204,0.10);
+  box-shadow: 0 2px 14px rgba(16,185,129,0.10);
+}
+.place-card-conectado:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(16,185,129,0.18);
+  border-color: rgba(16,185,129,0.4);
+}
+
+/* TIER 3 — Vitrina (pagado premium) — reservado para futuro */
+.place-card-vitrina {
+  background: linear-gradient(150deg, #FFFBF0 0%, #FFF3D0 100%);
+  border-radius: var(--r);
+  border: 1.5px solid rgba(245,158,11,0.28);
+  border-left: 4px solid #F59E0B;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.2s;
+  cursor: pointer;
+  box-shadow: 0 2px 14px rgba(245,158,11,0.12);
+}
+.place-card-vitrina:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(245,158,11,0.22);
+  border-color: rgba(245,158,11,0.5);
+}
+
+/* Mantener clase antigua como alias para no romper código existente */
+.place-card-verificado {
+  background: linear-gradient(150deg, #F6FFF9 0%, #EDFAF3 100%);
+  border-radius: var(--r);
+  border: 1.5px solid rgba(16,185,129,0.22);
+  border-left: 4px solid #10B981;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.2s;
+  cursor: pointer;
+  box-shadow: 0 2px 14px rgba(16,185,129,0.10);
 }
 .place-card-verificado:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(124,77,204,0.18);
-  border-color: rgba(124,77,204,0.4);
+  box-shadow: 0 6px 24px rgba(16,185,129,0.18);
 }
 
-/* Badge "✓ Verificado Wufly" */
+/* Badge tier 2 — Conectado */
+.badge-conectado {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: linear-gradient(135deg, #059669, #10B981);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 100px;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+/* Badge tier 3 — Vitrina */
+.badge-vitrina {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: linear-gradient(135deg, #D97706, #F59E0B);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 100px;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+/* Badge viejo como alias */
 .badge-wufly {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background: linear-gradient(135deg, #7C4DCC, #9B6BE0);
+  background: linear-gradient(135deg, #059669, #10B981);
   color: white;
   font-size: 10px;
   font-weight: 700;

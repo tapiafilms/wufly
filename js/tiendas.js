@@ -226,16 +226,19 @@ function renderTiendas() {
            style="font-size:11px;color:var(--purple);font-weight:700;text-decoration:none;" onclick="event.stopPropagation()">🗺 Cómo llegar</a>`
       : '';
 
-    const cardClassT       = t.fromOSM ? 'place-card' : 'place-card-verificado';
-    const verificadoBadgeT = t.fromOSM ? '' : `<span class="badge-wufly">✓ Verificado Wufly</span><br>`;
-    const iconBgT          = t.fromOSM ? 'var(--bg)' : 'var(--purple-light)';
+    const cardClassT = t.fromOSM ? 'place-card' : 'place-card-conectado';
+    const tierBadgeT = t.fromOSM
+      ? `<span style="display:inline-flex;align-items:center;gap:3px;background:var(--bg);color:var(--text-hint);font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;border:1px solid var(--border);margin-bottom:6px;">📍 Básico</span><br>`
+      : `<span class="badge-conectado">⚡ Conectado</span><br>`;
+    const iconBgT    = t.fromOSM ? 'var(--bg)' : '#DCFCE7';
+    const clickAttrT = t.fromOSM ? '' : `onclick="openTienda('${t.id}')"`;
 
     return separador + `
-      <div class="${cardClassT}" onclick="openTienda('${t.id}')">
+      <div class="${cardClassT}" ${clickAttrT}>
         <div class="place-card-inner">
           <div class="place-icon" style="background:${iconBgT};">${t.icon}</div>
           <div class="place-info">
-            ${verificadoBadgeT}
+            ${tierBadgeT}
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap;">
               ${distBadge}
               <div class="place-name">${t.nombre}</div>
@@ -249,11 +252,11 @@ function renderTiendas() {
             <div style="margin-top:8px;display:flex;flex-direction:column;gap:3px;">
               ${t.address ? `<div style="font-size:11px;color:var(--text-muted);">📍 ${t.address}</div>` : ''}
               ${t.horario ? `<div style="font-size:11px;color:var(--text-muted);">🕐 ${t.horario}</div>` : ''}
-              ${t.web ? `<div style="font-size:11px;color:var(--purple);">🌐 ${t.web}</div>` : ''}
-              ${mapLink}
+              ${t.web ? `<div style="font-size:11px;color:#059669;">🌐 ${t.web}</div>` : ''}
+              ${t.fromOSM ? '' : mapLink}
             </div>
           </div>
-          <div style="flex-shrink:0;color:var(--text-hint);font-size:18px;align-self:center;">›</div>
+          ${t.fromOSM ? '' : `<div style="flex-shrink:0;color:#10B981;font-size:18px;align-self:center;">›</div>`}
         </div>
       </div>`;
   }).join('');

@@ -223,16 +223,18 @@ function renderGrooming() {
          </a>`
       : '';
 
-    const cardClassG       = g.fromOSM ? 'place-card' : 'place-card-verificado';
-    const verificadoBadgeG = g.fromOSM ? '' : `<span class="badge-wufly">✓ Verificado Wufly</span><br>`;
-    const iconBgG          = g.fromOSM ? 'var(--bg)' : 'var(--mint-light)';
+    const cardClassG = g.fromOSM ? 'place-card' : 'place-card-conectado';
+    const tierBadgeG = g.fromOSM
+      ? `<span style="display:inline-flex;align-items:center;gap:3px;background:var(--bg);color:var(--text-hint);font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;border:1px solid var(--border);margin-bottom:6px;">📍 Básico</span><br>`
+      : `<span class="badge-conectado">⚡ Conectado</span><br>`;
+    const iconBgG = g.fromOSM ? 'var(--bg)' : '#DCFCE7';
 
     return separador + `
     <div class="${cardClassG}">
       <div style="display:flex;gap:12px;align-items:flex-start;">
         <div style="width:44px;height:44px;min-width:44px;background:${iconBgG};border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">${g.icon}</div>
         <div style="flex:1;min-width:0;">
-          ${verificadoBadgeG}
+          ${tierBadgeG}
           ${distBadge}
           ${g.destacado ? `<div style="font-size:10px;font-weight:700;color:var(--mint-dark);letter-spacing:0.05em;margin-bottom:3px;">⭐ DESTACADO</div>` : ''}
           <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:2px;">${g.name}</div>
