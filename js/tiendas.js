@@ -147,12 +147,15 @@ function renderTiendas() {
 
   const q = (document.getElementById('searchTienda')?.value || '').toLowerCase();
 
-  let fuente;
+  const geoDisponibleT = typeof geoResults !== 'undefined' && geoResults.tiendas.length > 0;
+
+  let fuente, geoFuenteT = [], staticFuenteT = [];
+
   if (tiendaFilter === 'geo') {
-    fuente = (typeof geoResults !== 'undefined' ? geoResults.tiendas : [])
+    fuente = geoResults.tiendas
       .filter(t => !q || t.nombre.toLowerCase().includes(q) || t.address.toLowerCase().includes(q));
   } else {
-    fuente = tiendas.filter(t => {
+    staticFuenteT = tiendas.filter(t => {
       const matchFilter =
         tiendaFilter === 'todos' ||
         tiendaFilter === t.tipo  ||
@@ -163,6 +166,11 @@ function renderTiendas() {
         t.categorias.some(c => c.toLowerCase().includes(q));
       return matchFilter && matchSearch;
     });
+    if (tiendaFilter === 'todos' && geoDisponibleT) {
+      geoFuenteT = geoResults.tiendas
+        .filter(t => !q || t.nombre.toLowerCase().includes(q) || t.address.toLowerCase().includes(q));
+    }
+    fuente = [...geoFuenteT, ...staticFuenteT];
   }
 
   if (!fuente.length) {
@@ -179,7 +187,12 @@ function renderTiendas() {
     return;
   }
 
-  list.innerHTML = fuente.map(t => {
+  const sepIdxT = geoFuenteT.length;
+
+  list.innerHTML = fuente.map((t, i) => {
+    const separador = (tiendaFilter === 'todos' && geoFuenteT.length > 0 && i === sepIdxT)
+      ? `<div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;padding:12px 4px 6px;">VERIFICADAS POR WUFLY</div>`
+      : '';
     const isOnline      = t.tipo === 'online';
     const tipoBadgeBg   = isOnline ? '#E6F9F3' : '#F0EAFB';
     const tipoBadgeClr  = isOnline ? '#3DAF87' : '#7C4DCC';
@@ -193,7 +206,7 @@ function renderTiendas() {
            style="font-size:11px;color:var(--purple);font-weight:700;text-decoration:none;" onclick="event.stopPropagation()">🗺 Cómo llegar</a>`
       : '';
 
-    return `
+    return separador + `
       <div class="place-card" onclick="openTienda('${t.id}')" style="cursor:pointer;">
         <div class="place-card-inner">
           <div class="place-icon" style="background:var(--purple-light);">${t.icon}</div>

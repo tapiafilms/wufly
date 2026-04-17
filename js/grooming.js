@@ -128,12 +128,15 @@ function renderGrooming() {
 
   const q = (document.getElementById('searchGrooming')?.value || '').toLowerCase();
 
-  let fuente;
+  const geoDisponibleG = typeof geoResults !== 'undefined' && geoResults.grooming.length > 0;
+
+  let fuente, geoFuenteG = [], staticFuenteG = [];
+
   if (groomingFilter === 'geo') {
-    fuente = (typeof geoResults !== 'undefined' ? geoResults.grooming : [])
+    fuente = geoResults.grooming
       .filter(g => !q || g.name.toLowerCase().includes(q) || g.address.toLowerCase().includes(q));
   } else {
-    fuente = grooming.filter(g => {
+    staticFuenteG = grooming.filter(g => {
       const matchFilter =
         groomingFilter === 'todos' ||
         (groomingFilter === 'viña'   && g.city === 'viña')  ||
@@ -145,6 +148,11 @@ function renderGrooming() {
         g.tags.some(t => t.toLowerCase().includes(q));
       return matchFilter && matchSearch;
     });
+    if (groomingFilter === 'todos' && geoDisponibleG) {
+      geoFuenteG = geoResults.grooming
+        .filter(g => !q || g.name.toLowerCase().includes(q) || g.address.toLowerCase().includes(q));
+    }
+    fuente = [...geoFuenteG, ...staticFuenteG];
   }
 
   if (fuente.length === 0) {
@@ -158,7 +166,12 @@ function renderGrooming() {
     return;
   }
 
-  list.innerHTML = fuente.map(g => {
+  const sepIdxG = geoFuenteG.length;
+
+  list.innerHTML = fuente.map((g, i) => {
+    const separador = (groomingFilter === 'todos' && geoFuenteG.length > 0 && i === sepIdxG)
+      ? `<div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;padding:12px 4px 6px;">VERIFICADAS POR WUFLY</div>`
+      : '';
     const stars     = g.rating ? '★'.repeat(Math.round(g.rating)) + '☆'.repeat(5 - Math.round(g.rating)) : '';
     const wspNum    = (g.wsp || '').replace(/\D/g, '');
     const distBadge = g.distKm != null
@@ -177,7 +190,7 @@ function renderGrooming() {
          </a>`
       : '';
 
-    return `
+    return separador + `
     <div style="background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border);padding:16px;margin-bottom:12px;box-shadow:var(--shadow-sm);">
       <div style="display:flex;gap:12px;align-items:flex-start;">
         <div style="width:44px;height:44px;min-width:44px;background:var(--mint-light);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">${g.icon}</div>

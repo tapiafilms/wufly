@@ -203,12 +203,17 @@ function renderClinicas() {
 
   const q = (document.getElementById('searchClinica')?.value || '').toLowerCase();
 
-  let fuente;
+  const geoDisponible = typeof geoResults !== 'undefined' && geoResults.clinicas.length > 0;
+
+  let fuente, geoFuente = [], staticFuente = [];
+
   if (clinicaFilter === 'geo') {
-    fuente = (typeof geoResults !== 'undefined' ? geoResults.clinicas : [])
+    // Solo resultados geo
+    fuente = geoResults.clinicas
       .filter(c => !q || c.name.toLowerCase().includes(q) || c.address.toLowerCase().includes(q));
   } else {
-    fuente = clinicas.filter(c => {
+    // Estáticos filtrados
+    staticFuente = clinicas.filter(c => {
       const matchFilter =
         clinicaFilter === 'todos' ||
         (clinicaFilter === 'urgencia' && c.urgencia) ||
@@ -221,6 +226,12 @@ function renderClinicas() {
         c.tags.some(t => t.toLowerCase().includes(q));
       return matchFilter && matchSearch;
     });
+    // Si es "Todas" y hay resultados geo, preponerlos
+    if (clinicaFilter === 'todos' && geoDisponible) {
+      geoFuente = geoResults.clinicas
+        .filter(c => !q || c.name.toLowerCase().includes(q) || c.address.toLowerCase().includes(q));
+    }
+    fuente = [...geoFuente, ...staticFuente];
   }
 
   if (fuente.length === 0) {
@@ -234,7 +245,13 @@ function renderClinicas() {
     return;
   }
 
-  list.innerHTML = fuente.map(c => {
+  const separadorIdx = geoFuente.length; // índice donde terminan geo y empiezan estáticos
+
+  list.innerHTML = fuente.map((c, i) => {
+    // Separador visual entre resultados geo y estáticos
+    const separador = (clinicaFilter === 'todos' && geoFuente.length > 0 && i === separadorIdx)
+      ? `<div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;padding:12px 4px 6px;">VERIFICADAS POR WUFLY</div>`
+      : '';
     const distBadge = c.distKm != null
       ? `<span style="display:inline-block;background:var(--purple-light);color:var(--purple);font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;margin-bottom:5px;">📍 ${fmtDist(c.distKm)}</span><br>`
       : '';
@@ -247,7 +264,7 @@ function renderClinicas() {
            onclick="event.stopPropagation()">🗺 Cómo llegar</a>`
       : '';
 
-    return `
+    return separador + `
     <div class="place-card" onclick="openClinica('${c.id}')">
       <div class="place-card-inner">
         <div class="place-icon">${c.icon}</div>
