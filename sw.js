@@ -6,7 +6,7 @@
    - Imágenes                           → Cache First
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'wufly-v2';
+const CACHE_NAME = 'wufly-v3';
 const API_HOST = 'divine-waterfall-d1dfsin-gluten-life.pablo77tapia.workers.dev';
 
 const STATIC_ASSETS = [
@@ -27,8 +27,8 @@ const STATIC_ASSETS = [
   '/js/geo.js',
   '/js/perfil.js',
   '/js/chat.js',
-  '/img/icon-192.svg',
-  '/img/icon-512.svg',
+  '/img/logo.png',
+  '/img/icono.png',
   'https://fonts.googleapis.com/css2?family=Funnel+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap',
 ];
 
