@@ -47,7 +47,7 @@ function switchTab(name, el, fromNav = false) {
 
 /* ══ SUB-TABS DE SERVICIOS ══ */
 function switchServiciosTab(tab) {
-  const subs = ['tiendas', 'grooming', 'paseadores'];
+  const subs = ['tiendas', 'grooming', 'paseadores', 'arte'];
   subs.forEach(s => {
     const el = document.getElementById('ssub-' + s);
     if (el) el.style.display = s === tab ? 'block' : 'none';
@@ -57,10 +57,10 @@ function switchServiciosTab(tab) {
       btn.style.color      = s === tab ? 'white' : 'var(--text-muted)';
     }
   });
-  // Render según sub-tab activo
   if (tab === 'tiendas')    renderTiendas?.();
   if (tab === 'grooming')   renderGrooming?.();
   if (tab === 'paseadores') renderPaseadores?.();
+  if (tab === 'arte')       renderArte?.();
 }
 
 /* ══ SUB-TABS DE COMUNIDAD ══ */

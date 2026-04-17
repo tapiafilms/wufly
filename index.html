@@ -108,18 +108,22 @@
 <div class="page" id="page-servicios">
 
   <!-- Sub-tabs de servicios -->
-  <div style="display:flex;background:var(--bg);border-radius:var(--r-xs);padding:4px;gap:4px;margin-bottom:16px;">
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);background:var(--bg);border-radius:var(--r-xs);padding:4px;gap:4px;margin-bottom:16px;">
     <button id="stab-tiendas" onclick="switchServiciosTab('tiendas')"
-      style="flex:1;padding:9px 4px;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;background:var(--purple);color:white;font-family:'Plus Jakarta Sans',sans-serif;">
+      style="padding:9px 4px;border:none;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;transition:all 0.2s;background:var(--purple);color:white;font-family:'Plus Jakarta Sans',sans-serif;">
       📦 Tiendas
     </button>
     <button id="stab-grooming" onclick="switchServiciosTab('grooming')"
-      style="flex:1;padding:9px 4px;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;">
+      style="padding:9px 4px;border:none;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;">
       ✂️ Grooming
     </button>
     <button id="stab-paseadores" onclick="switchServiciosTab('paseadores')"
-      style="flex:1;padding:9px 4px;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;">
-      🐕 Paseadores
+      style="padding:9px 4px;border:none;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;">
+      🐕 Paseos
+    </button>
+    <button id="stab-arte" onclick="switchServiciosTab('arte')"
+      style="padding:9px 4px;border:none;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;">
+      🎨 Arte
     </button>
   </div>
 
@@ -197,6 +201,20 @@
       <button class="filter-btn" onclick="setFilterPaseadores(this,'concon')">Concón</button>
     </div>
     <div id="paseadoresList"></div>
+  </div>
+
+  <!-- ── SUB: ARTE ── -->
+  <div id="ssub-arte" style="display:none;">
+    <div class="hero-banner" style="background:linear-gradient(135deg,#4C1D95,#7C3AED,#C026D3);">
+      <h2>Arte · Retratos de mascotas</h2>
+      <p>Artistas que inmortalizan a tu compañero en óleo, acuarela, lápiz y arte digital</p>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-num">5</div><div class="stat-label">Artistas</div></div>
+        <div class="stat"><div class="stat-num">4</div><div class="stat-label">Técnicas</div></div>
+        <div class="stat"><div class="stat-num">✓</div><div class="stat-label">Verificados</div></div>
+      </div>
+    </div>
+    <div id="arteList" style="display:flex;flex-direction:column;gap:14px;margin-top:4px;"></div>
   </div>
 
 </div>
@@ -794,6 +812,7 @@
 <script src="js/tiendas.js"></script>
 <script src="js/grooming.js"></script>
 <script src="js/paseadores.js"></script>
+<script src="js/arte.js"></script>
 <script src="js/recetas.js"></script>
 <script src="js/recordatorios.js"></script>
 <script src="js/perfil.js"></script>
