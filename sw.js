@@ -24,6 +24,7 @@ const STATIC_ASSETS = [
   '/js/recordatorios.js',
   '/js/perdidos.js',
   '/js/auth.js',
+  '/js/geo.js',
   '/js/perfil.js',
   '/js/chat.js',
   '/img/icon-192.svg',

@@ -147,54 +147,72 @@ function renderTiendas() {
 
   const q = (document.getElementById('searchTienda')?.value || '').toLowerCase();
 
-  const filtered = tiendas.filter(t => {
-    const matchFilter =
-      tiendaFilter === 'todos' ||
-      tiendaFilter === t.tipo ||
-      tiendaFilter === t.city;
+  let fuente;
+  if (tiendaFilter === 'geo') {
+    fuente = (typeof geoResults !== 'undefined' ? geoResults.tiendas : [])
+      .filter(t => !q || t.nombre.toLowerCase().includes(q) || t.address.toLowerCase().includes(q));
+  } else {
+    fuente = tiendas.filter(t => {
+      const matchFilter =
+        tiendaFilter === 'todos' ||
+        tiendaFilter === t.tipo  ||
+        tiendaFilter === t.city;
+      const matchSearch = !q ||
+        t.nombre.toLowerCase().includes(q) ||
+        t.desc.toLowerCase().includes(q)   ||
+        t.categorias.some(c => c.toLowerCase().includes(q));
+      return matchFilter && matchSearch;
+    });
+  }
 
-    const matchSearch = !q ||
-      t.nombre.toLowerCase().includes(q) ||
-      t.desc.toLowerCase().includes(q) ||
-      t.categorias.some(c => c.toLowerCase().includes(q));
-
-    return matchFilter && matchSearch;
-  });
-
-  if (!filtered.length) {
-    list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-muted);">
-      <div style="font-size:36px;margin-bottom:8px;">🛒</div>
-      <div style="font-size:14px;">No se encontraron tiendas</div>
-    </div>`;
+  if (!fuente.length) {
+    list.innerHTML = tiendaFilter === 'geo'
+      ? `<div style="text-align:center;padding:40px 20px;color:var(--text-muted);">
+           <div style="font-size:36px;margin-bottom:10px;">🗺</div>
+           <div style="font-weight:700;margin-bottom:6px;">Sin tiendas en OpenStreetMap</div>
+           <div style="font-size:13px;">Prueba los filtros por ciudad para ver tiendas verificadas.</div>
+         </div>`
+      : `<div style="text-align:center;padding:40px 20px;color:var(--text-muted);">
+           <div style="font-size:36px;margin-bottom:8px;">🛒</div>
+           <div style="font-size:14px;">No se encontraron tiendas</div>
+         </div>`;
     return;
   }
 
-  list.innerHTML = filtered.map(t => {
-    const isOnline = t.tipo === 'online';
-    const tipoBadgeBg  = isOnline ? '#E6F9F3' : '#F0EAFB';
-    const tipoBadgeColor = isOnline ? '#3DAF87' : '#7C4DCC';
-    const tipoBadgeText  = isOnline ? '🌐 Online' : '📍 Física';
-
-    const stars = '★'.repeat(Math.round(t.rating)) + '☆'.repeat(5 - Math.round(t.rating));
+  list.innerHTML = fuente.map(t => {
+    const isOnline      = t.tipo === 'online';
+    const tipoBadgeBg   = isOnline ? '#E6F9F3' : '#F0EAFB';
+    const tipoBadgeClr  = isOnline ? '#3DAF87' : '#7C4DCC';
+    const tipoBadgeTxt  = isOnline ? '🌐 Online' : '📍 Física';
+    const stars         = t.rating ? '★'.repeat(Math.round(t.rating)) + '☆'.repeat(5 - Math.round(t.rating)) : '';
+    const distBadge     = t.distKm != null
+      ? `<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;background:var(--purple-light);color:var(--purple);margin-right:5px;">📍 ${fmtDist(t.distKm)}</span>`
+      : '';
+    const mapLink = t.lat && t.lng
+      ? `<a href="https://www.google.com/maps/dir/?api=1&destination=${t.lat},${t.lng}" target="_blank" rel="noopener"
+           style="font-size:11px;color:var(--purple);font-weight:700;text-decoration:none;" onclick="event.stopPropagation()">🗺 Cómo llegar</a>`
+      : '';
 
     return `
       <div class="place-card" onclick="openTienda('${t.id}')" style="cursor:pointer;">
         <div class="place-card-inner">
           <div class="place-icon" style="background:var(--purple-light);">${t.icon}</div>
           <div class="place-info">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap;">
+              ${distBadge}
               <div class="place-name">${t.nombre}</div>
-              <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;background:${tipoBadgeBg};color:${tipoBadgeColor};flex-shrink:0;">${tipoBadgeText}</span>
+              <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;background:${tipoBadgeBg};color:${tipoBadgeClr};flex-shrink:0;">${tipoBadgeTxt}</span>
             </div>
-            <div style="font-size:11px;color:var(--text-hint);margin-bottom:4px;">${stars} ${t.rating}</div>
+            ${stars ? `<div style="font-size:11px;color:var(--text-hint);margin-bottom:4px;">${stars} ${t.rating}</div>` : ''}
             <div class="place-desc">${t.desc}</div>
             <div class="place-tags" style="margin-top:6px;">
               ${t.categorias.slice(0,3).map(c => `<span class="place-tag">${c}</span>`).join('')}
             </div>
             <div style="margin-top:8px;display:flex;flex-direction:column;gap:3px;">
               ${t.address ? `<div style="font-size:11px;color:var(--text-muted);">📍 ${t.address}</div>` : ''}
-              <div style="font-size:11px;color:var(--text-muted);">🕐 ${t.horario}</div>
+              ${t.horario ? `<div style="font-size:11px;color:var(--text-muted);">🕐 ${t.horario}</div>` : ''}
               ${t.web ? `<div style="font-size:11px;color:var(--purple);">🌐 ${t.web}</div>` : ''}
+              ${mapLink}
             </div>
           </div>
           <div style="flex-shrink:0;color:var(--text-hint);font-size:18px;align-self:center;">›</div>

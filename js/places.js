@@ -203,54 +203,83 @@ function renderClinicas() {
 
   const q = (document.getElementById('searchClinica')?.value || '').toLowerCase();
 
-  const filtered = clinicas.filter(c => {
-    const matchFilter =
-      clinicaFilter === 'todos' ||
-      (clinicaFilter === 'urgencia' && c.urgencia) ||
-      (clinicaFilter === 'viña' && c.city === 'viña') ||
-      (clinicaFilter === 'valpo' && c.city === 'valpo') ||
-      (clinicaFilter === 'concon' && c.city === 'concon');
+  let fuente;
+  if (clinicaFilter === 'geo') {
+    fuente = (typeof geoResults !== 'undefined' ? geoResults.clinicas : [])
+      .filter(c => !q || c.name.toLowerCase().includes(q) || c.address.toLowerCase().includes(q));
+  } else {
+    fuente = clinicas.filter(c => {
+      const matchFilter =
+        clinicaFilter === 'todos' ||
+        (clinicaFilter === 'urgencia' && c.urgencia) ||
+        (clinicaFilter === 'viña'    && c.city === 'viña')  ||
+        (clinicaFilter === 'valpo'   && c.city === 'valpo') ||
+        (clinicaFilter === 'concon'  && c.city === 'concon');
+      const matchSearch = !q ||
+        c.name.toLowerCase().includes(q) ||
+        c.desc.toLowerCase().includes(q) ||
+        c.tags.some(t => t.toLowerCase().includes(q));
+      return matchFilter && matchSearch;
+    });
+  }
 
-    const matchSearch = !q ||
-      c.name.toLowerCase().includes(q) ||
-      c.desc.toLowerCase().includes(q) ||
-      c.tags.some(t => t.toLowerCase().includes(q));
+  if (fuente.length === 0) {
+    list.innerHTML = clinicaFilter === 'geo'
+      ? `<div style="text-align:center;padding:40px 20px;color:var(--text-muted);">
+           <div style="font-size:36px;margin-bottom:10px;">🗺</div>
+           <div style="font-weight:700;margin-bottom:6px;">Sin resultados en OpenStreetMap</div>
+           <div style="font-size:13px;">Prueba los filtros por ciudad para ver clínicas verificadas.</div>
+         </div>`
+      : '<div style="text-align:center;padding:40px 20px;color:var(--text-muted);">No se encontraron clínicas con ese filtro.</div>';
+    return;
+  }
 
-    return matchFilter && matchSearch;
-  });
+  list.innerHTML = fuente.map(c => {
+    const distBadge = c.distKm != null
+      ? `<span style="display:inline-block;background:var(--purple-light);color:var(--purple);font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;margin-bottom:5px;">📍 ${fmtDist(c.distKm)}</span><br>`
+      : '';
+    const ratingHtml = c.rating
+      ? `<div class="place-rating">${'★'.repeat(Math.round(c.rating))}${'☆'.repeat(5-Math.round(c.rating))} <span>${c.rating} (${c.reviews})</span></div>`
+      : '';
+    const mapLink = c.lat && c.lng
+      ? `<a href="https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lng}" target="_blank" rel="noopener"
+           style="display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:12px;color:var(--purple);font-weight:700;text-decoration:none;"
+           onclick="event.stopPropagation()">🗺 Cómo llegar</a>`
+      : '';
 
-  list.innerHTML = filtered.map(c => `
+    return `
     <div class="place-card" onclick="openClinica('${c.id}')">
       <div class="place-card-inner">
         <div class="place-icon">${c.icon}</div>
         <div class="place-info">
+          ${distBadge}
           <div class="place-name">${c.name}</div>
           <div class="place-type">${c.type}</div>
-          <div class="place-rating">
-            ${'★'.repeat(Math.round(c.rating))}${'☆'.repeat(5 - Math.round(c.rating))}
-            <span>${c.rating} (${c.reviews})</span>
-          </div>
+          ${ratingHtml}
           <div class="place-desc">${c.desc}</div>
           <div class="place-tags">
             ${c.urgencia ? '<span class="place-tag urgencia">🚨 Urgencias</span>' : ''}
             ${c.tags.slice(0, 3).map(t => `<span class="place-tag">${t}</span>`).join('')}
           </div>
           <div class="place-footer">
-            <span class="place-address">📍 ${c.address}</span>
+            <span class="place-address">📍 ${c.address || '—'}</span>
             ${c.tel ? `<a href="tel:${c.tel}" class="place-tel" onclick="event.stopPropagation()">${c.tel}</a>` : ''}
           </div>
+          ${mapLink}
         </div>
       </div>
-    </div>
-  `).join('');
-
-  if (filtered.length === 0) {
-    list.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text-muted);">No se encontraron clínicas con ese filtro.</div>';
-  }
+    </div>`;
+  }).join('');
 }
 
 function openClinica(id) {
-  const c = clinicas.find(x => x.id === id);
+  // Buscar en estáticos y en geo results
+  const c = clinicas.find(x => x.id === id)
+         || (typeof geoResults !== 'undefined' && geoResults.clinicas.find(x => x.id === id));
   if (!c) return;
-  if (c.tel) window.open(`https://wa.me/${c.tel.replace(/\D/g, '')}`, '_blank');
+  if (c.lat && c.lng) {
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lng}`, '_blank');
+  } else if (c.tel) {
+    window.open(`https://wa.me/${c.tel.replace(/\D/g, '')}`, '_blank');
+  }
 }

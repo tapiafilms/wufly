@@ -89,9 +89,13 @@
     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
     <input type="text" placeholder="Buscar clínica..." id="searchClinica" oninput="renderClinicas()">
   </div>
+  <!-- Banner geolocalización -->
+  <div id="geoBanner" style="margin-bottom:14px;padding:12px 14px;border-radius:var(--r-xs);border:1.5px solid;display:none;"></div>
+
   <div class="filter-row">
     <button class="filter-btn active" onclick="setFilter(this,'clinica','todos')">Todas</button>
     <button class="filter-btn" onclick="setFilter(this,'clinica','urgencia')">🚨 Urgencias</button>
+    <button id="clinicaGeoBtn" class="filter-btn" onclick="setFilter(this,'clinica','geo')" style="display:none;">📍 Cerca</button>
     <button class="filter-btn" onclick="setFilter(this,'clinica','viña')">Viña del Mar</button>
     <button class="filter-btn" onclick="setFilter(this,'clinica','valpo')">Valparaíso</button>
     <button class="filter-btn" onclick="setFilter(this,'clinica','concon')">Concón</button>
@@ -137,6 +141,7 @@
       <button class="filter-btn active" onclick="setFilterTienda(this,'todos')">Todas</button>
       <button class="filter-btn" onclick="setFilterTienda(this,'fisica')">📍 Física</button>
       <button class="filter-btn" onclick="setFilterTienda(this,'online')">🌐 Online</button>
+      <button id="tiendaGeoBtn" class="filter-btn" onclick="setFilterTienda(this,'geo')" style="display:none;">📍 Cerca</button>
       <button class="filter-btn" onclick="setFilterTienda(this,'viña')">Viña</button>
       <button class="filter-btn" onclick="setFilterTienda(this,'valpo')">Valpo</button>
       <button class="filter-btn" onclick="setFilterTienda(this,'concon')">Concón</button>
@@ -161,6 +166,7 @@
     </div>
     <div class="filter-row sub-filter-grooming">
       <button class="filter-btn active" onclick="setFilterGrooming(this,'todos')">Todas</button>
+      <button id="groomingGeoBtn" class="filter-btn" onclick="setFilterGrooming(this,'geo')" style="display:none;">📍 Cerca</button>
       <button class="filter-btn" onclick="setFilterGrooming(this,'viña')">Viña del Mar</button>
       <button class="filter-btn" onclick="setFilterGrooming(this,'valpo')">Valparaíso</button>
       <button class="filter-btn" onclick="setFilterGrooming(this,'concon')">Concón</button>
@@ -771,6 +777,7 @@
 <!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/auth.js"></script>
+<script src="js/geo.js"></script>
 <script src="js/places.js"></script>
 <script src="js/onboarding.js"></script>
 <script src="js/app.js"></script>
