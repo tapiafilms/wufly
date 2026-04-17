@@ -28,7 +28,7 @@ function switchTab(name, el, fromNav = false) {
 
   // Páginas secundarias no tienen tab activo en nav — solo las 5 principales
   const secondary = ['recetas', 'recordatorios', 'detail'];
-  const order = ['restaurantes', 'asistente', 'perdidos', 'servicios', 'alergias'];
+  const order = ['restaurantes', 'drwufly', 'comunidad', 'servicios', 'alergias'];
   const idx = order.indexOf(name);
   if (!secondary.includes(name)) {
     document.querySelectorAll('.tab')[idx]?.classList.add('active');
@@ -61,6 +61,33 @@ function switchServiciosTab(tab) {
   if (tab === 'tiendas')    renderTiendas?.();
   if (tab === 'grooming')   renderGrooming?.();
   if (tab === 'paseadores') renderPaseadores?.();
+}
+
+/* ══ SUB-TABS DE COMUNIDAD ══ */
+function switchComunidadTab(tab) {
+  const subs = ['adoptar', 'perdidos', 'rescate'];
+  subs.forEach(s => {
+    const el = document.getElementById('csub-' + s);
+    if (el) el.style.display = s === tab ? 'block' : 'none';
+    const btn = document.getElementById('ctab-' + s);
+    if (btn) {
+      btn.style.background = s === tab ? 'var(--purple)' : 'transparent';
+      btn.style.color      = s === tab ? 'white' : 'var(--text-muted)';
+    }
+  });
+  if (tab === 'perdidos') renderPerdidos?.();
+  if (tab === 'rescate')  renderRescate?.();
+  if (tab === 'adoptar')  renderAdoptar?.();
+}
+
+/* ══ CONSULTA RÁPIDA EN DR. WUFLY ══ */
+function setConsultaRapida(texto) {
+  const input = document.getElementById('chatInput');
+  if (!input) return;
+  input.value = texto;
+  input.focus();
+  // Scroll to input
+  input.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 /* ══ OBTENER CONTEXTO COMPLETO DEL PERFIL PARA LA IA ══ */
