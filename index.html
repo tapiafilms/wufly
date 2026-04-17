@@ -258,6 +258,9 @@
       </div>
     </div>
 
+    <!-- Auth banner: login / sesión activa -->
+    <div id="authBanner" style="margin:0 20px 14px;padding:12px 14px;border-radius:var(--r-xs);border:1.5px solid;"></div>
+
     <!-- Contenido dinámico (lectura o edición) -->
     <div id="perfilCardContenido" style="padding:0 20px 16px;"></div>
 
@@ -720,7 +723,54 @@
 </div><!-- /info-column -->
 </div><!-- /desktop-layout -->
 
+<!-- AUTH MODAL -->
+<div id="authModal" data-modo="login"
+  style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.65);align-items:center;justify-content:center;padding:20px;"
+  onclick="if(event.target===this)cerrarAuthModal()">
+  <div style="background:white;border-radius:var(--r);width:100%;max-width:380px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.3);">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#5C2FA8,#7C4DCC);padding:22px 20px 18px;display:flex;align-items:flex-start;justify-content:space-between;">
+      <div>
+        <div style="font-size:26px;margin-bottom:4px;">🐾</div>
+        <div id="authTitulo" style="font-family:'Funnel Display',sans-serif;font-size:21px;font-weight:700;color:white;">Iniciar sesión</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;">Tus datos guardados en la nube</div>
+      </div>
+      <button onclick="cerrarAuthModal()" style="width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.12);cursor:pointer;color:white;font-size:16px;line-height:1;flex-shrink:0;">✕</button>
+    </div>
+    <!-- Body -->
+    <div style="padding:22px 20px;display:flex;flex-direction:column;gap:14px;">
+      <!-- Campo nombre (solo registro) -->
+      <div id="authCampoNombre" style="display:none;">
+        <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">TU NOMBRE</label>
+        <input type="text" id="authNombre" placeholder="¿Cómo te llamas?"
+          style="width:100%;margin-top:5px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:11px 13px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">CORREO</label>
+        <input type="email" id="authEmail" placeholder="tucorreo@email.com"
+          style="width:100%;margin-top:5px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:11px 13px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">CONTRASEÑA</label>
+        <input type="password" id="authPassword" placeholder="Mínimo 6 caracteres"
+          style="width:100%;margin-top:5px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:11px 13px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;"
+          onkeydown="if(event.key==='Enter')submitAuth()">
+      </div>
+      <!-- Error / éxito -->
+      <div id="authError" style="display:none;font-size:12px;font-weight:600;padding:10px 13px;border-radius:8px;"></div>
+      <!-- Botón submit -->
+      <button id="authBtnSubmit" onclick="submitAuth()" class="btn-primary" style="margin-top:2px;font-size:15px;">Entrar</button>
+      <!-- Link alternativo -->
+      <div id="authLinkAlternativo" style="font-size:13px;color:var(--text-muted);text-align:center;">
+        ¿No tienes cuenta? <button onclick="setAuthModo('register')" style="background:none;border:none;color:var(--purple);font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;">Registrarse</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/auth.js"></script>
 <script src="js/places.js"></script>
 <script src="js/onboarding.js"></script>
 <script src="js/app.js"></script>

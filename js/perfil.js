@@ -56,6 +56,7 @@ function guardarPerfilEdits() {
   p.edadmascota   = document.getElementById('editEdad')?.value     || p.edadmascota || 'adulto';
   p.salud = [...document.querySelectorAll('#saludChipsEdit .salud-chip.selected')].map(c => c.dataset.val);
   localStorage.setItem(PERFIL_KEY, JSON.stringify(p));
+  if (typeof guardarPerfilEnDB === 'function') guardarPerfilEnDB(p);
 
   perfilModoEdicion = false;
   renderPerfilUI(p);
@@ -248,32 +249,65 @@ function toggleSaludChip(el) {
 }
 
 /* ── Fotos ── */
-function cargarFotoMascota(input) {
+async function cargarFotoMascota(input) {
   const f = input.files[0]; if (!f) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    const img = document.getElementById('perfilMascotaImg');
-    const ph  = document.getElementById('perfilMascotaPlaceholder');
-    if (img) { img.src = ev.target.result; img.style.display = 'block'; }
-    if (ph)  ph.style.display = 'none';
-    const p = cargarPerfilLocal(); p.fotoMascota = ev.target.result;
-    localStorage.setItem(PERFIL_KEY, JSON.stringify(p));
-  };
-  r.readAsDataURL(f);
+  const img = document.getElementById('perfilMascotaImg');
+  const ph  = document.getElementById('perfilMascotaPlaceholder');
+  if (ph) ph.style.display = 'none';
+  const p = cargarPerfilLocal();
+
+  if (typeof currentUser !== 'undefined' && currentUser && typeof subirFotoStorage === 'function') {
+    // Mostrar loader mientras sube
+    if (img) { img.style.display = 'block'; img.style.opacity = '0.4'; }
+    try {
+      const url = await subirFotoStorage(f, 'mascota');
+      if (img) { img.src = url; img.style.opacity = '1'; }
+      p.fotoMascota = url;
+      localStorage.setItem(PERFIL_KEY, JSON.stringify(p));
+      if (typeof guardarPerfilEnDB === 'function') guardarPerfilEnDB(p);
+    } catch(e) {
+      console.warn('[Wufly] Error subiendo foto:', e);
+      if (img) img.style.opacity = '1';
+      _fotoBase64(f, 'fotoMascota', img, p);
+    }
+  } else {
+    _fotoBase64(f, 'fotoMascota', img, p);
+  }
 }
 
-function cargarFotoDueno(input) {
+async function cargarFotoDueno(input) {
   const f = input.files[0]; if (!f) return;
+  const img  = document.getElementById('perfilOwnerImg');
+  const init = document.getElementById('perfilOwnerInitial');
+  if (init) init.style.display = 'none';
+  const p = cargarPerfilLocal();
+
+  if (typeof currentUser !== 'undefined' && currentUser && typeof subirFotoStorage === 'function') {
+    if (img) { img.style.display = 'block'; img.style.opacity = '0.4'; }
+    try {
+      const url = await subirFotoStorage(f, 'dueno');
+      if (img) { img.src = url; img.style.opacity = '1'; }
+      p.fotoDueno = url;
+      localStorage.setItem(PERFIL_KEY, JSON.stringify(p));
+      if (typeof guardarPerfilEnDB === 'function') guardarPerfilEnDB(p);
+    } catch(e) {
+      console.warn('[Wufly] Error subiendo foto:', e);
+      if (img) img.style.opacity = '1';
+      _fotoBase64(f, 'fotoDueno', img, p);
+    }
+  } else {
+    _fotoBase64(f, 'fotoDueno', img, p);
+  }
+}
+
+function _fotoBase64(file, campo, imgEl, p) {
   const r = new FileReader();
   r.onload = ev => {
-    const img  = document.getElementById('perfilOwnerImg');
-    const init = document.getElementById('perfilOwnerInitial');
-    if (img)  { img.src = ev.target.result; img.style.display = 'block'; }
-    if (init) init.style.display = 'none';
-    const p = cargarPerfilLocal(); p.fotoDueno = ev.target.result;
+    if (imgEl) { imgEl.src = ev.target.result; imgEl.style.display = 'block'; }
+    p[campo] = ev.target.result;
     localStorage.setItem(PERFIL_KEY, JSON.stringify(p));
   };
-  r.readAsDataURL(f);
+  r.readAsDataURL(file);
 }
 
 /* ── Nombre mascota en pill ── */

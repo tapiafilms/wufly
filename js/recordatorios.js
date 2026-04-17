@@ -120,6 +120,7 @@ function guardarRecordatorio() {
   const lista = cargarRecordatorios();
   lista.push(nuevo);
   guardarRecordatoriosStorage(lista);
+  if (typeof guardarRecordatorioDB === 'function') guardarRecordatorioDB(nuevo);
 
   cerrarFormRecordatorio();
   renderRecordatorios();
@@ -129,6 +130,7 @@ function guardarRecordatorio() {
 function eliminarRecordatorio(id) {
   const lista = cargarRecordatorios().filter(r => r.id !== id);
   guardarRecordatoriosStorage(lista);
+  if (typeof eliminarRecordatorioDB === 'function') eliminarRecordatorioDB(id);
   renderRecordatorios();
   actualizarBadgeRecordatorios();
 }
