@@ -182,14 +182,11 @@ let recetaAbierta = null;
 
 /* ══ RENDER LISTA ══ */
 function renderRecetas() {
-  const container = document.getElementById('recetasFeed');
-  if (!container) return;
-
   const filtered = recetas.filter(r =>
     recetasFiltro === 'todos' || r.especie === recetasFiltro
   );
 
-  container.innerHTML = filtered.map(r => `
+  const html = filtered.map(r => `
     <div onclick="abrirReceta('${r.id}')"
       style="background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border);padding:16px;margin-bottom:12px;box-shadow:var(--shadow-sm);cursor:pointer;display:flex;gap:14px;align-items:center;transition:box-shadow 0.2s;"
       onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='var(--shadow-sm)'">
@@ -206,6 +203,12 @@ function renderRecetas() {
       <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--text-hint);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
     </div>
   `).join('');
+
+  // Poblar todos los contenedores (page-recetas y csub-recetas en comunidad)
+  ['recetasFeed', 'recetasFeedCom'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  });
 }
 
 /* ══ ABRIR RECETA DETALLE ══ */

@@ -65,7 +65,7 @@ function switchServiciosTab(tab) {
 
 /* ══ SUB-TABS DE COMUNIDAD ══ */
 function switchComunidadTab(tab) {
-  const subs = ['adoptar', 'perdidos', 'rescate'];
+  const subs = ['adoptar', 'perdidos', 'rescate', 'recetas'];
   subs.forEach(s => {
     const el = document.getElementById('csub-' + s);
     if (el) el.style.display = s === tab ? 'block' : 'none';
@@ -78,6 +78,7 @@ function switchComunidadTab(tab) {
   if (tab === 'perdidos') renderPerdidos?.();
   if (tab === 'rescate')  renderRescate?.();
   if (tab === 'adoptar')  renderAdoptar?.();
+  if (tab === 'recetas')  renderRecetas?.();
 }
 
 /* ══ CONSULTA RÁPIDA EN DR. WUFLY ══ */

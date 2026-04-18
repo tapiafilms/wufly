@@ -371,18 +371,22 @@
 <div class="page" id="page-comunidad">
 
   <!-- Sub-tabs -->
-  <div style="display:flex;background:var(--bg);border-radius:var(--r-xs);padding:4px;gap:4px;margin-bottom:16px;">
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);background:var(--bg);border-radius:var(--r-xs);padding:4px;gap:4px;margin-bottom:16px;">
     <button id="ctab-adoptar" onclick="switchComunidadTab('adoptar')"
-      style="flex:1;padding:10px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;background:var(--purple);color:white;font-family:'Plus Jakarta Sans',sans-serif;">
+      style="padding:9px 4px;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;background:var(--purple);color:white;font-family:'Plus Jakarta Sans',sans-serif;">
       🐾 Adoptar
     </button>
     <button id="ctab-perdidos" onclick="switchComunidadTab('perdidos')"
-      style="flex:1;padding:10px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;">
+      style="padding:9px 4px;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;">
       🔍 Perdidos
     </button>
     <button id="ctab-rescate" onclick="switchComunidadTab('rescate')"
-      style="flex:1;padding:10px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;">
+      style="padding:9px 4px;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;">
       🆘 Rescate
+    </button>
+    <button id="ctab-recetas" onclick="switchComunidadTab('recetas')"
+      style="padding:9px 4px;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;">
+      🍲 Recetas
     </button>
   </div>
 
@@ -571,6 +575,18 @@
       </div>
     </div>
     <div id="rescateFeed" style="display:flex;flex-direction:column;gap:12px;"></div>
+  </div>
+
+  <!-- SUB: RECETAS -->
+  <div id="csub-recetas" style="display:none;">
+    <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:4px;">RECETAS CASERAS</div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;">Comida y snacks naturales para preparar en casa. Sin conservantes, sin aditivos.</div>
+    <div class="filter-row" style="margin-bottom:14px;">
+      <button class="filter-btn active" onclick="setFiltroRecetas(this,'todos')">Todos</button>
+      <button class="filter-btn" onclick="setFiltroRecetas(this,'perro')">🐕 Perros</button>
+      <button class="filter-btn" onclick="setFiltroRecetas(this,'gato')">🐈 Gatos</button>
+    </div>
+    <div id="recetasFeedCom"></div>
   </div>
 
 </div>
