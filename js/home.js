@@ -134,7 +134,7 @@ function renderHome() {
           <button onclick="switchTab('restaurantes')" style="background:none;border:none;font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Ver todas →</button>
         </div>
         <!-- Clip container — overflow:hidden corta el track -->
-        <div style="overflow:hidden;">
+        <div id="clinicas-clip" style="overflow:hidden;">
           <div id="clinicas-track"
             style="display:flex;gap:12px;padding:4px 0 12px 16px;will-change:transform;transition:transform 0.65s cubic-bezier(0.25,0.46,0.45,0.94);">
             ${_carouselClinicas()}
@@ -169,6 +169,9 @@ function renderHome() {
 
     </div>
   `;
+
+  // Inicializar carousel cada vez que se renderiza el home
+  setTimeout(_initCarouselDots, 50);
 }
 
 /* ── Datos del carousel (primeras 5 clínicas) ── */
@@ -244,37 +247,19 @@ function _carouselClinicas() {
 /* ── Carousel: CSS transform + swipe táctil ── */
 let _carouselIdx = 0;
 let _touchStartX = 0;
+let _touchStartY = 0;
+let _swipeLocked  = false; // true cuando el gesto es claramente horizontal
 
-/* Mueve el track al slide idx usando CSS transition (cross-platform) */
+/* Mueve el track al slide idx usando CSS transition */
 function _goToSlide(idx) {
   const track = document.getElementById('clinicas-track');
   if (!track) return;
   const card = track.querySelector('div');
   if (!card) return;
-  const step = card.offsetWidth + 12; // ancho de tarjeta + gap
+  const step = card.offsetWidth + 12; // ancho tarjeta + gap
   track.style.transform = `translateX(-${idx * step}px)`;
   _carouselIdx = idx;
   _updateDots(idx);
-}
-
-function _initCarouselDots() {
-  const track = document.getElementById('clinicas-track');
-  if (!track) return;
-  const total = _clinicasCarousel.length;
-
-  /* Swipe táctil — detectar dirección con delta X */
-  track.addEventListener('touchstart', e => {
-    _touchStartX = e.touches[0].clientX;
-  }, { passive: true });
-
-  track.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - _touchStartX;
-    if (Math.abs(dx) > 40) {
-      if (dx < 0) _carouselIdx = Math.min(_carouselIdx + 1, total - 1);
-      else        _carouselIdx = Math.max(_carouselIdx - 1, 0);
-      _goToSlide(_carouselIdx);
-    }
-  }, { passive: true });
 }
 
 function _updateDots(idx) {
@@ -285,9 +270,42 @@ function _updateDots(idx) {
   });
 }
 
+/*
+  Listeners en el CLIP (overflow:hidden), no en el track.
+  El clip nunca se mueve, así su área de touch siempre está visible.
+*/
+function _initCarouselDots() {
+  const clip  = document.getElementById('clinicas-clip');
+  if (!clip) return;
+  const total = _clinicasCarousel.length;
+  _carouselIdx = 0;
+
+  clip.addEventListener('touchstart', e => {
+    _touchStartX = e.touches[0].clientX;
+    _touchStartY = e.touches[0].clientY;
+    _swipeLocked  = false;
+  }, { passive: true });
+
+  clip.addEventListener('touchmove', e => {
+    const dx = Math.abs(e.touches[0].clientX - _touchStartX);
+    const dy = Math.abs(e.touches[0].clientY - _touchStartY);
+    // Bloquear scroll vertical si el gesto es claramente horizontal
+    if (!_swipeLocked && dx > dy && dx > 8) _swipeLocked = true;
+  }, { passive: true });
+
+  clip.addEventListener('touchend', e => {
+    if (!_swipeLocked) return;
+    const dx = e.changedTouches[0].clientX - _touchStartX;
+    if (Math.abs(dx) > 40) {
+      if (dx < 0) _carouselIdx = Math.min(_carouselIdx + 1, total - 1);
+      else        _carouselIdx = Math.max(_carouselIdx - 1, 0);
+      _goToSlide(_carouselIdx);
+    }
+    _swipeLocked = false;
+  }, { passive: true });
+}
+
 /* ── Init ── */
 document.addEventListener('DOMContentLoaded', () => {
-  renderHome();
-  // Esperar que el DOM del carousel esté renderizado antes de iniciar
-  setTimeout(_initCarouselDots, 200);
+  renderHome(); // renderHome() ya llama _initCarouselDots internamente
 });
