@@ -310,55 +310,67 @@ function _guardarFotoLocal(p) {
   }
 }
 
+/* Limpia el estado visual del elemento imagen (quita blur/opacidad) */
+function _clearImgState(elId) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.style.removeProperty('filter');
+  el.style.removeProperty('opacity');
+}
+
 async function cargarFotoMascota(input) {
   const f = input.files[0]; if (!f) return;
-  input.value = ''; // limpiar para permitir volver a elegir la misma foto
+  input.value = '';
 
-  const img = document.getElementById('perfilMascotaImg');
-  const ph  = document.getElementById('perfilMascotaPlaceholder');
-  const p   = cargarPerfilLocal();
-
-  // Mostrar preview inmediato borroso
+  const p = cargarPerfilLocal();
   _fotoToast('Procesando foto…', 'info');
-  if (ph)  ph.style.display  = 'none';
-  if (img) { img.style.display = 'block'; img.style.filter = 'blur(4px)'; img.style.opacity = '0.6'; }
 
+  // Ocultar placeholder y mostrar img
+  const ph = document.getElementById('perfilMascotaPlaceholder');
+  if (ph) ph.style.display = 'none';
+
+  // Comprimir
   let blob;
-  try { blob = await _comprimirImagen(f); }
+  try { blob = await _comprimirImagen(f, 900, 0.82); }
   catch { blob = f; }
 
-  // Preview local inmediato (mientras sube)
+  // Preview local limpio e inmediato (sin blur)
   const localURL = URL.createObjectURL(blob);
-  if (img) img.src = localURL;
+  const imgPrev = document.getElementById('perfilMascotaImg');
+  if (imgPrev) { imgPrev.src = localURL; imgPrev.style.display = 'block'; imgPrev.style.removeProperty('filter'); imgPrev.style.removeProperty('opacity'); }
 
   if (typeof currentUser !== 'undefined' && currentUser && typeof subirFotoStorage === 'function') {
     try {
       const blobFile = new File([blob], 'mascota.jpg', { type: 'image/jpeg' });
       const url = await subirFotoStorage(blobFile, 'mascota');
-      if (img) { img.src = url; img.style.filter = ''; img.style.opacity = '1'; }
+      // Actualizar con URL de Supabase (re-query por ID por si el DOM cambió)
+      const imgFinal = document.getElementById('perfilMascotaImg');
+      if (imgFinal) { imgFinal.src = url; imgFinal.style.display = 'block'; _clearImgState('perfilMascotaImg'); }
       p.fotoMascota = url;
       _guardarFotoLocal(p);
       if (typeof guardarPerfilEnDB === 'function') guardarPerfilEnDB(p);
       if (typeof renderHome === 'function') renderHome();
-      _fotoToast('¡Foto guardada! 🐾', 'ok');
+      _fotoToast('¡Foto guardada en la nube! 🐾', 'ok');
     } catch(e) {
-      console.warn('[Wufly] Storage falló, guardando local:', e.message);
-      // Fallback: guardar como dataURL comprimido
+      console.warn('[Wufly] Storage error:', e.message);
+      _fotoToast('Error al subir: ' + (e.message || 'sin conexión') + ' — guardando local', 'err');
+      // Fallback base64
       const reader = new FileReader();
       reader.onload = ev => {
-        if (img) { img.src = ev.target.result; img.style.filter = ''; img.style.opacity = '1'; }
+        const imgFb = document.getElementById('perfilMascotaImg');
+        if (imgFb) { imgFb.src = ev.target.result; imgFb.style.display = 'block'; _clearImgState('perfilMascotaImg'); }
         p.fotoMascota = ev.target.result;
         _guardarFotoLocal(p);
         if (typeof renderHome === 'function') renderHome();
-        _fotoToast('Foto guardada localmente', 'ok');
+        setTimeout(() => _fotoToast('Foto guardada localmente', 'ok'), 2000);
       };
       reader.readAsDataURL(blob);
     }
   } else {
-    // Sin sesión — guardar como dataURL
     const reader = new FileReader();
     reader.onload = ev => {
-      if (img) { img.src = ev.target.result; img.style.filter = ''; img.style.opacity = '1'; }
+      const imgFb = document.getElementById('perfilMascotaImg');
+      if (imgFb) { imgFb.src = ev.target.result; imgFb.style.display = 'block'; _clearImgState('perfilMascotaImg'); }
       p.fotoMascota = ev.target.result;
       _guardarFotoLocal(p);
       if (typeof renderHome === 'function') renderHome();
@@ -372,47 +384,50 @@ async function cargarFotoDueno(input) {
   const f = input.files[0]; if (!f) return;
   input.value = '';
 
-  const img  = document.getElementById('perfilOwnerImg');
-  const init = document.getElementById('perfilOwnerInitial');
-  const p    = cargarPerfilLocal();
-
+  const p = cargarPerfilLocal();
   _fotoToast('Procesando foto…', 'info');
+
+  const init = document.getElementById('perfilOwnerInitial');
   if (init) init.style.display = 'none';
-  if (img)  { img.style.display = 'block'; img.style.filter = 'blur(4px)'; img.style.opacity = '0.6'; }
 
   let blob;
-  try { blob = await _comprimirImagen(f, 600); }
+  try { blob = await _comprimirImagen(f, 600, 0.85); }
   catch { blob = f; }
 
   const localURL = URL.createObjectURL(blob);
-  if (img) img.src = localURL;
+  const imgPrev = document.getElementById('perfilOwnerImg');
+  if (imgPrev) { imgPrev.src = localURL; imgPrev.style.display = 'block'; imgPrev.style.removeProperty('filter'); imgPrev.style.removeProperty('opacity'); }
 
   if (typeof currentUser !== 'undefined' && currentUser && typeof subirFotoStorage === 'function') {
     try {
       const blobFile = new File([blob], 'dueno.jpg', { type: 'image/jpeg' });
       const url = await subirFotoStorage(blobFile, 'dueno');
-      if (img) { img.src = url; img.style.filter = ''; img.style.opacity = '1'; }
+      const imgFinal = document.getElementById('perfilOwnerImg');
+      if (imgFinal) { imgFinal.src = url; imgFinal.style.display = 'block'; _clearImgState('perfilOwnerImg'); }
       p.fotoDueno = url;
       _guardarFotoLocal(p);
       if (typeof guardarPerfilEnDB === 'function') guardarPerfilEnDB(p);
       if (typeof renderTopbarAuth === 'function') renderTopbarAuth();
       _fotoToast('¡Foto de perfil guardada! 😊', 'ok');
     } catch(e) {
-      console.warn('[Wufly] Storage falló, guardando local:', e.message);
+      console.warn('[Wufly] Storage error:', e.message);
+      _fotoToast('Error al subir: ' + (e.message || 'sin conexión') + ' — guardando local', 'err');
       const reader = new FileReader();
       reader.onload = ev => {
-        if (img) { img.src = ev.target.result; img.style.filter = ''; img.style.opacity = '1'; }
+        const imgFb = document.getElementById('perfilOwnerImg');
+        if (imgFb) { imgFb.src = ev.target.result; imgFb.style.display = 'block'; _clearImgState('perfilOwnerImg'); }
         p.fotoDueno = ev.target.result;
         _guardarFotoLocal(p);
         if (typeof renderTopbarAuth === 'function') renderTopbarAuth();
-        _fotoToast('Foto guardada localmente', 'ok');
+        setTimeout(() => _fotoToast('Foto guardada localmente', 'ok'), 2000);
       };
       reader.readAsDataURL(blob);
     }
   } else {
     const reader = new FileReader();
     reader.onload = ev => {
-      if (img) { img.src = ev.target.result; img.style.filter = ''; img.style.opacity = '1'; }
+      const imgFb = document.getElementById('perfilOwnerImg');
+      if (imgFb) { imgFb.src = ev.target.result; imgFb.style.display = 'block'; _clearImgState('perfilOwnerImg'); }
       p.fotoDueno = ev.target.result;
       _guardarFotoLocal(p);
       if (typeof renderTopbarAuth === 'function') renderTopbarAuth();
