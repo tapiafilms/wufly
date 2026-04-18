@@ -68,7 +68,7 @@ function cargarAdopciones() {
 function guardarAdopciones(lista) {
   try {
     localStorage.setItem(ADOPTAR_KEY, JSON.stringify(lista));
-  } catch (e) { console.error('Error guardando:', e); }
+  } catch { /* localStorage no disponible — se ignora silenciosamente */ }
 }
 
 /* ── Inicializar con ejemplos si no hay datos ── */

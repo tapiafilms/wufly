@@ -24,6 +24,9 @@ Reglas importantes:
 - Para cachorros y animales senior, sé más precavido en tus recomendaciones
 Aviso: Este asistente entrega orientación general y no constituye un diagnóstico médico veterinario.`;
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
   try {
     const res = await fetch(WORKER_URL, {
       method: 'POST',
@@ -33,20 +36,30 @@ Aviso: Este asistente entrega orientación general y no constituye un diagnósti
         max_tokens: 500,
         system: sys,
         messages: [{ role: 'user', content: msg }]
-      })
+      }),
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (res.status >= 500) throw new Error('server');
+    if (!res.ok) throw new Error('client');
 
     const data = await res.json();
     const text = data.content.map(i => i.text || '').join('');
     loading.remove();
     addMsg(text, 'bot');
   } catch (e) {
-    console.error('[Chat]', e);
-    const errMsg = navigator.onLine
-      ? 'No pude conectarme. Intenta de nuevo en un momento. 🙏'
-      : 'Sin conexión a internet. Conéctate para chatear.';
+    clearTimeout(timeoutId);
+    let errMsg;
+    if (e.name === 'AbortError') {
+      errMsg = 'La respuesta tardó demasiado. Intenta de nuevo. ⏱️';
+    } else if (!navigator.onLine) {
+      errMsg = 'Sin conexión a internet. Conéctate para chatear.';
+    } else if (e.message === 'server') {
+      errMsg = 'El asistente no está disponible ahora. Intenta más tarde. 🙏';
+    } else {
+      errMsg = 'No pude conectarme. Intenta de nuevo en un momento.';
+    }
     loading.className = 'msg bot error-msg';
     loading.textContent = errMsg;
   }

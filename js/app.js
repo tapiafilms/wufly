@@ -3,6 +3,16 @@
    ══════════════════════════════════════ */
 const WORKER_URL = "https://divine-waterfall-d1dfsin-gluten-life.pablo77tapia.workers.dev";
 
+/* ── Debounce: evita renders en cada tecla (búsquedas) ── */
+function _debounce(fn, ms = 280) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+const onSearchClinica   = _debounce(() => typeof renderClinicas   === 'function' && renderClinicas());
+const onSearchTienda    = _debounce(() => typeof renderTiendas    === 'function' && renderTiendas());
+const onSearchGrooming  = _debounce(() => typeof renderGrooming   === 'function' && renderGrooming());
+const onSearchPaseador  = _debounce(() => typeof renderPaseadores === 'function' && renderPaseadores());
+
 /* ══ ALERGIAS PRESET (para el editor en MI PERFIL) ══ */
 const PRESET_ALLERGIES = [
   { id:'gluten',       emoji:'🌾', name:'Gluten',             sub:'Trigo, cebada, centeno' },

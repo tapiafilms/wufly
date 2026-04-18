@@ -352,31 +352,18 @@ async function cargarFotoMascota(input) {
       if (typeof renderHome === 'function') renderHome();
       _fotoToast('¡Foto guardada en la nube! 🐾', 'ok');
     } catch(e) {
-      console.warn('[Wufly] Storage error:', e.message);
-      _fotoToast('Error al subir: ' + (e.message || 'sin conexión') + ' — guardando local', 'err');
-      // Fallback base64
-      const reader = new FileReader();
-      reader.onload = ev => {
-        const imgFb = document.getElementById('perfilMascotaImg');
-        if (imgFb) { imgFb.src = ev.target.result; imgFb.style.display = 'block'; _clearImgState('perfilMascotaImg'); }
-        p.fotoMascota = ev.target.result;
-        _guardarFotoLocal(p);
-        if (typeof renderHome === 'function') renderHome();
-        setTimeout(() => _fotoToast('Foto guardada localmente', 'ok'), 2000);
-      };
-      reader.readAsDataURL(blob);
+      // Error subiendo a Supabase: mostrar foto con blob URL temporal, no guardar base64 en localStorage
+      _fotoToast('No se pudo guardar en la nube. La foto se perderá al cerrar la app. 🔁', 'err');
+      const imgFb = document.getElementById('perfilMascotaImg');
+      if (imgFb) { imgFb.style.display = 'block'; _clearImgState('perfilMascotaImg'); }
+      if (typeof renderHome === 'function') renderHome();
     }
   } else {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const imgFb = document.getElementById('perfilMascotaImg');
-      if (imgFb) { imgFb.src = ev.target.result; imgFb.style.display = 'block'; _clearImgState('perfilMascotaImg'); }
-      p.fotoMascota = ev.target.result;
-      _guardarFotoLocal(p);
-      if (typeof renderHome === 'function') renderHome();
-      _fotoToast('Foto guardada localmente', 'ok');
-    };
-    reader.readAsDataURL(blob);
+    // Sin cuenta: foto visible solo en esta sesión (blob URL), no se guarda base64 en localStorage
+    const imgFb = document.getElementById('perfilMascotaImg');
+    if (imgFb) { imgFb.style.display = 'block'; _clearImgState('perfilMascotaImg'); }
+    if (typeof renderHome === 'function') renderHome();
+    _fotoToast('Foto visible en esta sesión. Crea una cuenta para guardarla. 🔑', 'info');
   }
 }
 
@@ -410,30 +397,18 @@ async function cargarFotoDueno(input) {
       if (typeof renderTopbarAuth === 'function') renderTopbarAuth();
       _fotoToast('¡Foto de perfil guardada! 😊', 'ok');
     } catch(e) {
-      console.warn('[Wufly] Storage error:', e.message);
-      _fotoToast('Error al subir: ' + (e.message || 'sin conexión') + ' — guardando local', 'err');
-      const reader = new FileReader();
-      reader.onload = ev => {
-        const imgFb = document.getElementById('perfilOwnerImg');
-        if (imgFb) { imgFb.src = ev.target.result; imgFb.style.display = 'block'; _clearImgState('perfilOwnerImg'); }
-        p.fotoDueno = ev.target.result;
-        _guardarFotoLocal(p);
-        if (typeof renderTopbarAuth === 'function') renderTopbarAuth();
-        setTimeout(() => _fotoToast('Foto guardada localmente', 'ok'), 2000);
-      };
-      reader.readAsDataURL(blob);
+      // Error subiendo a Supabase: mostrar foto con blob URL temporal, no guardar base64 en localStorage
+      _fotoToast('No se pudo guardar en la nube. La foto se perderá al cerrar la app. 🔁', 'err');
+      const imgFb = document.getElementById('perfilOwnerImg');
+      if (imgFb) { imgFb.style.display = 'block'; _clearImgState('perfilOwnerImg'); }
+      if (typeof renderTopbarAuth === 'function') renderTopbarAuth();
     }
   } else {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const imgFb = document.getElementById('perfilOwnerImg');
-      if (imgFb) { imgFb.src = ev.target.result; imgFb.style.display = 'block'; _clearImgState('perfilOwnerImg'); }
-      p.fotoDueno = ev.target.result;
-      _guardarFotoLocal(p);
-      if (typeof renderTopbarAuth === 'function') renderTopbarAuth();
-      _fotoToast('Foto guardada localmente', 'ok');
-    };
-    reader.readAsDataURL(blob);
+    // Sin cuenta: foto visible solo en esta sesión (blob URL), no se guarda base64 en localStorage
+    const imgFb = document.getElementById('perfilOwnerImg');
+    if (imgFb) { imgFb.style.display = 'block'; _clearImgState('perfilOwnerImg'); }
+    if (typeof renderTopbarAuth === 'function') renderTopbarAuth();
+    _fotoToast('Foto visible en esta sesión. Crea una cuenta para guardarla. 🔑', 'info');
   }
 }
 

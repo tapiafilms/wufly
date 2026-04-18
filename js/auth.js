@@ -119,13 +119,18 @@ function abrirAuthModal(modo = 'login') {
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
   setTimeout(() => document.getElementById('authEmail')?.focus(), 120);
+  // Escape cierra el modal
+  modal._escHandler = (e) => { if (e.key === 'Escape') cerrarAuthModal(); };
+  document.addEventListener('keydown', modal._escHandler);
 }
 
 function cerrarAuthModal() {
-  // Solo se puede cerrar si el usuario ya tiene sesión activa
-  if (!currentUser) return;
   const modal = document.getElementById('authModal');
   if (!modal) return;
+  if (modal._escHandler) {
+    document.removeEventListener('keydown', modal._escHandler);
+    delete modal._escHandler;
+  }
   modal.style.display = 'none';
   document.body.style.overflow = '';
   _limpiarModal();
@@ -309,7 +314,6 @@ async function guardarPerfilEnDB(p) {
   };
   const { error } = await db.from('profiles').upsert(payload);
   if (error) {
-    console.error('[Wufly] guardarPerfilEnDB error:', error.message, error.code);
     // Mostrar toast si hay función disponible
     if (typeof _fotoToast === 'function') {
       _fotoToast('Error al guardar en nube: ' + error.message, 'err');

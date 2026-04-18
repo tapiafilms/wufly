@@ -318,7 +318,7 @@ async function iniciarGeoBusqueda(forzar = false) {
     } else {
       geoStatus = 'error';
       renderGeoBanner('idle');
-      console.warn('[Wufly Geo]', err.message || err);
+      /* error de geolocalización no crítico — banner ya actualizado */
     }
   }
 }
