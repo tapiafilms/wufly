@@ -177,12 +177,14 @@ function osmToGrooming(node, uLat, uLng) {
 
 /* ══ BANNER GEO — renderiza en múltiples banners ══ */
 const _geoBanners = [
-  { id: 'geoBanner',     titulo: 'Ver tiendas cerca de ti',   sub: 'Pet shops y tiendas reales en tu zona' },
-  { id: 'geoBannerVets', titulo: 'Ver clínicas cerca de ti',  sub: 'Veterinarias y urgencias en tu zona'   },
+  { id: 'geoBanner',     titulo: 'Ver tiendas cerca de ti',  sub: 'Pet shops y tiendas reales en tu zona',
+    msgOk: () => `${(geoResults.tiendas?.length||0) + (geoResults.grooming?.length||0)} negocios encontrados a menos de 7 km` },
+  { id: 'geoBannerVets', titulo: 'Ver clínicas cerca de ti', sub: 'Veterinarias y urgencias en tu zona',
+    msgOk: () => `${geoResults.clinicas?.length||0} clínicas encontradas a menos de 7 km` },
 ];
 
 function renderGeoBanner(estado, msg = '') {
-  _geoBanners.forEach(({ id, titulo, sub }) => {
+  _geoBanners.forEach(({ id, titulo, sub, msgOk }) => {
     const banner = document.getElementById(id);
     if (!banner) return;
 
@@ -222,9 +224,10 @@ function renderGeoBanner(estado, msg = '') {
       banner.style.display     = 'block';
       banner.style.background  = 'var(--mint-light)';
       banner.style.borderColor = 'rgba(93,214,168,0.35)';
+      const textoOk = msgOk ? msgOk() : msg;
       banner.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-          <div style="font-size:12px;font-weight:700;color:var(--mint-dark);">📍 ${msg}</div>
+          <div style="font-size:12px;font-weight:700;color:var(--mint-dark);">📍 ${textoOk}</div>
           <button onclick="iniciarGeoBusqueda(true)"
             style="font-size:11px;color:var(--text-muted);background:white;border:1.5px solid var(--border-md);border-radius:100px;padding:4px 10px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
             Actualizar
