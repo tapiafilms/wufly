@@ -133,7 +133,7 @@ function renderHome() {
           <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">🏥 CLÍNICAS DESTACADAS</div>
           <button onclick="switchTab('restaurantes')" style="background:none;border:none;font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Ver todas →</button>
         </div>
-        <div id="clinicas-carousel" style="display:flex;gap:12px;overflow-x:auto;padding:4px 16px 10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+        <div id="clinicas-carousel" style="display:flex;overflow-x:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-radius:18px;margin:0 16px;">
           ${_carouselClinicas()}
         </div>
         <!-- Dots -->
@@ -218,40 +218,76 @@ const _clinicasCarousel = [
 
 function _carouselClinicas() {
   return _clinicasCarousel.map((c, i) => `
-    <div onclick="switchTab('restaurantes')" style="flex:0 0 72vw;max-width:280px;scroll-snap-align:start;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,0.15);">
-      <div style="background:${c.grad};padding:18px 18px 20px;">
-        ${c.urgencia ? `<div style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.22);border-radius:100px;padding:3px 10px;font-size:10px;font-weight:700;color:white;margin-bottom:10px;">🚨 Urgencias 24h</div>` : `<div style="height:22px;margin-bottom:10px;"></div>`}
-        <div style="font-size:26px;margin-bottom:8px;">${c.icon}</div>
-        <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:17px;color:white;margin-bottom:3px;line-height:1.2;">${c.nombre}</div>
-        <div style="font-size:10px;color:rgba(255,255,255,0.75);font-weight:600;letter-spacing:0.04em;margin-bottom:8px;">${c.tipo}</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.85);line-height:1.5;margin-bottom:14px;">${c.desc}</div>
+    <div onclick="switchTab('restaurantes')"
+      style="flex:0 0 100%;scroll-snap-align:start;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,0.15);">
+      <div style="background:${c.grad};padding:20px 20px 22px;">
+        ${c.urgencia
+          ? `<div style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.22);border-radius:100px;padding:3px 10px;font-size:10px;font-weight:700;color:white;margin-bottom:10px;">🚨 Urgencias 24h</div>`
+          : `<div style="height:22px;margin-bottom:10px;"></div>`}
+        <div style="font-size:28px;margin-bottom:8px;">${c.icon}</div>
+        <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:19px;color:white;margin-bottom:3px;line-height:1.2;">${c.nombre}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.75);font-weight:600;letter-spacing:0.04em;margin-bottom:8px;">${c.tipo}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.88);line-height:1.5;margin-bottom:16px;">${c.desc}</div>
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div style="font-size:11px;color:rgba(255,255,255,0.7);">📍 ${c.ciudad}</div>
-          <div style="font-size:12px;font-weight:700;color:white;">Ver →</div>
+          <div style="font-size:12px;font-weight:700;color:white;background:rgba(255,255,255,0.2);padding:5px 12px;border-radius:100px;">Ver clínica →</div>
         </div>
       </div>
     </div>
   `).join('');
 }
 
-/* ── Dots del carousel (se inicializan después del render) ── */
+/* ── Autoplay carousel con CSS scroll-behavior ── */
+let _carouselTimer = null;
+let _carouselIdx   = 0;
+
 function _initCarouselDots() {
   const track = document.getElementById('clinicas-carousel');
   if (!track) return;
 
+  const total = _clinicasCarousel.length;
+
+  /* Sync dots al scroll manual */
   track.addEventListener('scroll', () => {
-    const cardW = track.querySelector('div')?.offsetWidth + 12 || 292;
-    const idx   = Math.round(track.scrollLeft / cardW);
-    document.querySelectorAll('.cdot').forEach((d, i) => {
-      const active = i === idx;
-      d.style.width      = active ? '18px' : '6px';
-      d.style.background = active ? 'var(--purple)' : '#D1D5DB';
-    });
+    const idx = Math.round(track.scrollLeft / track.offsetWidth);
+    _carouselIdx = idx;
+    _updateDots(idx);
   }, { passive: true });
+
+  /* Pausa autoplay al tocar */
+  track.addEventListener('touchstart', () => {
+    clearInterval(_carouselTimer);
+  }, { passive: true });
+  track.addEventListener('touchend', () => {
+    _startAutoplay(track, total);
+  }, { passive: true });
+
+  /* Arrancar autoplay */
+  _startAutoplay(track, total);
+}
+
+function _startAutoplay(track, total) {
+  clearInterval(_carouselTimer);
+  _carouselTimer = setInterval(() => {
+    if (!document.getElementById('clinicas-carousel')) {
+      clearInterval(_carouselTimer); return;
+    }
+    _carouselIdx = (_carouselIdx + 1) % total;
+    track.scrollTo({ left: _carouselIdx * track.offsetWidth, behavior: 'smooth' });
+    _updateDots(_carouselIdx);
+  }, 3500);
+}
+
+function _updateDots(idx) {
+  document.querySelectorAll('.cdot').forEach((d, i) => {
+    const active = i === idx;
+    d.style.width      = active ? '20px' : '6px';
+    d.style.background = active ? 'var(--purple)' : '#D1D5DB';
+  });
 }
 
 /* ── Init ── */
 document.addEventListener('DOMContentLoaded', () => {
   renderHome();
-  setTimeout(_initCarouselDots, 100);
+  setTimeout(_initCarouselDots, 150);
 });
