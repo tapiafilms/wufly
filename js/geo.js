@@ -207,12 +207,15 @@ function renderGeoBanner(estado, msg = '') {
 
     } else if (estado === 'loading') {
       banner.style.display     = 'block';
-      banner.style.background  = '#F9FAFB';
-      banner.style.borderColor = 'var(--border-md)';
+      banner.style.background  = 'var(--purple-light)';
+      banner.style.borderColor = 'rgba(124,77,204,0.2)';
       banner.innerHTML = `
-        <div style="display:flex;align-items:center;gap:10px;color:var(--text-muted);font-size:13px;">
-          <span style="font-size:18px;">🔍</span>
-          Buscando cerca de ti...
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:20px;height:20px;border:3px solid rgba(124,77,204,0.25);border-top-color:var(--purple);border-radius:50%;animation:geoSpin 0.8s linear infinite;flex-shrink:0;"></div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--purple);">Buscando cerca de ti…</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">Obteniendo tu ubicación</div>
+          </div>
         </div>`;
 
     } else if (estado === 'ok') {
@@ -319,6 +322,13 @@ async function iniciarGeoBusqueda(forzar = false) {
 
 /* ── Init: si ya tiene permiso, buscar silenciosamente ── */
 document.addEventListener('DOMContentLoaded', () => {
+  // Inyectar keyframe del spinner una sola vez
+  if (!document.getElementById('_geoSpinStyle')) {
+    const s = document.createElement('style');
+    s.id = '_geoSpinStyle';
+    s.textContent = '@keyframes geoSpin { to { transform: rotate(360deg); } }';
+    document.head.appendChild(s);
+  }
   renderGeoBanner('idle');
   if (navigator.permissions) {
     navigator.permissions.query({ name: 'geolocation' })
