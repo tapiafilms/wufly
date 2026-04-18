@@ -175,62 +175,69 @@ function osmToGrooming(node, uLat, uLng) {
   };
 }
 
-/* ══ BANNER GEO (en VETS) ══ */
+/* ══ BANNER GEO — renderiza en múltiples banners ══ */
+const _geoBanners = [
+  { id: 'geoBanner',     titulo: 'Ver tiendas cerca de ti',   sub: 'Pet shops y tiendas reales en tu zona' },
+  { id: 'geoBannerVets', titulo: 'Ver clínicas cerca de ti',  sub: 'Veterinarias y urgencias en tu zona'   },
+];
+
 function renderGeoBanner(estado, msg = '') {
-  const banner = document.getElementById('geoBanner');
-  if (!banner) return;
+  _geoBanners.forEach(({ id, titulo, sub }) => {
+    const banner = document.getElementById(id);
+    if (!banner) return;
 
-  if (estado === 'idle') {
-    banner.style.display    = 'block';
-    banner.style.background = 'var(--purple-light)';
-    banner.style.borderColor = 'rgba(124,77,204,0.2)';
-    banner.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="font-size:22px;">📍</span>
-          <div>
-            <div style="font-size:13px;font-weight:700;color:var(--text);">Ver negocios cerca de ti</div>
-            <div style="font-size:11px;color:var(--text-muted);">Veterinarias, tiendas y peluquerías reales</div>
+    if (estado === 'idle') {
+      banner.style.display     = 'block';
+      banner.style.background  = 'var(--purple-light)';
+      banner.style.borderColor = 'rgba(124,77,204,0.2)';
+      banner.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:22px;">📍</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--text);">${titulo}</div>
+              <div style="font-size:11px;color:var(--text-muted);">${sub}</div>
+            </div>
           </div>
-        </div>
-        <button onclick="iniciarGeoBusqueda(true)"
-          style="font-size:12px;font-weight:700;color:white;background:var(--purple);border:none;border-radius:100px;padding:8px 14px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;flex-shrink:0;">
-          Activar 📍
-        </button>
-      </div>`;
+          <button onclick="iniciarGeoBusqueda(true)"
+            style="font-size:12px;font-weight:700;color:white;background:var(--purple);border:none;border-radius:100px;padding:8px 14px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;flex-shrink:0;">
+            Activar 📍
+          </button>
+        </div>`;
 
-  } else if (estado === 'loading') {
-    banner.style.display    = 'block';
-    banner.style.background = '#F9FAFB';
-    banner.style.borderColor = 'var(--border-md)';
-    banner.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;color:var(--text-muted);font-size:13px;">
-        <span style="font-size:18px;">🔍</span>
-        Buscando negocios cerca de ti...
-      </div>`;
+    } else if (estado === 'loading') {
+      banner.style.display     = 'block';
+      banner.style.background  = '#F9FAFB';
+      banner.style.borderColor = 'var(--border-md)';
+      banner.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;color:var(--text-muted);font-size:13px;">
+          <span style="font-size:18px;">🔍</span>
+          Buscando cerca de ti...
+        </div>`;
 
-  } else if (estado === 'ok') {
-    banner.style.display    = 'block';
-    banner.style.background = 'var(--mint-light)';
-    banner.style.borderColor = 'rgba(93,214,168,0.35)';
-    banner.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-        <div style="font-size:12px;font-weight:700;color:var(--mint-dark);">📍 ${msg}</div>
-        <button onclick="iniciarGeoBusqueda(true)"
-          style="font-size:11px;color:var(--text-muted);background:white;border:1.5px solid var(--border-md);border-radius:100px;padding:4px 10px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
-          Actualizar
-        </button>
-      </div>`;
+    } else if (estado === 'ok') {
+      banner.style.display     = 'block';
+      banner.style.background  = 'var(--mint-light)';
+      banner.style.borderColor = 'rgba(93,214,168,0.35)';
+      banner.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <div style="font-size:12px;font-weight:700;color:var(--mint-dark);">📍 ${msg}</div>
+          <button onclick="iniciarGeoBusqueda(true)"
+            style="font-size:11px;color:var(--text-muted);background:white;border:1.5px solid var(--border-md);border-radius:100px;padding:4px 10px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+            Actualizar
+          </button>
+        </div>`;
 
-  } else if (estado === 'denied') {
-    banner.style.display    = 'block';
-    banner.style.background = '#FEF9C3';
-    banner.style.borderColor = 'rgba(234,179,8,0.4)';
-    banner.innerHTML = `<div style="font-size:12px;color:#92400E;">⚠️ Permiso de ubicación denegado. Actívalo en la configuración del navegador para ver negocios cercanos.</div>`;
+    } else if (estado === 'denied') {
+      banner.style.display     = 'block';
+      banner.style.background  = '#FEF9C3';
+      banner.style.borderColor = 'rgba(234,179,8,0.4)';
+      banner.innerHTML = `<div style="font-size:12px;color:#92400E;">⚠️ Permiso de ubicación denegado. Actívalo en la configuración del navegador.</div>`;
 
-  } else {
-    banner.style.display = 'none';
-  }
+    } else {
+      banner.style.display = 'none';
+    }
+  });
 }
 
 /* ══ ACTUALIZAR BOTONES "Cerca" en cada sección ══ */
