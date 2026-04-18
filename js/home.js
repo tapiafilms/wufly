@@ -133,13 +133,15 @@ function renderHome() {
           <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">🏥 CLÍNICAS DESTACADAS</div>
           <button onclick="switchTab('restaurantes')" style="background:none;border:none;font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Ver todas →</button>
         </div>
-        <!-- Track fuera del clip: padding lateral crea el "peek" de la siguiente tarjeta -->
-        <div id="clinicas-carousel"
-          style="display:flex;gap:12px;overflow-x:auto;padding:4px 16px 12px;scroll-snap-type:x mandatory;scroll-padding-left:16px;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
-          ${_carouselClinicas()}
+        <!-- Clip container — overflow:hidden corta el track -->
+        <div style="overflow:hidden;">
+          <div id="clinicas-track"
+            style="display:flex;gap:12px;padding:4px 0 12px 16px;will-change:transform;transition:transform 0.65s cubic-bezier(0.25,0.46,0.45,0.94);">
+            ${_carouselClinicas()}
+          </div>
         </div>
         <!-- Dots -->
-        <div id="carousel-dots" style="display:flex;justify-content:center;gap:5px;margin-top:2px;">
+        <div id="carousel-dots" style="display:flex;justify-content:center;gap:5px;margin-top:6px;">
           ${[0,1,2,3,4].map(i => `<div class="cdot${i===0?' cdot-active':''}" style="width:${i===0?'20px':'6px'};height:6px;border-radius:100px;background:${i===0?'var(--purple)':'#D1D5DB'};transition:all 0.3s;"></div>`).join('')}
         </div>
       </div>
@@ -221,7 +223,7 @@ const _clinicasCarousel = [
 function _carouselClinicas() {
   return _clinicasCarousel.map((c, i) => `
     <div onclick="switchTab('restaurantes')"
-      style="flex:0 0 calc(92vw - 32px);scroll-snap-align:start;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,0.18);flex-shrink:0;">
+      style="flex:0 0 88%;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,0.18);">
       <div style="background:${c.grad};padding:20px 20px 22px;">
         ${c.urgencia
           ? `<div style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.22);border-radius:100px;padding:3px 10px;font-size:10px;font-weight:700;color:white;margin-bottom:10px;">🚨 Urgencias 24h</div>`
@@ -239,84 +241,40 @@ function _carouselClinicas() {
   `).join('');
 }
 
-/* ── Carousel: autoplay con easing cúbico + swipe táctil ── */
-let _carouselTimer = null;
-let _carouselIdx   = 0;
-let _carouselAnimating = false;
+/* ── Carousel: CSS transform + swipe táctil ── */
+let _carouselIdx = 0;
+let _touchStartX = 0;
 
-/* Curva easeInOutCubic: arranca y frena suave */
-function _easeInOutCubic(t) {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-}
-
-/* Scroll animado con rAF + easing personalizado */
-function _scrollCarousel(track, targetX, duration = 650) {
-  if (_carouselAnimating) return;
-  _carouselAnimating = true;
-  const startX    = track.scrollLeft;
-  const dist      = targetX - startX;
-  const startTime = performance.now();
-
-  function step(now) {
-    const elapsed  = now - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    track.scrollLeft = startX + dist * _easeInOutCubic(progress);
-    if (progress < 1) {
-      requestAnimationFrame(step);
-    } else {
-      track.scrollLeft = targetX; // snap exacto al final
-      _carouselAnimating = false;
-    }
-  }
-  requestAnimationFrame(step);
+/* Mueve el track al slide idx usando CSS transition (cross-platform) */
+function _goToSlide(idx) {
+  const track = document.getElementById('clinicas-track');
+  if (!track) return;
+  const card = track.querySelector('div');
+  if (!card) return;
+  const step = card.offsetWidth + 12; // ancho de tarjeta + gap
+  track.style.transform = `translateX(-${idx * step}px)`;
+  _carouselIdx = idx;
+  _updateDots(idx);
 }
 
 function _initCarouselDots() {
-  const track = document.getElementById('clinicas-carousel');
+  const track = document.getElementById('clinicas-track');
   if (!track) return;
-
   const total = _clinicasCarousel.length;
 
-  /* Paso de scroll = ancho de tarjeta + gap */
-  const _step = () => (track.querySelector('div')?.offsetWidth ?? 320) + 12;
+  /* Swipe táctil — detectar dirección con delta X */
+  track.addEventListener('touchstart', e => {
+    _touchStartX = e.touches[0].clientX;
+  }, { passive: true });
 
-  /* Sync dots al hacer scroll manual con el dedo */
-  track.addEventListener('scroll', () => {
-    if (_carouselAnimating) return;
-    const idx = Math.round(track.scrollLeft / _step());
-    if (idx !== _carouselIdx) {
-      _carouselIdx = idx;
-      _updateDots(idx);
+  track.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - _touchStartX;
+    if (Math.abs(dx) > 40) {
+      if (dx < 0) _carouselIdx = Math.min(_carouselIdx + 1, total - 1);
+      else        _carouselIdx = Math.max(_carouselIdx - 1, 0);
+      _goToSlide(_carouselIdx);
     }
   }, { passive: true });
-
-  /* Al soltar el dedo: actualizar índice y reiniciar autoplay */
-  track.addEventListener('touchstart', () => {
-    clearInterval(_carouselTimer);
-  }, { passive: true });
-  track.addEventListener('touchend', () => {
-    setTimeout(() => {
-      const idx = Math.round(track.scrollLeft / _step());
-      _carouselIdx = idx;
-      _updateDots(idx);
-      _startAutoplay(track, total);
-    }, 350);
-  }, { passive: true });
-
-  _startAutoplay(track, total);
-}
-
-function _startAutoplay(track, total) {
-  clearInterval(_carouselTimer);
-  _carouselTimer = setInterval(() => {
-    if (!document.getElementById('clinicas-carousel')) {
-      clearInterval(_carouselTimer); return;
-    }
-    const step = (track.querySelector('div')?.offsetWidth ?? 320) + 12;
-    _carouselIdx = (_carouselIdx + 1) % total;
-    _scrollCarousel(track, _carouselIdx * step);
-    _updateDots(_carouselIdx);
-  }, 5000);
 }
 
 function _updateDots(idx) {
@@ -330,5 +288,6 @@ function _updateDots(idx) {
 /* ── Init ── */
 document.addEventListener('DOMContentLoaded', () => {
   renderHome();
-  setTimeout(_initCarouselDots, 150);
+  // Esperar que el DOM del carousel esté renderizado antes de iniciar
+  setTimeout(_initCarouselDots, 200);
 });
