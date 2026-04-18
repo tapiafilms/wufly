@@ -359,6 +359,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Si hay un usuario logueado, sincronizarPerfil() habrá corrido — no mostrar onboarding
     if (typeof currentUser !== 'undefined' && currentUser) return;
 
+    // Si el modal de login está abierto (obligatorio), no mostrar onboarding encima
+    const authModal = document.getElementById('authModal');
+    if (authModal && authModal.style.display === 'flex') return;
+
     injectOnboardingStyles();
     showOnboarding();
   }, 800); // 800ms da tiempo a auth.js para getSession() y sincronizarPerfil()

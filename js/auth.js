@@ -15,6 +15,13 @@ db.auth.onAuthStateChange(async (event, session) => {
   currentUser = session?.user ?? null;
   renderAuthBanner();
   if (currentUser && event === 'SIGNED_IN') {
+    // Cerrar modal de login si está abierto
+    const modal = document.getElementById('authModal');
+    if (modal && modal.style.display === 'flex') {
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+      _limpiarModal();
+    }
     await sincronizarPerfil();
     await sincronizarRecordatorios();
   }
@@ -115,6 +122,8 @@ function abrirAuthModal(modo = 'login') {
 }
 
 function cerrarAuthModal() {
+  // Solo se puede cerrar si el usuario ya tiene sesión activa
+  if (!currentUser) return;
   const modal = document.getElementById('authModal');
   if (!modal) return;
   modal.style.display = 'none';
@@ -133,10 +142,11 @@ function _actualizarModalModo(modo) {
   const esRegistro = modo === 'register';
   document.getElementById('authTitulo').textContent        = esRegistro ? 'Crear cuenta' : 'Iniciar sesión';
   document.getElementById('authBtnSubmit').textContent     = esRegistro ? 'Crear cuenta' : 'Entrar';
+  document.getElementById('authBtnSubmit').style.display   = 'block';
   document.getElementById('authCampoNombre').style.display = esRegistro ? 'block' : 'none';
   document.getElementById('authLinkAlternativo').innerHTML  = esRegistro
-    ? `¿Ya tienes cuenta? <button onclick="setAuthModo('login')" style="background:none;border:none;color:var(--purple);font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;">Iniciar sesión</button>`
-    : `¿No tienes cuenta? <button onclick="setAuthModo('register')" style="background:none;border:none;color:var(--purple);font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;">Registrarse</button>`;
+    ? `¿Ya tienes una cuenta? <button onclick="setAuthModo('login')" style="background:none;border:none;color:var(--purple);font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;">Iniciar sesión</button>`
+    : `¿No estás registrado? <button onclick="setAuthModo('register')" style="background:none;border:none;color:var(--purple);font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;">Crear cuenta aquí</button>`;
   document.getElementById('authError').style.display = 'none';
 }
 
@@ -168,8 +178,8 @@ async function submitAuth() {
         options: { data: { nombre } }
       });
       if (error) throw error;
-      _authErr('Revisa tu correo para confirmar tu cuenta 📧', 'ok');
-      setTimeout(cerrarAuthModal, 3500);
+      // Mostrar estado de confirmación pendiente (no cerrar el modal)
+      _mostrarConfirmacionPendiente(email);
       return;
     } else {
       const { error } = await db.auth.signInWithPassword({ email, password: pass });
@@ -188,6 +198,27 @@ async function submitAuth() {
     btn.disabled = false;
     _actualizarModalModo(modo);
   }
+}
+
+/* Pantalla de "revisa tu correo" dentro del modal (no cierra el modal) */
+function _mostrarConfirmacionPendiente(email) {
+  const body = document.querySelector('#authModal > div > div:last-child');
+  if (!body) return;
+  body.innerHTML = `
+    <div style="text-align:center;padding:10px 0 6px;">
+      <div style="font-size:52px;margin-bottom:12px;">📧</div>
+      <div style="font-family:'Funnel Display',sans-serif;font-size:19px;font-weight:700;color:#2D1B6B;margin-bottom:8px;">¡Casi listo!</div>
+      <div style="font-size:13px;color:#6B7280;line-height:1.6;margin-bottom:6px;">
+        Te enviamos un correo de confirmación a<br>
+        <strong style="color:#4C1D95;">${email}</strong>
+      </div>
+      <div style="font-size:12px;color:#9CA3AF;margin-bottom:24px;">
+        Revísalo (también la carpeta spam) y confirma tu cuenta.<br>Luego vuelve e inicia sesión.
+      </div>
+      <button onclick="setAuthModo('login')" class="btn-primary" style="font-size:14px;width:100%;">
+        Ir a iniciar sesión
+      </button>
+    </div>`;
 }
 
 function _authErr(msg, tipo = 'error') {
@@ -322,15 +353,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const overlay = document.getElementById('onboarding-overlay');
     if (overlay) overlay.remove();
   } else {
-    // Mostrar modal de login la primera vez, pero SOLO si el onboarding no está activo
-    const yaVisto = localStorage.getItem('wufly_welcome_shown');
-    if (!yaVisto) {
-      localStorage.setItem('wufly_welcome_shown', '1');
-      setTimeout(() => {
-        if (!document.getElementById('onboarding-overlay')) {
-          abrirAuthModal('register');
-        }
-      }, 1400);
-    }
+    // Sin sesión → mostrar modal de login obligatorio (siempre)
+    // Pequeño delay para que el DOM esté listo
+    setTimeout(() => {
+      abrirAuthModal('login');
+    }, 600);
   }
 });

@@ -750,22 +750,18 @@
 </div><!-- /info-column -->
 </div><!-- /desktop-layout -->
 
-<!-- AUTH MODAL -->
+<!-- AUTH MODAL (obligatorio — no se puede cerrar sin sesión) -->
 <div id="authModal" data-modo="login"
-  style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.65);align-items:center;justify-content:center;padding:20px;"
-  onclick="if(event.target===this)cerrarAuthModal()">
+  style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.72);align-items:center;justify-content:center;padding:20px;">
   <div style="background:white;border-radius:var(--r);width:100%;max-width:380px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.3);">
-    <!-- Header -->
-    <div style="background:linear-gradient(135deg,#5C2FA8,#7C4DCC);padding:22px 20px 18px;display:flex;align-items:flex-start;justify-content:space-between;">
-      <div>
-        <div style="font-size:26px;margin-bottom:4px;">🐾</div>
-        <div id="authTitulo" style="font-family:'Funnel Display',sans-serif;font-size:21px;font-weight:700;color:white;">Iniciar sesión</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;">Tus datos guardados en la nube</div>
-      </div>
-      <button onclick="cerrarAuthModal()" style="width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.12);cursor:pointer;color:white;font-size:16px;line-height:1;flex-shrink:0;">✕</button>
+    <!-- Header (sin botón de cierre) -->
+    <div style="background:linear-gradient(135deg,#5C2FA8,#7C4DCC);padding:26px 24px 22px;">
+      <div style="font-size:32px;margin-bottom:6px;">🐾</div>
+      <div id="authTitulo" style="font-family:'Funnel Display',sans-serif;font-size:23px;font-weight:700;color:white;">Iniciar sesión</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.72);margin-top:3px;">Accede para cuidar mejor a tu mascota</div>
     </div>
     <!-- Body -->
-    <div style="padding:22px 20px;display:flex;flex-direction:column;gap:14px;">
+    <div style="padding:24px 22px;display:flex;flex-direction:column;gap:14px;">
       <!-- Campo nombre (solo registro) -->
       <div id="authCampoNombre" style="display:none;">
         <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;">TU NOMBRE</label>
@@ -788,14 +784,10 @@
       <!-- Botón submit -->
       <button id="authBtnSubmit" onclick="submitAuth()" class="btn-primary" style="margin-top:2px;font-size:15px;">Entrar</button>
       <!-- Link alternativo -->
-      <div id="authLinkAlternativo" style="font-size:13px;color:var(--text-muted);text-align:center;">
-        ¿No tienes cuenta? <button onclick="setAuthModo('register')" style="background:none;border:none;color:var(--purple);font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;">Registrarse</button>
+      <div id="authLinkAlternativo" style="font-size:13px;color:var(--text-muted);text-align:center;padding:4px 0;">
+        ¿No estás registrado?
+        <button onclick="setAuthModo('register')" style="background:none;border:none;color:var(--purple);font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;">Crear cuenta aquí</button>
       </div>
-      <!-- Continuar sin cuenta -->
-      <button onclick="cerrarAuthModal()"
-        style="background:none;border:none;color:var(--text-hint);font-size:12px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;padding:4px;text-decoration:underline;text-underline-offset:2px;">
-        Continuar sin cuenta
-      </button>
     </div>
   </div>
 </div>
