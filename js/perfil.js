@@ -248,66 +248,178 @@ function toggleSaludChip(el) {
   el.style.borderColor = sel ? '#5DD6A8' : 'var(--border-md)';
 }
 
-/* ── Fotos ── */
+/* ══════════════════════════════════
+   FOTOS — comprimir + subir + guardar
+   ══════════════════════════════════ */
+
+/* Redimensiona y comprime una imagen a máx 900px, devuelve Blob */
+function _comprimirImagen(file, maxW = 900, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = ev => {
+      const src = ev.target.result;
+      const image = new Image();
+      image.onerror = reject;
+      image.onload = () => {
+        let { width, height } = image;
+        if (width > maxW) { height = Math.round(height * maxW / width); width = maxW; }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0, width, height);
+        canvas.toBlob(blob => {
+          if (!blob) { reject(new Error('canvas.toBlob falló')); return; }
+          resolve(blob);
+        }, 'image/jpeg', quality);
+      };
+      image.src = src;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* Toast simple de feedback */
+function _fotoToast(msg, tipo = 'ok') {
+  let t = document.getElementById('_fotoToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = '_fotoToast';
+    t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:99999;padding:10px 20px;border-radius:100px;font-size:13px;font-weight:700;font-family:"Plus Jakarta Sans",sans-serif;box-shadow:0 4px 20px rgba(0,0,0,0.25);transition:opacity 0.4s;pointer-events:none;white-space:nowrap;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.background = tipo === 'ok'  ? '#10B981' :
+                        tipo === 'err' ? '#EF4444' : '#6366F1';
+  t.style.color = 'white';
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 3000);
+}
+
+/* Guarda dataURL en localStorage con manejo de cuota */
+function _guardarFotoLocal(p) {
+  try {
+    localStorage.setItem(PERFIL_KEY, JSON.stringify(p));
+  } catch (e) {
+    // Cuota excedida — quitar fotos base64 y reintentar solo con URL
+    const pMin = { ...p };
+    if (pMin.fotoMascota?.startsWith('data:')) delete pMin.fotoMascota;
+    if (pMin.fotoDueno?.startsWith('data:'))  delete pMin.fotoDueno;
+    try { localStorage.setItem(PERFIL_KEY, JSON.stringify(pMin)); } catch {}
+  }
+}
+
 async function cargarFotoMascota(input) {
   const f = input.files[0]; if (!f) return;
+  input.value = ''; // limpiar para permitir volver a elegir la misma foto
+
   const img = document.getElementById('perfilMascotaImg');
   const ph  = document.getElementById('perfilMascotaPlaceholder');
-  if (ph) ph.style.display = 'none';
-  const p = cargarPerfilLocal();
+  const p   = cargarPerfilLocal();
+
+  // Mostrar preview inmediato borroso
+  _fotoToast('Procesando foto…', 'info');
+  if (ph)  ph.style.display  = 'none';
+  if (img) { img.style.display = 'block'; img.style.filter = 'blur(4px)'; img.style.opacity = '0.6'; }
+
+  let blob;
+  try { blob = await _comprimirImagen(f); }
+  catch { blob = f; }
+
+  // Preview local inmediato (mientras sube)
+  const localURL = URL.createObjectURL(blob);
+  if (img) img.src = localURL;
 
   if (typeof currentUser !== 'undefined' && currentUser && typeof subirFotoStorage === 'function') {
-    // Mostrar loader mientras sube
-    if (img) { img.style.display = 'block'; img.style.opacity = '0.4'; }
     try {
-      const url = await subirFotoStorage(f, 'mascota');
-      if (img) { img.src = url; img.style.opacity = '1'; }
+      const blobFile = new File([blob], 'mascota.jpg', { type: 'image/jpeg' });
+      const url = await subirFotoStorage(blobFile, 'mascota');
+      if (img) { img.src = url; img.style.filter = ''; img.style.opacity = '1'; }
       p.fotoMascota = url;
-      localStorage.setItem(PERFIL_KEY, JSON.stringify(p));
+      _guardarFotoLocal(p);
       if (typeof guardarPerfilEnDB === 'function') guardarPerfilEnDB(p);
+      if (typeof renderHome === 'function') renderHome();
+      _fotoToast('¡Foto guardada! 🐾', 'ok');
     } catch(e) {
-      console.warn('[Wufly] Error subiendo foto:', e);
-      if (img) img.style.opacity = '1';
-      _fotoBase64(f, 'fotoMascota', img, p);
+      console.warn('[Wufly] Storage falló, guardando local:', e.message);
+      // Fallback: guardar como dataURL comprimido
+      const reader = new FileReader();
+      reader.onload = ev => {
+        if (img) { img.src = ev.target.result; img.style.filter = ''; img.style.opacity = '1'; }
+        p.fotoMascota = ev.target.result;
+        _guardarFotoLocal(p);
+        if (typeof renderHome === 'function') renderHome();
+        _fotoToast('Foto guardada localmente', 'ok');
+      };
+      reader.readAsDataURL(blob);
     }
   } else {
-    _fotoBase64(f, 'fotoMascota', img, p);
+    // Sin sesión — guardar como dataURL
+    const reader = new FileReader();
+    reader.onload = ev => {
+      if (img) { img.src = ev.target.result; img.style.filter = ''; img.style.opacity = '1'; }
+      p.fotoMascota = ev.target.result;
+      _guardarFotoLocal(p);
+      if (typeof renderHome === 'function') renderHome();
+      _fotoToast('Foto guardada localmente', 'ok');
+    };
+    reader.readAsDataURL(blob);
   }
 }
 
 async function cargarFotoDueno(input) {
   const f = input.files[0]; if (!f) return;
+  input.value = '';
+
   const img  = document.getElementById('perfilOwnerImg');
   const init = document.getElementById('perfilOwnerInitial');
+  const p    = cargarPerfilLocal();
+
+  _fotoToast('Procesando foto…', 'info');
   if (init) init.style.display = 'none';
-  const p = cargarPerfilLocal();
+  if (img)  { img.style.display = 'block'; img.style.filter = 'blur(4px)'; img.style.opacity = '0.6'; }
+
+  let blob;
+  try { blob = await _comprimirImagen(f, 600); }
+  catch { blob = f; }
+
+  const localURL = URL.createObjectURL(blob);
+  if (img) img.src = localURL;
 
   if (typeof currentUser !== 'undefined' && currentUser && typeof subirFotoStorage === 'function') {
-    if (img) { img.style.display = 'block'; img.style.opacity = '0.4'; }
     try {
-      const url = await subirFotoStorage(f, 'dueno');
-      if (img) { img.src = url; img.style.opacity = '1'; }
+      const blobFile = new File([blob], 'dueno.jpg', { type: 'image/jpeg' });
+      const url = await subirFotoStorage(blobFile, 'dueno');
+      if (img) { img.src = url; img.style.filter = ''; img.style.opacity = '1'; }
       p.fotoDueno = url;
-      localStorage.setItem(PERFIL_KEY, JSON.stringify(p));
+      _guardarFotoLocal(p);
       if (typeof guardarPerfilEnDB === 'function') guardarPerfilEnDB(p);
+      if (typeof renderTopbarAuth === 'function') renderTopbarAuth();
+      _fotoToast('¡Foto de perfil guardada! 😊', 'ok');
     } catch(e) {
-      console.warn('[Wufly] Error subiendo foto:', e);
-      if (img) img.style.opacity = '1';
-      _fotoBase64(f, 'fotoDueno', img, p);
+      console.warn('[Wufly] Storage falló, guardando local:', e.message);
+      const reader = new FileReader();
+      reader.onload = ev => {
+        if (img) { img.src = ev.target.result; img.style.filter = ''; img.style.opacity = '1'; }
+        p.fotoDueno = ev.target.result;
+        _guardarFotoLocal(p);
+        if (typeof renderTopbarAuth === 'function') renderTopbarAuth();
+        _fotoToast('Foto guardada localmente', 'ok');
+      };
+      reader.readAsDataURL(blob);
     }
   } else {
-    _fotoBase64(f, 'fotoDueno', img, p);
+    const reader = new FileReader();
+    reader.onload = ev => {
+      if (img) { img.src = ev.target.result; img.style.filter = ''; img.style.opacity = '1'; }
+      p.fotoDueno = ev.target.result;
+      _guardarFotoLocal(p);
+      if (typeof renderTopbarAuth === 'function') renderTopbarAuth();
+      _fotoToast('Foto guardada localmente', 'ok');
+    };
+    reader.readAsDataURL(blob);
   }
-}
-
-function _fotoBase64(file, campo, imgEl, p) {
-  const r = new FileReader();
-  r.onload = ev => {
-    if (imgEl) { imgEl.src = ev.target.result; imgEl.style.display = 'block'; }
-    p[campo] = ev.target.result;
-    localStorage.setItem(PERFIL_KEY, JSON.stringify(p));
-  };
-  r.readAsDataURL(file);
 }
 
 /* ── Nombre mascota en pill ── */
