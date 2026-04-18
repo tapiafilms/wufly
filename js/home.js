@@ -133,7 +133,7 @@ function renderHome() {
           <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">🏥 CLÍNICAS DESTACADAS</div>
           <button onclick="switchTab('restaurantes')" style="background:none;border:none;font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Ver todas →</button>
         </div>
-        <div id="clinicas-carousel" style="display:flex;overflow-x:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-radius:18px;margin:0 16px;">
+        <div id="clinicas-carousel" style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-radius:18px;margin:0 16px;">
           ${_carouselClinicas()}
         </div>
         <!-- Dots -->
@@ -237,9 +237,37 @@ function _carouselClinicas() {
   `).join('');
 }
 
-/* ── Autoplay carousel con CSS scroll-behavior ── */
+/* ── Carousel: autoplay con easing cúbico + swipe táctil ── */
 let _carouselTimer = null;
 let _carouselIdx   = 0;
+let _carouselAnimating = false;
+
+/* Curva easeInOutCubic: arranca y frena suave */
+function _easeInOutCubic(t) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+/* Scroll animado con rAF + easing personalizado */
+function _scrollCarousel(track, targetX, duration = 650) {
+  if (_carouselAnimating) return;
+  _carouselAnimating = true;
+  const startX    = track.scrollLeft;
+  const dist      = targetX - startX;
+  const startTime = performance.now();
+
+  function step(now) {
+    const elapsed  = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    track.scrollLeft = startX + dist * _easeInOutCubic(progress);
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else {
+      track.scrollLeft = targetX; // snap exacto al final
+      _carouselAnimating = false;
+    }
+  }
+  requestAnimationFrame(step);
+}
 
 function _initCarouselDots() {
   const track = document.getElementById('clinicas-carousel');
@@ -247,22 +275,29 @@ function _initCarouselDots() {
 
   const total = _clinicasCarousel.length;
 
-  /* Sync dots al scroll manual */
+  /* Sync dots al hacer scroll manual con el dedo */
   track.addEventListener('scroll', () => {
+    if (_carouselAnimating) return; // evitar interferencia
     const idx = Math.round(track.scrollLeft / track.offsetWidth);
-    _carouselIdx = idx;
-    _updateDots(idx);
+    if (idx !== _carouselIdx) {
+      _carouselIdx = idx;
+      _updateDots(idx);
+    }
   }, { passive: true });
 
-  /* Pausa autoplay al tocar */
+  /* Al soltar el dedo: actualizar índice y reiniciar autoplay */
   track.addEventListener('touchstart', () => {
     clearInterval(_carouselTimer);
   }, { passive: true });
   track.addEventListener('touchend', () => {
-    _startAutoplay(track, total);
+    setTimeout(() => {
+      const idx = Math.round(track.scrollLeft / track.offsetWidth);
+      _carouselIdx = idx;
+      _updateDots(idx);
+      _startAutoplay(track, total);
+    }, 300);
   }, { passive: true });
 
-  /* Arrancar autoplay */
   _startAutoplay(track, total);
 }
 
@@ -273,9 +308,9 @@ function _startAutoplay(track, total) {
       clearInterval(_carouselTimer); return;
     }
     _carouselIdx = (_carouselIdx + 1) % total;
-    track.scrollTo({ left: _carouselIdx * track.offsetWidth, behavior: 'smooth' });
+    _scrollCarousel(track, _carouselIdx * track.offsetWidth);
     _updateDots(_carouselIdx);
-  }, 3500);
+  }, 5000); // cada 5 segundos
 }
 
 function _updateDots(idx) {
