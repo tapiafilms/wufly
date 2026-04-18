@@ -296,17 +296,25 @@ async function sincronizarPerfil() {
 /* ══ GUARDAR PERFIL EN DB ══ */
 async function guardarPerfilEnDB(p) {
   if (!currentUser) return;
-  await db.from('profiles').upsert({
-    id:              currentUser.id,
-    nombre:          p.nombre         || null,
-    nombre_mascota:  p.nombreMascota  || null,
-    tipo_mascota:    p.tipomascota    || 'perro',
-    edad_mascota:    p.edadmascota    || 'adulto',
-    salud:           p.salud          || [],
+  const payload = {
+    id:               currentUser.id,
+    nombre:           p.nombre         || null,
+    nombre_mascota:   p.nombreMascota  || null,
+    tipo_mascota:     p.tipomascota    || 'perro',
+    edad_mascota:     p.edadmascota    || 'adulto',
+    salud:            p.salud          || [],
     foto_mascota_url: p.fotoMascota?.startsWith('http') ? p.fotoMascota : null,
     foto_dueno_url:   p.fotoDueno?.startsWith('http')   ? p.fotoDueno   : null,
-    updated_at:      new Date().toISOString(),
-  });
+    updated_at:       new Date().toISOString(),
+  };
+  const { error } = await db.from('profiles').upsert(payload);
+  if (error) {
+    console.error('[Wufly] guardarPerfilEnDB error:', error.message, error.code);
+    // Mostrar toast si hay función disponible
+    if (typeof _fotoToast === 'function') {
+      _fotoToast('Error al guardar en nube: ' + error.message, 'err');
+    }
+  }
 }
 
 /* ══ SINCRONIZAR RECORDATORIOS DB → localStorage ══ */
