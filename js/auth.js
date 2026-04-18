@@ -173,18 +173,23 @@ async function submitAuth() {
 
   try {
     if (modo === 'register') {
-      const { error } = await db.auth.signUp({
+      const { data, error } = await db.auth.signUp({
         email, password: pass,
         options: { data: { nombre } }
       });
       if (error) throw error;
-      // Mostrar estado de confirmación pendiente (no cerrar el modal)
-      _mostrarConfirmacionPendiente(email);
+      if (data.session) {
+        // Confirmación de email desactivada en Supabase → ya está logueado
+        // onAuthStateChange cierra el modal automáticamente
+      } else {
+        // Confirmación de email requerida → mostrar pantalla de espera
+        _mostrarConfirmacionPendiente(email);
+      }
       return;
     } else {
       const { error } = await db.auth.signInWithPassword({ email, password: pass });
       if (error) throw error;
-      cerrarAuthModal();
+      // onAuthStateChange maneja el cierre del modal
     }
   } catch (e) {
     const mapa = {
@@ -194,10 +199,14 @@ async function submitAuth() {
       'Email not confirmed':                        'Confirma tu correo antes de entrar.',
     };
     _authErr(mapa[e.message] || 'Ocurrió un error. Intenta de nuevo.');
-  } finally {
+    // Restaurar botón SIN llamar _actualizarModalModo (que oculta el error)
     btn.disabled = false;
-    _actualizarModalModo(modo);
+    btn.textContent = modo === 'register' ? 'Crear cuenta' : 'Entrar';
+    return;
   }
+  // Éxito: restaurar botón
+  btn.disabled = false;
+  btn.textContent = modo === 'register' ? 'Crear cuenta' : 'Entrar';
 }
 
 /* Pantalla de "revisa tu correo" dentro del modal (no cierra el modal) */
