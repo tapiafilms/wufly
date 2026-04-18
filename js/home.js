@@ -133,12 +133,14 @@ function renderHome() {
           <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">🏥 CLÍNICAS DESTACADAS</div>
           <button onclick="switchTab('restaurantes')" style="background:none;border:none;font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Ver todas →</button>
         </div>
-        <div id="clinicas-carousel" style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-radius:18px;margin:0 16px;">
+        <!-- Track fuera del clip: padding lateral crea el "peek" de la siguiente tarjeta -->
+        <div id="clinicas-carousel"
+          style="display:flex;gap:12px;overflow-x:auto;padding:4px 16px 12px;scroll-snap-type:x mandatory;scroll-padding-left:16px;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
           ${_carouselClinicas()}
         </div>
         <!-- Dots -->
-        <div id="carousel-dots" style="display:flex;justify-content:center;gap:5px;margin-top:4px;">
-          ${[0,1,2,3,4].map(i => `<div class="cdot${i===0?' cdot-active':''}" style="width:${i===0?'18px':'6px'};height:6px;border-radius:100px;background:${i===0?'var(--purple)':'#D1D5DB'};transition:all 0.3s;"></div>`).join('')}
+        <div id="carousel-dots" style="display:flex;justify-content:center;gap:5px;margin-top:2px;">
+          ${[0,1,2,3,4].map(i => `<div class="cdot${i===0?' cdot-active':''}" style="width:${i===0?'20px':'6px'};height:6px;border-radius:100px;background:${i===0?'var(--purple)':'#D1D5DB'};transition:all 0.3s;"></div>`).join('')}
         </div>
       </div>
 
@@ -219,7 +221,7 @@ const _clinicasCarousel = [
 function _carouselClinicas() {
   return _clinicasCarousel.map((c, i) => `
     <div onclick="switchTab('restaurantes')"
-      style="flex:0 0 100%;scroll-snap-align:start;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,0.15);">
+      style="flex:0 0 calc(92vw - 32px);scroll-snap-align:start;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,0.18);flex-shrink:0;">
       <div style="background:${c.grad};padding:20px 20px 22px;">
         ${c.urgencia
           ? `<div style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.22);border-radius:100px;padding:3px 10px;font-size:10px;font-weight:700;color:white;margin-bottom:10px;">🚨 Urgencias 24h</div>`
@@ -275,10 +277,13 @@ function _initCarouselDots() {
 
   const total = _clinicasCarousel.length;
 
+  /* Paso de scroll = ancho de tarjeta + gap */
+  const _step = () => (track.querySelector('div')?.offsetWidth ?? 320) + 12;
+
   /* Sync dots al hacer scroll manual con el dedo */
   track.addEventListener('scroll', () => {
-    if (_carouselAnimating) return; // evitar interferencia
-    const idx = Math.round(track.scrollLeft / track.offsetWidth);
+    if (_carouselAnimating) return;
+    const idx = Math.round(track.scrollLeft / _step());
     if (idx !== _carouselIdx) {
       _carouselIdx = idx;
       _updateDots(idx);
@@ -291,11 +296,11 @@ function _initCarouselDots() {
   }, { passive: true });
   track.addEventListener('touchend', () => {
     setTimeout(() => {
-      const idx = Math.round(track.scrollLeft / track.offsetWidth);
+      const idx = Math.round(track.scrollLeft / _step());
       _carouselIdx = idx;
       _updateDots(idx);
       _startAutoplay(track, total);
-    }, 300);
+    }, 350);
   }, { passive: true });
 
   _startAutoplay(track, total);
@@ -307,10 +312,11 @@ function _startAutoplay(track, total) {
     if (!document.getElementById('clinicas-carousel')) {
       clearInterval(_carouselTimer); return;
     }
+    const step = (track.querySelector('div')?.offsetWidth ?? 320) + 12;
     _carouselIdx = (_carouselIdx + 1) % total;
-    _scrollCarousel(track, _carouselIdx * track.offsetWidth);
+    _scrollCarousel(track, _carouselIdx * step);
     _updateDots(_carouselIdx);
-  }, 5000); // cada 5 segundos
+  }, 5000);
 }
 
 function _updateDots(idx) {
