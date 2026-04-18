@@ -27,15 +27,14 @@ function renderHome() {
   const nombreMascota = perfil.nombreMascota || '';
   const tipoEmoji = { perro: '🐕', gato: '🐈' }[perfil.tipomascota] || '🐾';
 
-  /* ── Foto o emoji de mascota en el hero ── */
-  const heroMedia = perfil.fotoMascota
-    ? `<img src="${perfil.fotoMascota}" alt="mascota" style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.7);box-shadow:0 4px 16px rgba(0,0,0,0.25);">`
-    : `<div style="font-size:72px;line-height:1;">${tipoEmoji}</div>`;
+  /* ── Hero: foto de fondo o emoji según perfil ── */
+  const heroFoto = perfil.fotoMascota || '';
+  const heroMediaEmoji = `<div style="font-size:80px;line-height:1;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3));">${tipoEmoji}</div>`;
 
   /* ── Subtítulo hero ── */
   const subtitulo = nombreMascota
-    ? `<div style="font-size:13px;color:rgba(255,255,255,0.8);margin-top:4px;font-weight:600;">${tipoEmoji} ${nombreMascota}</div>`
-    : `<div style="font-size:13px;color:rgba(255,255,255,0.75);margin-top:4px;">Tu app de bienestar animal</div>`;
+    ? `<div style="font-size:14px;color:rgba(255,255,255,0.9);margin-top:5px;font-weight:600;text-shadow:0 1px 6px rgba(0,0,0,0.35);">${tipoEmoji} ${nombreMascota}</div>`
+    : `<div style="font-size:13px;color:rgba(255,255,255,0.8);margin-top:5px;text-shadow:0 1px 6px rgba(0,0,0,0.3);">Tu app de bienestar animal</div>`;
 
   /* ── Tips rotativos del Dr. Wufly ── */
   const tips = [
@@ -55,15 +54,34 @@ function renderHome() {
     <div style="padding-bottom:8px;">
 
       <!-- HERO con saludo -->
-      <div style="background:linear-gradient(135deg,#4C1D95,#7C4DCC,#9B6BE0);border-radius:0 0 28px 28px;padding:24px 20px 28px;text-align:center;margin-bottom:20px;position:relative;overflow:hidden;">
-        <!-- Decoración de fondo -->
+      <div style="
+        ${heroFoto
+          ? `background-image:url('${heroFoto}');background-size:cover;background-position:center top;`
+          : 'background:linear-gradient(135deg,#4C1D95,#7C4DCC,#9B6BE0);'}
+        border-radius:0 0 28px 28px;
+        min-height:240px;
+        padding:0;
+        text-align:center;
+        margin-bottom:20px;
+        position:relative;
+        overflow:hidden;
+      ">
+        <!-- Overlay de color (siempre presente, más oscuro cuando hay foto) -->
+        <div style="position:absolute;inset:0;background:${heroFoto
+          ? 'linear-gradient(to bottom, rgba(30,10,70,0.45) 0%, rgba(76,29,149,0.72) 60%, rgba(50,10,100,0.88) 100%)'
+          : 'linear-gradient(135deg,rgba(76,29,149,0.0),rgba(0,0,0,0.08))'};border-radius:0 0 28px 28px;"></div>
+
+        ${!heroFoto ? `
+        <!-- Decoración de fondo (solo sin foto) -->
         <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.05);"></div>
         <div style="position:absolute;bottom:-30px;left:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.04);"></div>
+        ` : ''}
 
-        <div style="position:relative;z-index:1;">
-          ${heroMedia}
-          <div style="margin-top:14px;">
-            <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:22px;color:white;line-height:1.2;">${saludo}${nombre}!</div>
+        <!-- Contenido centrado verticalmente -->
+        <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:240px;padding:0 20px 28px;">
+          ${heroFoto ? '' : heroMediaEmoji}
+          <div style="margin-top:${heroFoto ? '0' : '14px'};">
+            <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:24px;color:white;line-height:1.2;text-shadow:0 2px 8px rgba(0,0,0,0.35);">${saludo}${nombre}!</div>
             ${subtitulo}
           </div>
         </div>
