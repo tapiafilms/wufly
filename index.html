@@ -51,60 +51,9 @@
 
 <!-- ══ CLÍNICAS VETERINARIAS ══ -->
 <div class="page" id="page-restaurantes">
-
-  <!-- DESTACADO -->
-  <div style="background:#fff;border-radius:20px;border:1.5px solid rgba(124,77,204,0.15);overflow:hidden;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,0.08);cursor:pointer;" onclick="openClinica('mevetlab')">
-    <div style="background:linear-gradient(135deg,#7C4DCC,#5DD6A8);color:white;font-size:11px;font-weight:700;padding:8px 16px;letter-spacing:0.05em;">
-      🚨 Urgencias 24h — Destacada
-    </div>
-    <div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
-      <div style="display:flex;gap:12px;align-items:flex-start;">
-        <div style="width:44px;height:44px;min-width:44px;background:#F0EAFB;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">🏥</div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:17px;color:#2D1B6B;margin-bottom:2px;">MEVETLAB Clínica Veterinaria</div>
-          <div style="font-size:10px;font-weight:700;color:#B0B8C1;letter-spacing:0.04em;margin-bottom:6px;">CLÍNICA · LABORATORIO · URGENCIAS 24H</div>
-          <div style="font-size:13px;color:#6B7280;line-height:1.5;margin-bottom:8px;">Clínica integral con laboratorio propio, quirófano equipado y hospitalización 24h. Atención Fear Free para que tu mascota esté tranquila.</div>
-          <div style="display:flex;flex-wrap:wrap;gap:5px;">
-            <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px;background:#F0EAFB;color:#7C4DCC;">Urgencias 24h</span>
-            <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px;background:#E6F9F3;color:#3DAF87;">Laboratorio propio</span>
-            <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px;background:#5DD6A8;color:white;">✓ Hospitalización</span>
-          </div>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(0,0,0,0.06);padding-top:10px;font-size:12px;color:#6B7280;">
-        <span>📍 Álvarez 2172, Chorrillos, Viña del Mar</span>
-        <a href="https://mevetlab.cl" target="_blank" style="color:#7C4DCC;font-weight:600;text-decoration:none;">mevetlab.cl →</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- STATS -->
-  <div class="hero-banner">
-    <h2>Veterinarios cerca de ti</h2>
-    <p>Clínicas verificadas en Viña del Mar, Valparaíso y Concón</p>
-    <div class="stat-row">
-      <div class="stat"><div class="stat-num">11</div><div class="stat-label">Clínicas</div></div>
-      <div class="stat"><div class="stat-num">5</div><div class="stat-label">Urgencias 24h</div></div>
-      <div class="stat"><div class="stat-num">3</div><div class="stat-label">Ciudades</div></div>
-    </div>
-  </div>
-
-  <div class="search-bar">
-    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-    <input type="text" placeholder="Buscar clínica..." id="searchClinica" oninput="onSearchClinica()" aria-label="Buscar clínica veterinaria">
-  </div>
-  <!-- Banner geolocalización VETS -->
-  <div id="geoBannerVets" style="margin-bottom:14px;padding:12px 14px;border-radius:var(--r-xs);border:1.5px solid;display:none;"></div>
-
-  <div class="filter-row">
-    <button class="filter-btn active" onclick="setFilter(this,'clinica','todos')">Todas</button>
-    <button class="filter-btn" onclick="setFilter(this,'clinica','urgencia')">🚨 Urgencias</button>
-    <button id="clinicaGeoBtn" class="filter-btn" onclick="setFilter(this,'clinica','geo')" style="display:none;">📍 Cerca</button>
-    <button class="filter-btn" onclick="setFilter(this,'clinica','viña')">Viña del Mar</button>
-    <button class="filter-btn" onclick="setFilter(this,'clinica','valpo')">Valparaíso</button>
-    <button class="filter-btn" onclick="setFilter(this,'clinica','concon')">Concón</button>
-  </div>
-  <div id="clinicaList"></div>
+  <div id="clinicaList" style="padding:16px;"></div>
+  <!-- geoBannerVets oculto — geo.js lo usa internamente para errores de permisos -->
+  <div id="geoBannerVets" style="display:none;"></div>
 </div>
 
 <!-- ══ SERVICIOS ══ -->
@@ -818,6 +767,7 @@
 
 <!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/clinicas-destacadas.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/analytics.js"></script>
 <script src="js/vitrina.js"></script>

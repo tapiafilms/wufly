@@ -35,6 +35,7 @@ function switchTab(name, el, fromNav = false) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
   document.getElementById('page-' + name).classList.add('active');
+  if (name === 'restaurantes') renderClinicas?.();
 
   // Páginas secundarias no tienen tab activo en nav — solo las 5 principales
   const secondary = ['recetas', 'recordatorios', 'detail'];
