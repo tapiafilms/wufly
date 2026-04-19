@@ -220,12 +220,55 @@ function renderTiendas() {
       ${cards}`;
   }
 
+  /* ── Lista estática (fallback cuando geo no encuentra nada) ── */
+  let staticHtml = '';
+  if (geoCompletado && !geoDisponible) {
+    const cards = tiendas.map(t => {
+      const isOnline  = t.tipo === 'online';
+      const tipoBg    = isOnline ? '#E6F9F3' : '#F0EAFB';
+      const tipoClr   = isOnline ? '#3DAF87' : '#7C4DCC';
+      const tipoTxt   = isOnline ? '🌐 Online' : '📍 Física';
+      const stars     = t.rating ? '★'.repeat(Math.round(t.rating)) + '☆'.repeat(5 - Math.round(t.rating)) : '';
+      const accion    = t.web
+        ? `onclick="window.open('https://${t.web}','_blank')"`
+        : t.wsp ? `onclick="window.open('https://wa.me/${t.wsp.replace(/\\D/g,'')}','_blank')"` : '';
+      return `
+        <div class="place-card" ${accion} style="${accion ? 'cursor:pointer;' : ''}">
+          <div class="place-card-inner">
+            <div class="place-icon" style="background:#F0EAFB;">${t.icon}</div>
+            <div class="place-info">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;">
+                <div class="place-name">${t.nombre}</div>
+                <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;
+                  background:${tipoBg};color:${tipoClr};">${tipoTxt}</span>
+              </div>
+              ${stars ? `<div style="font-size:11px;color:var(--text-hint);margin-bottom:4px;">${stars} ${t.rating}</div>` : ''}
+              <div class="place-desc">${t.desc}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">
+                ${t.categorias.slice(0,3).map(c=>`<span class="place-tag">${c}</span>`).join('')}
+              </div>
+              ${t.address ? `<div style="font-size:11px;color:var(--text-muted);margin-top:5px;">📍 ${t.address}</div>` : ''}
+              ${t.horario  ? `<div style="font-size:11px;color:var(--text-muted);">🕐 ${t.horario}</div>`  : ''}
+              ${t.web      ? `<div style="font-size:11px;color:#059669;margin-top:2px;">🌐 ${t.web}</div>` : ''}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+    staticHtml = `
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);
+        letter-spacing:0.07em;padding:16px 0 10px;">
+        🛒 TIENDAS VERIFICADAS POR WUFLY
+      </div>
+      ${cards}`;
+  }
+
   list.innerHTML =
     `<div style="font-size:11px;font-weight:700;color:var(--purple);
       letter-spacing:0.07em;padding:0 2px 10px;">⭐ VITRINA</div>` +
     vitrinaHtml +
     `<div style="margin:4px 0 16px;">${geoBtnHtml}</div>` +
-    geoHtml;
+    geoHtml +
+    staticHtml;
 }
 
 /* ── Card para resultados geo (OpenStreetMap) ── */
