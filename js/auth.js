@@ -61,8 +61,14 @@ function renderTopbarAuth() {
   } else {
     el.innerHTML = `
       <button onclick="abrirAuthModal('login')"
-        style="background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.4);border-radius:100px;padding:7px 14px;color:white;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
-        Entrar
+        style="display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;">
+        <div style="width:34px;height:34px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <span style="font-size:9px;color:rgba(255,255,255,0.85);font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">Entrar</span>
       </button>`;
   }
 }

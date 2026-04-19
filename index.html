@@ -81,31 +81,7 @@
 
   <!-- ── SUB: TIENDAS ── -->
   <div id="ssub-tiendas">
-    <div class="hero-banner">
-      <h2>Tiendas para tu mascota</h2>
-      <p>Pet shops, tiendas especializadas y online en Viña del Mar, Valparaíso y Concón</p>
-      <div class="stat-row">
-        <div class="stat"><div class="stat-num">11</div><div class="stat-label">Tiendas</div></div>
-        <div class="stat"><div class="stat-num">3</div><div class="stat-label">Online</div></div>
-        <div class="stat"><div class="stat-num">3</div><div class="stat-label">Ciudades</div></div>
-      </div>
-    </div>
-    <div class="search-bar">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <input type="text" placeholder="Buscar tienda o producto..." id="searchTienda" oninput="onSearchTienda()" aria-label="Buscar tienda o producto">
-    </div>
-    <!-- Banner geolocalización -->
-    <div id="geoBanner" style="margin-bottom:14px;padding:12px 14px;border-radius:var(--r-xs);border:1.5px solid;display:none;"></div>
-    <div class="filter-row">
-      <button class="filter-btn active" onclick="setFilterTienda(this,'todos')">Todas</button>
-      <button class="filter-btn" onclick="setFilterTienda(this,'fisica')">📍 Física</button>
-      <button class="filter-btn" onclick="setFilterTienda(this,'online')">🌐 Online</button>
-      <button id="tiendaGeoBtn" class="filter-btn" onclick="setFilterTienda(this,'geo')" style="display:none;">📍 Cerca</button>
-      <button class="filter-btn" onclick="setFilterTienda(this,'viña')">Viña</button>
-      <button class="filter-btn" onclick="setFilterTienda(this,'valpo')">Valpo</button>
-      <button class="filter-btn" onclick="setFilterTienda(this,'concon')">Concón</button>
-    </div>
-    <div id="tiendaList" style="display:flex;flex-direction:column;gap:12px;margin-top:8px;"></div>
+    <div id="tiendaList" style="padding:16px;"></div>
   </div>
 
   <!-- ── SUB: GROOMING ── -->
@@ -777,6 +753,7 @@
 <script src="js/app.js"></script>
 <script src="js/perdidos.js"></script>
 <script src="js/adoptar.js"></script>
+<script src="js/tiendas-destacadas.js"></script>
 <script src="js/tiendas.js"></script>
 <script src="js/grooming.js"></script>
 <script src="js/paseadores.js"></script>

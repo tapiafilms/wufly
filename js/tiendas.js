@@ -6,32 +6,6 @@
 
 const tiendas = [
   {
-    id: 'petslife-tienda',
-    nombre: 'PetsLife',
-    tipo: 'fisica',
-    city: 'viña',
-    icon: '🐾',
-    desc: 'Pet shop con múltiples sucursales en Viña del Mar. Alimentos premium, accesorios, higiene y peluquería canina. Atención personalizada y asesoría en nutrición para todas las especies.',
-    categorias: ['Alimentos premium', 'Accesorios', 'Peluquería', 'Higiene'],
-    address: 'Av. Libertad 1198, Viña del Mar',
-    horario: 'Lun–Sáb 10–19h',
-    rating: 4.6,
-    wsp: '+56966317573',
-  },
-  {
-    id: 'infopet-tienda',
-    nombre: 'InfoPet Reñaca',
-    tipo: 'fisica',
-    city: 'viña',
-    icon: '🐕',
-    desc: 'Tienda especializada en nutrición y accesorios para mascotas en Reñaca. Amplio stock de alimentos de marcas premium, productos de higiene, juguetes y servicio de grooming.',
-    categorias: ['Alimentos premium', 'Grooming', 'Juguetes', 'Higiene'],
-    address: 'Eluchans 1737 Local 6, Reñaca, Viña del Mar',
-    horario: 'Lun–Sáb 11–20h',
-    rating: 4.7,
-    wsp: '+56997600367',
-  },
-  {
     id: 'petlandia',
     nombre: 'Petlandia Chile',
     tipo: 'fisica',
@@ -69,19 +43,6 @@ const tiendas = [
     horario: 'Lun–Sáb 10–19h',
     rating: 4.3,
     wsp: '+56974389737',
-  },
-  {
-    id: 'petzonas-tienda',
-    nombre: 'Petzonas',
-    tipo: 'fisica',
-    city: 'concon',
-    icon: '🏬',
-    desc: 'Centro de productos y cuidado para mascotas en Concón. Alimentos de primeras marcas, accesorios, productos de higiene y servicio de grooming. Amplio horario de atención.',
-    categorias: ['Alimentos', 'Grooming', 'Accesorios', 'Higiene'],
-    address: 'Av. Concón-Reñaca 44, Concón',
-    horario: 'Lun–Vie 9:30–20h',
-    rating: 4.7,
-    wsp: '+56930788923',
   },
   {
     id: 'mypets-concon',
@@ -150,133 +111,338 @@ const tiendas = [
   },
 ];
 
-/* ── Filtro activo ── */
-let tiendaFilter = 'todos';
-
-function setFilterTienda(el, val) {
-  tiendaFilter = val;
-  document.querySelectorAll('#page-tiendas .filter-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  renderTiendas();
-}
-
-/* ── Render ── */
+/* ══ RENDER PRINCIPAL ══ */
 function renderTiendas() {
   const list = document.getElementById('tiendaList');
   if (!list) return;
 
-  const q = (document.getElementById('searchTienda')?.value || '').toLowerCase();
+  const geoDisponible = typeof geoResults !== 'undefined' && geoResults.tiendas?.length > 0;
+  const geoLoading    = typeof geoStatus  !== 'undefined' && geoStatus === 'loading';
 
-  const geoDisponibleT = typeof geoResults !== 'undefined' && geoResults.tiendas.length > 0;
-
-  let fuente, geoFuenteT = [], staticFuenteT = [];
-
-  if (tiendaFilter === 'geo') {
-    fuente = geoResults.tiendas
-      .filter(t => !q || t.nombre.toLowerCase().includes(q) || t.address.toLowerCase().includes(q));
-  } else {
-    staticFuenteT = tiendas.filter(t => {
-      const matchFilter =
-        tiendaFilter === 'todos' ||
-        tiendaFilter === t.tipo  ||
-        tiendaFilter === t.city;
-      const matchSearch = !q ||
-        t.nombre.toLowerCase().includes(q) ||
-        t.desc.toLowerCase().includes(q)   ||
-        t.categorias.some(c => c.toLowerCase().includes(q));
-      return matchFilter && matchSearch;
-    });
-    if (tiendaFilter === 'todos' && geoDisponibleT) {
-      geoFuenteT = geoResults.tiendas
-        .filter(t => !q || t.nombre.toLowerCase().includes(q) || t.address.toLowerCase().includes(q));
-    }
-    fuente = [...geoFuenteT, ...staticFuenteT];
-  }
-
-  if (!fuente.length) {
-    list.innerHTML = tiendaFilter === 'geo'
-      ? `<div style="text-align:center;padding:40px 20px;color:var(--text-muted);">
-           <div style="font-size:36px;margin-bottom:10px;">🗺</div>
-           <div style="font-weight:700;margin-bottom:6px;">Sin tiendas en OpenStreetMap</div>
-           <div style="font-size:13px;">Prueba los filtros por ciudad para ver tiendas verificadas.</div>
-         </div>`
-      : `<div style="text-align:center;padding:40px 20px;color:var(--text-muted);">
-           <div style="font-size:36px;margin-bottom:8px;">🛒</div>
-           <div style="font-size:14px;">No se encontraron tiendas</div>
-         </div>`;
-    return;
-  }
-
-  const sepIdxT = geoFuenteT.length;
-
-  list.innerHTML = fuente.map((t, i) => {
-    const separador = (tiendaFilter === 'todos' && geoFuenteT.length > 0 && i === sepIdxT)
-      ? `<div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;padding:12px 4px 6px;">VERIFICADAS POR WUFLY</div>`
-      : '';
-    const isOnline      = t.tipo === 'online';
-    const tipoBadgeBg   = isOnline ? '#E6F9F3' : '#F0EAFB';
-    const tipoBadgeClr  = isOnline ? '#3DAF87' : '#7C4DCC';
-    const tipoBadgeTxt  = isOnline ? '🌐 Online' : '📍 Física';
-    const stars         = t.rating ? '★'.repeat(Math.round(t.rating)) + '☆'.repeat(5 - Math.round(t.rating)) : '';
-    const distBadge     = t.distKm != null
-      ? `<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;background:var(--purple-light);color:var(--purple);margin-right:5px;">📍 ${fmtDist(t.distKm)}</span>`
-      : '';
-    const mapLink = t.lat && t.lng
-      ? `<a href="https://www.google.com/maps/dir/?api=1&destination=${t.lat},${t.lng}" target="_blank" rel="noopener"
-           style="font-size:11px;color:var(--purple);font-weight:700;text-decoration:none;" onclick="event.stopPropagation()">🗺 Cómo llegar</a>`
-      : '';
-
-    const tieneVitrina = !t.fromOSM && typeof vitrinas !== 'undefined' && vitrinas.some(v => v.negocioId === t.id);
-    const cardClassT = t.fromOSM ? 'place-card' : (tieneVitrina ? 'place-card-vitrina' : 'place-card-conectado');
-    const tierBadgeT = t.fromOSM
-      ? `<span style="display:inline-flex;align-items:center;gap:3px;background:var(--bg);color:var(--text-hint);font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;border:1px solid var(--border);margin-bottom:6px;">📍 Básico</span><br>`
-      : tieneVitrina
-      ? `<span class="badge-vitrina">⭐ Vitrina</span><br>`
-      : `<span class="badge-conectado">⚡ Conectado</span><br>`;
-    const iconBgT    = t.fromOSM ? 'var(--bg)' : (tieneVitrina ? '#FEF3C7' : '#DCFCE7');
-    const clickAttrT = t.fromOSM ? '' : `onclick="openTienda('${t.id}')"`;
-
-    return separador + `
-      <div class="${cardClassT}" ${clickAttrT}>
-        <div class="place-card-inner">
-          <div class="place-icon" style="background:${iconBgT};">${t.icon}</div>
-          <div class="place-info">
-            ${tierBadgeT}
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap;">
-              ${distBadge}
-              <div class="place-name">${t.nombre}</div>
-              <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;background:${tipoBadgeBg};color:${tipoBadgeClr};flex-shrink:0;">${tipoBadgeTxt}</span>
-            </div>
-            ${stars ? `<div style="font-size:11px;color:var(--text-hint);margin-bottom:4px;">${stars} ${t.rating}</div>` : ''}
-            <div class="place-desc">${t.desc}</div>
-            <div class="place-tags" style="margin-top:6px;">
-              ${t.categorias.slice(0,3).map(c => `<span class="place-tag">${c}</span>`).join('')}
-            </div>
-            <div style="margin-top:8px;display:flex;flex-direction:column;gap:3px;">
-              ${t.address ? `<div style="font-size:11px;color:var(--text-muted);">📍 ${t.address}</div>` : ''}
-              ${t.horario ? `<div style="font-size:11px;color:var(--text-muted);">🕐 ${t.horario}</div>` : ''}
-              ${t.web ? `<div style="font-size:11px;color:#059669;">🌐 ${t.web}</div>` : ''}
-              ${t.fromOSM ? '' : mapLink}
-            </div>
-          </div>
-          ${t.fromOSM ? '' : `<div style="flex-shrink:0;color:#10B981;font-size:18px;align-self:center;">›</div>`}
+  /* ── Cards vitrina ── */
+  const vitrinaHtml = (TIENDAS_DESTACADAS || []).map(t => `
+    <div onclick="openTiendaDetalle('${t.id}')"
+      style="border-radius:20px;overflow:hidden;cursor:pointer;margin-bottom:14px;
+             box-shadow:0 8px 28px rgba(0,0,0,0.22);position:relative;background:${t.grad};">
+      <div style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.22);
+        border-radius:100px;padding:4px 11px;font-size:10px;font-weight:700;color:white;
+        letter-spacing:0.04em;backdrop-filter:blur(4px);">⭐ Vitrina</div>
+      <div style="padding:22px 20px 20px;">
+        <div style="font-size:34px;margin-bottom:10px;line-height:1;">${t.icon}</div>
+        <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:21px;
+          color:white;margin-bottom:4px;line-height:1.2;">${t.nombre}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.78);font-weight:600;
+          letter-spacing:0.04em;margin-bottom:10px;text-transform:uppercase;">${t.subtitulo}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.9);line-height:1.55;
+          margin-bottom:16px;">${t.descripcion}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+          ${t.tags.slice(0, 3).map(tag =>
+            `<span style="background:rgba(255,255,255,0.18);color:white;font-size:11px;
+              font-weight:600;padding:4px 10px;border-radius:100px;">${tag}</span>`
+          ).join('')}
         </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.7);">📍 ${t.ciudad}</div>
+          <div style="font-size:12px;font-weight:700;color:white;
+            background:rgba(255,255,255,0.22);padding:6px 14px;border-radius:100px;">
+            Ver tienda →
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  /* ── Botón geo ── */
+  let geoBtnHtml;
+  if (geoLoading) {
+    geoBtnHtml = `
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;
+        padding:18px;background:var(--purple-light);border-radius:14px;
+        font-size:13px;font-weight:700;color:var(--purple);">
+        <span style="animation:spin 1s linear infinite;display:inline-block;">⏳</span>
+        Buscando tiendas cerca de ti…
       </div>`;
-  }).join('');
+  } else if (geoDisponible) {
+    geoBtnHtml = `
+      <button onclick="activarBusquedaTiendas()"
+        style="width:100%;padding:14px;background:var(--purple-light);
+          border:2px dashed var(--purple);border-radius:14px;font-size:13px;
+          font-weight:700;color:var(--purple);cursor:pointer;
+          font-family:'Plus Jakarta Sans',sans-serif;">
+        🔄 Actualizar tiendas cercanas
+      </button>`;
+  } else {
+    geoBtnHtml = `
+      <button onclick="activarBusquedaTiendas()"
+        style="width:100%;padding:16px;
+          background:linear-gradient(135deg,#5C2FA8,#7C4DCC);border:none;
+          border-radius:14px;font-size:14px;font-weight:700;color:white;cursor:pointer;
+          font-family:'Plus Jakarta Sans',sans-serif;
+          box-shadow:0 4px 18px rgba(92,47,168,0.35);">
+        📍 Ver tiendas cerca de ti
+      </button>`;
+  }
+
+  /* ── Resultados geo ── */
+  let geoHtml = '';
+  if (geoDisponible) {
+    const cards = geoResults.tiendas.map(_renderTiendaGeo).join('');
+    geoHtml = `
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);
+        letter-spacing:0.07em;padding:20px 0 10px;">
+        📍 ${geoResults.tiendas.length} TIENDAS ENCONTRADAS CERCA DE TI
+      </div>
+      ${cards}`;
+  }
+
+  list.innerHTML =
+    `<div style="font-size:11px;font-weight:700;color:var(--purple);
+      letter-spacing:0.07em;padding:0 2px 10px;">⭐ VITRINA</div>` +
+    vitrinaHtml +
+    `<div style="margin:4px 0 16px;">${geoBtnHtml}</div>` +
+    geoHtml;
 }
 
-/* ── Detalle tienda (preparado para desarrollar) ── */
-function openTienda(id) {
-  const t = tiendas.find(x => x.id === id);
+/* ── Card para resultados geo (OpenStreetMap) ── */
+function _renderTiendaGeo(t) {
+  const distBadge = t.distKm != null
+    ? `<span style="background:var(--purple-light);color:var(--purple);font-size:10px;
+        font-weight:700;padding:2px 8px;border-radius:100px;margin-bottom:5px;
+        display:inline-block;">📍 ${fmtDist(t.distKm)}</span><br>`
+    : '';
+  const mapLink = t.lat && t.lng
+    ? `<a href="https://www.google.com/maps/dir/?api=1&destination=${t.lat},${t.lng}"
+         target="_blank" rel="noopener"
+         style="display:inline-flex;align-items:center;gap:5px;margin-top:8px;
+           font-size:12px;color:var(--purple);font-weight:700;text-decoration:none;"
+         onclick="event.stopPropagation()">🗺 Cómo llegar</a>`
+    : '';
+
+  return `
+    <div class="place-card">
+      <div class="place-card-inner">
+        <div class="place-icon" style="background:var(--bg);">${t.icon || '🛒'}</div>
+        <div class="place-info">
+          <span style="display:inline-flex;align-items:center;gap:3px;background:var(--bg);
+            color:var(--text-hint);font-size:10px;font-weight:700;padding:3px 9px;
+            border-radius:100px;border:1px solid var(--border);margin-bottom:6px;">
+            📍 Básico</span><br>
+          ${distBadge}
+          <div class="place-name">${t.nombre || t.name}</div>
+          <div class="place-desc">${t.desc || ''}</div>
+          <div class="place-footer">
+            <span class="place-address">📍 ${t.address || '—'}</span>
+          </div>
+          ${mapLink}
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ── Disparar búsqueda geo para tiendas ── */
+function activarBusquedaTiendas() {
+  const list = document.getElementById('tiendaList');
+  const btn = list?.querySelector('button');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Buscando…'; }
+
+  if (typeof iniciarGeoBusqueda === 'function') {
+    iniciarGeoBusqueda().then(() => renderTiendas());
+  }
+}
+
+/* ══ VISTA DE DETALLE — tiendas vitrina ══ */
+function openTiendaDetalle(id) {
+  const t = (TIENDAS_DESTACADAS || []).find(x => x.id === id);
   if (!t) return;
-  // Si tiene vitrina, abrirla (registrarClick se hace dentro de abrirVitrina)
-  if (typeof abrirVitrina === 'function' && abrirVitrina(id, 'tiendas')) return;
-  // Si no, flujo normal
-  registrarClick(t.id, t.nombre, 'tiendas');
+
+  const stars = t.rating
+    ? `${'★'.repeat(Math.round(t.rating))}${'☆'.repeat(5 - Math.round(t.rating))}`
+    : '';
+
+  /* ── Galería de fotos ── */
+  const fotosHtml = t.fotos?.length > 0 ? `
+    <div style="background:white;border-radius:16px;padding:16px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);
+        letter-spacing:0.07em;margin-bottom:10px;">FOTOS</div>
+      <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;">
+        ${t.fotos.map(url =>
+          `<img src="${url}" alt="foto tienda"
+            style="height:120px;width:160px;object-fit:cover;border-radius:10px;flex-shrink:0;">`
+        ).join('')}
+      </div>
+    </div>` : '';
+
+  /* ── Equipo / Staff ── */
+  const equipoHtml = t.equipo?.length > 0 ? `
+    <div style="background:white;border-radius:16px;padding:16px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);
+        letter-spacing:0.07em;margin-bottom:12px;">EQUIPO</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        ${t.equipo.map(m => `
+          <div style="display:flex;align-items:center;gap:12px;">
+            ${m.foto
+              ? `<img src="${m.foto}" alt="${m.nombre}"
+                  style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;">`
+              : `<div style="width:44px;height:44px;border-radius:50%;background:var(--purple-light);
+                  display:flex;align-items:center;justify-content:center;font-size:18px;
+                  flex-shrink:0;">🏪</div>`}
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--text);">${m.nombre}</div>
+              <div style="font-size:12px;color:var(--text-muted);">${m.rol}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  /* ── Botones CTA ── */
+  const ctaHtml = [
+    t.whatsapp
+      ? `<a href="https://wa.me/${t.whatsapp}" target="_blank" rel="noopener"
+           style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
+             padding:13px 10px;background:#25D366;border-radius:12px;color:white;
+             font-size:13px;font-weight:700;text-decoration:none;">
+           💬 WhatsApp
+         </a>` : '',
+    t.lat && t.lng
+      ? `<a href="https://www.google.com/maps/dir/?api=1&destination=${t.lat},${t.lng}"
+           target="_blank" rel="noopener"
+           style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
+             padding:13px 10px;background:var(--purple-light);border-radius:12px;
+             color:var(--purple);font-size:13px;font-weight:700;text-decoration:none;">
+           🗺 Cómo llegar
+         </a>` : '',
+    t.web
+      ? `<a href="https://${t.web}" target="_blank" rel="noopener"
+           style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
+             padding:13px 10px;background:var(--bg);border-radius:12px;
+             color:var(--text);font-size:13px;font-weight:700;text-decoration:none;
+             border:1.5px solid var(--border-md);">
+           🌐 Sitio web
+         </a>` : '',
+    t.telefono
+      ? `<a href="tel:${t.telefono}"
+           style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
+             padding:13px 10px;background:var(--bg);border-radius:12px;
+             color:var(--text);font-size:13px;font-weight:700;text-decoration:none;
+             border:1.5px solid var(--border-md);">
+           📞 Llamar
+         </a>` : '',
+  ].filter(Boolean).join('');
+
+  const detailEl = document.getElementById('page-detail');
+  if (!detailEl) return;
+
+  detailEl.innerHTML = `
+    <div>
+      <!-- Header con gradiente -->
+      <div style="background:${t.grad};padding:0 0 24px;position:relative;">
+        <!-- Back button -->
+        <div style="padding:16px 16px 0;">
+          <button onclick="switchTab('servicios');switchServiciosTab('tiendas')"
+            style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.2);
+              border:none;border-radius:100px;padding:8px 14px;color:white;font-size:13px;
+              font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;
+              backdrop-filter:blur(4px);">
+            ← Volver a Tiendas
+          </button>
+        </div>
+        <!-- Info principal -->
+        <div style="padding:20px 20px 0;text-align:center;">
+          <div style="font-size:52px;margin-bottom:10px;line-height:1;">${t.icon}</div>
+          <div style="display:inline-flex;align-items:center;gap:4px;
+            background:rgba(255,255,255,0.22);border-radius:100px;padding:4px 12px;
+            font-size:11px;font-weight:700;color:white;margin-bottom:10px;">
+            ⭐ Vitrina Wufly
+          </div><br>
+          <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:24px;
+            color:white;margin-bottom:4px;line-height:1.2;">${t.nombre}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.78);font-weight:600;
+            letter-spacing:0.04em;margin-bottom:10px;text-transform:uppercase;">${t.subtitulo}</div>
+          ${t.rating ? `<div style="font-size:14px;color:rgba(255,255,255,0.9);font-weight:600;">
+            ${stars}${t.reviews ? ` <span style="font-size:13px;">${t.rating} (${t.reviews} reseñas)</span>` : ` <span style="font-size:13px;">${t.rating}</span>`}
+          </div>` : ''}
+        </div>
+      </div>
+
+      <!-- Contenido -->
+      <div style="padding:20px 16px 40px;display:flex;flex-direction:column;gap:14px;
+        background:var(--bg);">
+
+        <!-- CTA buttons -->
+        ${ctaHtml ? `<div style="display:flex;gap:8px;flex-wrap:wrap;">${ctaHtml}</div>` : ''}
+
+        <!-- Descripción -->
+        <div style="background:white;border-radius:16px;padding:16px;
+          box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);
+            letter-spacing:0.07em;margin-bottom:8px;">SOBRE LA TIENDA</div>
+          <div style="font-size:14px;color:var(--text);line-height:1.6;">${t.descripcion}</div>
+        </div>
+
+        <!-- Información -->
+        <div style="background:white;border-radius:16px;padding:16px;
+          box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);
+            letter-spacing:0.07em;margin-bottom:12px;">INFORMACIÓN</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            ${t.direccion ? `<div style="display:flex;gap:10px;align-items:flex-start;">
+              <span style="font-size:16px;">📍</span>
+              <span style="font-size:13px;color:var(--text);line-height:1.4;">${t.direccion}</span>
+            </div>` : ''}
+            ${t.horario ? `<div style="display:flex;gap:10px;align-items:flex-start;">
+              <span style="font-size:16px;">⏰</span>
+              <span style="font-size:13px;color:var(--text);">${t.horario}</span>
+            </div>` : ''}
+            ${t.telefono ? `<div style="display:flex;gap:10px;align-items:flex-start;">
+              <span style="font-size:16px;">📞</span>
+              <a href="tel:${t.telefono}"
+                style="font-size:13px;color:var(--purple);font-weight:600;text-decoration:none;">
+                ${t.telefono}</a>
+            </div>` : ''}
+            ${t.web ? `<div style="display:flex;gap:10px;align-items:flex-start;">
+              <span style="font-size:16px;">🌐</span>
+              <a href="https://${t.web}" target="_blank" rel="noopener"
+                style="font-size:13px;color:var(--purple);font-weight:600;text-decoration:none;">
+                ${t.web}</a>
+            </div>` : ''}
+          </div>
+        </div>
+
+        ${fotosHtml}
+        ${equipoHtml}
+
+        <!-- Productos / Categorías -->
+        <div style="background:white;border-radius:16px;padding:16px;
+          box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);
+            letter-spacing:0.07em;margin-bottom:10px;">PRODUCTOS Y CATEGORÍAS</div>
+          <div style="display:flex;flex-wrap:wrap;gap:7px;">
+            ${t.tags.map(tag =>
+              `<span style="font-size:12px;font-weight:600;padding:6px 13px;border-radius:100px;
+                background:var(--purple-light);color:var(--purple);">${tag}</span>`
+            ).join('')}
+          </div>
+        </div>
+
+      </div>
+    </div>`;
+
+  switchTab('detail');
+}
+
+/* ── openTienda para resultados geo (link Maps / WhatsApp) ── */
+function openTienda(id) {
+  const t = tiendas.find(x => x.id === id)
+    || (TIENDAS_DESTACADAS || []).find(x => x.id === id)
+    || (typeof geoResults !== 'undefined' && geoResults.tiendas?.find(x => x.id === id));
+  if (!t) return;
   if (t.web) {
     window.open('https://' + t.web, '_blank');
-  } else if (t.wsp) {
-    window.open('https://wa.me/' + t.wsp.replace(/\D/g, ''), '_blank');
+  } else if (t.wsp || t.whatsapp) {
+    const num = (t.wsp || t.whatsapp).replace(/\D/g, '');
+    window.open('https://wa.me/' + num, '_blank');
   }
 }
 
