@@ -102,7 +102,7 @@ function renderHome() {
         ` : ''}
         
         <!-- Contenido centrado verticalmente -->
-        <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:310px;padding:0 20px 28px;">
+        <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:428px;padding:0 20px 28px;">
           ${heroFoto ? '' : heroMediaEmoji}
           <div style="margin-top:${heroFoto ? '0' : '14px'};">
             <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:24px;color:white;line-height:1.2;text-shadow:0 2px 8px rgba(0,0,0,0.35);">${saludo}${nombre}!</div>
