@@ -13,6 +13,12 @@ let currentUser = null;
 /* ── Escuchar cambios de sesión ── */
 db.auth.onAuthStateChange(async (event, session) => {
   currentUser = session?.user ?? null;
+  if (currentUser) {
+    localStorage.setItem('wufly_session_email', currentUser.email);
+  } else if (event === 'SIGNED_OUT') {
+    localStorage.removeItem('wufly_session_email');
+    localStorage.removeItem('wufly_avatar');
+  }
   renderAuthBanner();
   if (currentUser && event === 'SIGNED_IN') {
     // Cerrar modal de login si está abierto
@@ -32,20 +38,21 @@ function renderTopbarAuth() {
   const el = document.getElementById('topbarAuthBtn');
   if (!el) return;
 
-  if (currentUser) {
+  // Usar currentUser o el email cacheado en localStorage (cubre el window de token refresh)
+  const sessionEmail = currentUser?.email || localStorage.getItem('wufly_session_email');
+  if (sessionEmail) {
     // Fuente principal: localStorage (persiste entre sesiones)
     let fotoSrc = null;
     try {
       const p = JSON.parse(localStorage.getItem('wufly_profile_v1') || '{}');
       if (p.fotoDueno && p.fotoDueno.startsWith('http')) fotoSrc = p.fotoDueno;
     } catch {}
-    // Fallback: clave dedicada (persiste incluso si wufly_profile_v1 se corrompe o fotoDueno falta)
+    // Fallback: clave dedicada
     if (!fotoSrc) {
       const av = localStorage.getItem('wufly_avatar');
       if (av && av.startsWith('http')) fotoSrc = av;
     }
-
-    // Fallback: DOM — usar getAttribute (no .src, que devuelve la URL de la página si está vacío)
+    // Fallback: DOM
     if (!fotoSrc) {
       const perfilOwnerImg = document.getElementById('perfilOwnerImg');
       const rawSrc = perfilOwnerImg?.getAttribute('src');
@@ -54,7 +61,7 @@ function renderTopbarAuth() {
       }
     }
 
-    const inicial = currentUser.email.charAt(0).toUpperCase();
+    const inicial = sessionEmail.charAt(0).toUpperCase();
     const avatarInner = fotoSrc
       ? `<img src="${fotoSrc}" style="width:100%;height:100%;object-fit:cover;" alt="perfil"
              onerror="this.style.display='none';this.parentNode.innerHTML='<span style=\\'font-size:14px;font-weight:700;color:white;line-height:1;\\'>${inicial}</span>'">`
