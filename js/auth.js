@@ -33,21 +33,26 @@ function renderTopbarAuth() {
   if (!el) return;
 
   if (currentUser) {
-    // Intentar obtener foto del dueño desde el DOM o desde localStorage
+    // Fuente principal: localStorage (persiste entre sesiones)
     let fotoSrc = null;
-    const perfilOwnerImg = document.getElementById('perfilOwnerImg');
-    if (perfilOwnerImg && perfilOwnerImg.style.display !== 'none' && perfilOwnerImg.src) {
-      fotoSrc = perfilOwnerImg.src;
-    } else {
-      try {
-        const p = JSON.parse(localStorage.getItem('wufly_profile_v1') || '{}');
-        if (p.fotoDueno) fotoSrc = p.fotoDueno;
-      } catch {}
+    try {
+      const p = JSON.parse(localStorage.getItem('wufly_profile_v1') || '{}');
+      if (p.fotoDueno && p.fotoDueno.startsWith('http')) fotoSrc = p.fotoDueno;
+    } catch {}
+
+    // Fallback: DOM — usar getAttribute (no .src, que devuelve la URL de la página si está vacío)
+    if (!fotoSrc) {
+      const perfilOwnerImg = document.getElementById('perfilOwnerImg');
+      const rawSrc = perfilOwnerImg?.getAttribute('src');
+      if (rawSrc && rawSrc.startsWith('http') && perfilOwnerImg.style.display !== 'none') {
+        fotoSrc = rawSrc;
+      }
     }
 
     const inicial = currentUser.email.charAt(0).toUpperCase();
     const avatarInner = fotoSrc
-      ? `<img src="${fotoSrc}" style="width:100%;height:100%;object-fit:cover;" alt="perfil">`
+      ? `<img src="${fotoSrc}" style="width:100%;height:100%;object-fit:cover;" alt="perfil"
+             onerror="this.style.display='none';this.parentNode.innerHTML='<span style=\\'font-size:14px;font-weight:700;color:white;line-height:1;\\'>${inicial}</span>'">`
       : `<span style="font-size:14px;font-weight:700;color:white;line-height:1;">${inicial}</span>`;
 
     el.innerHTML = `
