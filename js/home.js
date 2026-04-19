@@ -100,7 +100,7 @@ function renderHome() {
         <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.05);"></div>
         <div style="position:absolute;bottom:-30px;left:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.04);"></div>
         ` : ''}
-
+        <div style="width:100%; height:50px;background-color:#fff;">hola</div>
         <!-- Contenido centrado verticalmente -->
         <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:424px;padding:0 20px 28px;">
           ${heroFoto ? '' : heroMediaEmoji}
