@@ -80,8 +80,8 @@ function renderHome() {
         ${heroFoto
           ? `background-image:url('${heroFoto}');background-size:cover;background-position:center top;`
           : 'background:linear-gradient(135deg,#4C1D95,#7C4DCC,#9B6BE0);'}
-        border-radius:0 0 28px 28px;
-        min-height:240px;
+        border-radius:0 0 38px 38px;
+        min-height:430px;
         padding:0;
         text-align:center;
         margin-bottom:20px;
