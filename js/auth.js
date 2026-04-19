@@ -39,6 +39,11 @@ function renderTopbarAuth() {
       const p = JSON.parse(localStorage.getItem('wufly_profile_v1') || '{}');
       if (p.fotoDueno && p.fotoDueno.startsWith('http')) fotoSrc = p.fotoDueno;
     } catch {}
+    // Fallback: clave dedicada (persiste incluso si wufly_profile_v1 se corrompe o fotoDueno falta)
+    if (!fotoSrc) {
+      const av = localStorage.getItem('wufly_avatar');
+      if (av && av.startsWith('http')) fotoSrc = av;
+    }
 
     // Fallback: DOM — usar getAttribute (no .src, que devuelve la URL de la página si está vacío)
     if (!fotoSrc) {
@@ -284,7 +289,7 @@ async function sincronizarPerfil() {
     .select('*')
     .eq('id', currentUser.id)
     .single();
-  if (error || !data) return;
+  if (error || !data) { renderTopbarAuth(); return; }
 
   const local = (() => {
     try { const r = localStorage.getItem('wufly_profile_v1'); return r ? JSON.parse(r) : {}; }
@@ -303,8 +308,11 @@ async function sincronizarPerfil() {
   };
 
   localStorage.setItem('wufly_profile_v1', JSON.stringify(merged));
+  // Guardar URL de foto en clave dedicada para que el avatar la encuentre siempre
+  if (merged.fotoDueno?.startsWith('http')) {
+    localStorage.setItem('wufly_avatar', merged.fotoDueno);
+  }
   if (typeof renderPerfilUI === 'function') renderPerfilUI(merged);
-  // Actualizar avatar topbar con la foto recién cargada desde Supabase
   renderTopbarAuth();
   // Si el onboarding está visible, cerrarlo ya que tenemos perfil de la nube
   const overlay = document.getElementById('onboarding-overlay');
