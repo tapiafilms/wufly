@@ -299,6 +299,8 @@ async function sincronizarPerfil() {
 
   localStorage.setItem('wufly_profile_v1', JSON.stringify(merged));
   if (typeof renderPerfilUI === 'function') renderPerfilUI(merged);
+  // Actualizar avatar topbar con la foto recién cargada desde Supabase
+  renderTopbarAuth();
   // Si el onboarding está visible, cerrarlo ya que tenemos perfil de la nube
   const overlay = document.getElementById('onboarding-overlay');
   if (overlay) overlay.remove();

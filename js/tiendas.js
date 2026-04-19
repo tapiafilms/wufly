@@ -153,14 +153,21 @@ function renderTiendas() {
   `).join('');
 
   /* ── Botón geo ── */
+  const geoStatus_  = typeof geoStatus !== 'undefined' ? geoStatus : 'idle';
+  const geoCompletado = geoStatus_ === 'ok';
+
   let geoBtnHtml;
   if (geoLoading) {
     geoBtnHtml = `
-      <div style="display:flex;align-items:center;justify-content:center;gap:10px;
-        padding:18px;background:var(--purple-light);border-radius:14px;
-        font-size:13px;font-weight:700;color:var(--purple);">
-        <span style="animation:spin 1s linear infinite;display:inline-block;">⏳</span>
-        Buscando tiendas cerca de ti…
+      <div style="display:flex;align-items:center;gap:12px;padding:18px;
+        background:var(--purple-light);border-radius:14px;">
+        <div style="width:20px;height:20px;border:3px solid rgba(124,77,204,0.25);
+          border-top-color:var(--purple);border-radius:50%;
+          animation:geoSpin 0.8s linear infinite;flex-shrink:0;"></div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--purple);">Buscando tiendas cerca de ti…</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">Obteniendo tu ubicación</div>
+        </div>
       </div>`;
   } else if (geoDisponible) {
     geoBtnHtml = `
@@ -171,6 +178,24 @@ function renderTiendas() {
           font-family:'Plus Jakarta Sans',sans-serif;">
         🔄 Actualizar tiendas cercanas
       </button>`;
+  } else if (geoCompletado && !geoDisponible) {
+    geoBtnHtml = `
+      <div style="padding:16px;background:var(--bg);border:1.5px solid var(--border-md);
+        border-radius:14px;text-align:center;">
+        <div style="font-size:22px;margin-bottom:6px;">🗺</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">
+          Sin tiendas en el mapa cercano
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">
+          OpenStreetMap no registra pet shops en tu zona. Puedes buscar de todas formas.
+        </div>
+        <button onclick="activarBusquedaTiendas()"
+          style="padding:10px 20px;background:var(--purple-light);border:1.5px solid var(--purple);
+            border-radius:100px;font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;
+            font-family:'Plus Jakarta Sans',sans-serif;">
+          🔄 Reintentar búsqueda
+        </button>
+      </div>`;
   } else {
     geoBtnHtml = `
       <button onclick="activarBusquedaTiendas()"
@@ -241,13 +266,11 @@ function _renderTiendaGeo(t) {
 
 /* ── Disparar búsqueda geo para tiendas ── */
 function activarBusquedaTiendas() {
-  const list = document.getElementById('tiendaList');
-  const btn = list?.querySelector('button');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Buscando…'; }
-
-  if (typeof iniciarGeoBusqueda === 'function') {
-    iniciarGeoBusqueda().then(() => renderTiendas());
-  }
+  if (typeof iniciarGeoBusqueda !== 'function') return;
+  // iniciarGeoBusqueda() setea geoStatus='loading' de forma sincrónica,
+  // así que llamar renderTiendas() justo después muestra el spinner.
+  iniciarGeoBusqueda(true).then(() => renderTiendas()); // garantiza re-render en error también
+  renderTiendas(); // mostrar spinner de inmediato
 }
 
 /* ══ VISTA DE DETALLE — tiendas vitrina ══ */
