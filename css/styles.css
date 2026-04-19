@@ -799,7 +799,7 @@ body {
   .app-column .app-pages::-webkit-scrollbar-thumb { background: rgba(78,107,74,0.3); border-radius: 4px; }
 
   .app-column .page { padding: 16px; }
-
+    #page-home .app-column .page {padding: 0px;}
   /* ── COLUMNA DERECHA: info sin scroll ── */
   .info-column {
     flex: 1;
