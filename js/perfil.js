@@ -4,7 +4,6 @@
    ══════════════════════════════════════ */
 
 const PERFIL_KEY = 'wufly_profile_v1';
-let perfilCardOpen = false;
 let perfilModoEdicion = false;
 
 const saludOpciones = [
@@ -27,24 +26,11 @@ function cargarPerfilLocal() {
   catch { return {}; }
 }
 
-/* ── Toggle card deslizable ── */
-function togglePerfilCard() {
-  perfilCardOpen = !perfilCardOpen;
-  const card = document.getElementById('perfilCard');
-  if (!card) return;
-  card.style.transform = perfilCardOpen ? 'translateY(0)' : 'translateY(calc(100% - 70px))';
-}
-
 /* ── Activar modo edición ── */
 function activarEdicion() {
   perfilModoEdicion = true;
   const p = cargarPerfilLocal();
   renderCardContenido(p, true);
-  // Abrir card si estaba cerrada
-  if (!perfilCardOpen) {
-    perfilCardOpen = true;
-    document.getElementById('perfilCard').style.transform = 'translateY(0)';
-  }
 }
 
 /* ── Guardar y volver a modo lectura ── */
@@ -421,38 +407,8 @@ function editarNombreMascota() {
   if (nuevo?.trim()) { pill.textContent = nuevo.trim(); }
 }
 
-/* ── Swipe gesture ── */
-function initSwipeGesture() {
-  const card   = document.getElementById('perfilCard');
-  const handle = document.getElementById('perfilHandle');
-  if (!card || !handle) return;
-  let startY = 0;
-
-  handle.addEventListener('touchstart', e => {
-    startY = e.touches[0].clientY;
-    card.style.transition = 'none';
-  }, { passive: true });
-
-  handle.addEventListener('touchmove', e => {
-    const dy = e.touches[0].clientY - startY;
-    const cardH = card.offsetHeight;
-    const current = perfilCardOpen ? 0 : cardH - 70;
-    const newVal = Math.max(0, Math.min(cardH - 70, current + dy));
-    card.style.transform = `translateY(${newVal}px)`;
-  }, { passive: true });
-
-  handle.addEventListener('touchend', e => {
-    card.style.transition = 'transform 0.4s cubic-bezier(0.4,0,0.2,1)';
-    const dy = e.changedTouches[0].clientY - startY;
-    if (dy < -40)      { perfilCardOpen = true;  card.style.transform = 'translateY(0)'; }
-    else if (dy > 40)  { perfilCardOpen = false; card.style.transform = 'translateY(calc(100% - 70px))'; }
-    else togglePerfilCard();
-  }, { passive: true });
-}
-
 /* ── Init ── */
 document.addEventListener('DOMContentLoaded', () => {
   const p = cargarPerfilLocal();
   renderPerfilUI(p);
-  initSwipeGesture();
 });
