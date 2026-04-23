@@ -59,6 +59,11 @@
 
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
+/* Evitar zoom automático en iOS al enfocar inputs (requiere font-size >= 16px) */
+input, textarea, select {
+  font-size: max(16px, 1em);
+}
+
 body {
   font-family:'Plus Jakarta Sans', sans-serif;
   background:var(--bg);

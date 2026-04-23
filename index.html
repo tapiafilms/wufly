@@ -811,6 +811,17 @@
     });
   }
 
+  // Reset zoom iOS al perder foco en inputs (evita que quede agrandado tras escribir)
+  document.addEventListener('focusout', () => {
+    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      const vp = document.querySelector('meta[name=viewport]');
+      if (!vp) return;
+      const orig = vp.getAttribute('content');
+      vp.setAttribute('content', orig + ', maximum-scale=1');
+      setTimeout(() => vp.setAttribute('content', orig), 150);
+    }
+  });
+
   // Manejar tab desde URL (para shortcuts del manifest)
   const urlParams = new URLSearchParams(location.search);
   const tabParam = urlParams.get('tab');
