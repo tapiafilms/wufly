@@ -478,20 +478,143 @@ function _fabSugerencia(texto) {
   if (input) { input.value = texto; input.focus(); }
 }
 
+/* ── Mapa de intenciones → secciones de la app ── */
+const _fabIntenciones = [
+  {
+    keywords: ['adopt', 'hogar', 'rescata'],
+    titulo:   'Adoptar',
+    desc:     'Mascotas que buscan un hogar en Viña, Valpo y Concón.',
+    ir: () => { switchComunidadTab('adoptar'); switchTab('comunidad'); },
+  },
+  {
+    keywords: ['perdid', 'extravia', 'encontr', 'rescate'],
+    titulo:   'Mascotas Perdidas y Rescate',
+    desc:     'Reporta o busca mascotas perdidas en tu zona.',
+    ir: () => { switchComunidadTab('perdidos'); switchTab('comunidad'); },
+  },
+  {
+    keywords: ['vet', 'clínica', 'clinica', 'urgencia', 'hospital', 'médico', 'medico', 'doctor'],
+    titulo:   'Clínicas Veterinarias',
+    desc:     '11 clínicas verificadas en Viña del Mar, Valparaíso y Concón.',
+    ir: () => switchTab('restaurantes'),
+  },
+  {
+    keywords: ['dr', 'doctor', 'síntoma', 'sintoma', 'enferm', 'consejo', 'pregunt', 'diagnos'],
+    titulo:   'Dr. Wufly',
+    desc:     'Asistente veterinario IA. Cuéntale síntomas y te orienta.',
+    ir: () => switchTab('drwufly'),
+  },
+  {
+    keywords: ['tienda', 'comprar', 'aliment', 'comida', 'accesorio', 'pet shop', 'petshop', 'product'],
+    titulo:   'Tiendas',
+    desc:     'Pet shops físicos y online con productos para tu mascota.',
+    ir: () => { switchServiciosTab('tiendas'); switchTab('servicios'); },
+  },
+  {
+    keywords: ['peluquer', 'groomin', 'baño', 'bano', 'corte', 'estética', 'estetica'],
+    titulo:   'Grooming y Peluquerías',
+    desc:     'Peluquerías caninas y felinas en las 3 ciudades.',
+    ir: () => { switchServiciosTab('grooming'); switchTab('servicios'); },
+  },
+  {
+    keywords: ['paseo', 'paseador', 'caminata', 'pasear'],
+    titulo:   'Paseadores',
+    desc:     'Paseadores profesionales verificados cerca de ti.',
+    ir: () => { switchServiciosTab('paseadores'); switchTab('servicios'); },
+  },
+  {
+    keywords: ['arte', 'retrato', 'pintura', 'dibujo', 'ilustra', 'artista'],
+    titulo:   'Arte — Retratos de mascotas',
+    desc:     'Artistas que inmortalizan a tu mascota en óleo, acuarela y más.',
+    ir: () => { switchServiciosTab('arte'); switchTab('servicios'); },
+  },
+  {
+    keywords: ['receta', 'casera', 'natural', 'snack', 'cocina'],
+    titulo:   'Recetas Caseras',
+    desc:     'Comida y snacks naturales para preparar en casa.',
+    ir: () => { switchComunidadTab('recetas'); switchTab('comunidad'); },
+  },
+  {
+    keywords: ['vacuna', 'recordatorio', 'desparasit', 'control', 'calendario'],
+    titulo:   'Recordatorios',
+    desc:     'Vacunas, desparasitaciones y controles de tu mascota.',
+    ir: () => switchTab('recordatorios'),
+  },
+  {
+    keywords: ['perfil', 'cuenta', 'foto', 'mascota', 'datos', 'editar'],
+    titulo:   'Mi Perfil',
+    desc:     'Datos de tu mascota, avatar, recordatorios y más.',
+    ir: () => switchTab('alergias'),
+  },
+];
+
+function _fabBuscarIntencion(texto) {
+  const q = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  for (const intent of _fabIntenciones) {
+    if (intent.keywords.some(k => q.includes(k.normalize('NFD').replace(/[\u0300-\u036f]/g, '')))) {
+      return intent;
+    }
+  }
+  return null;
+}
+
 function _fabEnviar() {
   const input = document.getElementById('wuflyFABInput');
   const texto = input?.value.trim();
   if (!texto) return;
 
-  _fabCerrarBurbuja();
+  const intent = _fabBuscarIntencion(texto);
 
-  // Redirigir al Dr. Wufly con el texto
-  if (typeof switchTab === 'function') switchTab('drwufly');
-  setTimeout(() => {
-    const chatInput = document.getElementById('chatInput');
-    if (chatInput) {
-      chatInput.value = texto;
-      chatInput.focus();
-    }
-  }, 350);
+  if (intent) {
+    /* Encontró una sección — mostrar respuesta de navegación */
+    _fabMostrarRespuesta(intent);
+  } else {
+    /* No reconoció — derivar al Dr. Wufly */
+    _fabCerrarBurbuja();
+    if (typeof switchTab === 'function') switchTab('drwufly');
+    setTimeout(() => {
+      const chatInput = document.getElementById('chatInput');
+      if (chatInput) { chatInput.value = texto; chatInput.focus(); }
+    }, 350);
+  }
+}
+
+function _fabMostrarRespuesta(intent) {
+  /* Reemplaza el contenido de la burbuja con la respuesta */
+  const bubble = document.getElementById('wuflyFABBubble');
+  if (!bubble) return;
+
+  const cuerpo = bubble.querySelector('div:nth-child(2)');
+  if (cuerpo) {
+    cuerpo.innerHTML = `
+      <div style="padding:14px 14px 4px;">
+        <div style="font-size:10px;font-weight:700;color:var(--mint-dark);letter-spacing:0.06em;margin-bottom:6px;">📍 ENCONTRÉ ESTO</div>
+        <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:15px;color:#2D1B6B;margin-bottom:4px;">${intent.titulo}</div>
+        <div style="font-size:12px;color:#6B5C8A;line-height:1.5;margin-bottom:14px;">${intent.desc}</div>
+        <button onclick="_fabNavegar()" id="fabIrBtn"
+          style="width:100%;padding:11px;background:linear-gradient(135deg,#5C2FA8,#7C4DCC);border:none;border-radius:12px;color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+          Ir ahí →
+        </button>
+        <button onclick="_fabVolver()"
+          style="width:100%;padding:8px;background:none;border:none;color:#9CA3AF;font-size:12px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-top:6px;">
+          Buscar otra cosa
+        </button>
+      </div>`;
+  }
+
+  /* Guardar la función de navegación para el botón */
+  window._fabNavFn = intent.ir;
+}
+
+function _fabNavegar() {
+  _fabCerrarBurbuja();
+  setTimeout(() => { if (window._fabNavFn) window._fabNavFn(); }, 150);
+}
+
+function _fabVolver() {
+  /* Volver al estado inicial de la burbuja */
+  const bubble = document.getElementById('wuflyFABBubble');
+  if (!bubble) return;
+  bubble.remove();
+  _fabAbrirBurbuja();
 }
