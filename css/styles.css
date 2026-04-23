@@ -175,8 +175,9 @@ body {
 }
 
 /* ── PAGES ── */
-.page { display:none; padding:20px; }
+.page { display:none; padding:130px 20px 20px; }
 #page-home.page { padding:0px; }
+#page-alergias.page { padding:0; }
 .page.active {
   display:block;
   animation: pageIn 0.28s ease forwards;
