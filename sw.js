@@ -6,7 +6,7 @@
    - Imágenes                           → Cache First
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'wufly-v37';
+const CACHE_NAME = 'wufly-v38';
 const API_HOST = 'divine-waterfall-d1dfsin-gluten-life.pablo77tapia.workers.dev';
 
 const STATIC_ASSETS = [
@@ -79,6 +79,9 @@ self.addEventListener('fetch', event => {
 
   // Ignorar extensiones de browser y chrome-extension
   if (!url.protocol.startsWith('http')) return;
+
+  // Videos → pasar directo a la red (necesitan range requests para streaming)
+  if (url.pathname.match(/\.(mp4|webm|mov)$/i)) return;
 
   // API calls → Network First (con fallback a cache)
   if (url.hostname === API_HOST) {
