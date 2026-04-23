@@ -190,7 +190,7 @@ function _cmpMostrarBurbuja(mensaje) {
     <!-- Input respuesta -->
     <div style="padding:0 14px 14px;display:flex;gap:8px;align-items:center;">
       <input id="cmpInput" type="text" placeholder="Respóndeme..."
-        style="flex:1;border:1.5px solid #E5E7EB;border-radius:100px;padding:8px 14px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;color:#1F2937;background:#F9FAFB;"
+        style="flex:1;border:1.5px solid #E5E7EB;border-radius:100px;padding:8px 14px;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#1F2937;background:#F9FAFB;"
         maxlength="200">
       <button id="cmpEnviar"
         style="width:34px;height:34px;border-radius:50%;background:var(--purple,#7C4DCC);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -419,7 +419,7 @@ function _fabAbrirBurbuja() {
     </div>
     <div style="padding:0 12px 12px;display:flex;gap:8px;">
       <input id="wuflyFABInput" type="text" placeholder="Escríbeme algo..."
-        style="flex:1;border:1.5px solid #E5E7EB;border-radius:100px;padding:8px 14px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;color:#1F2937;background:#F9FAFB;outline:none;"
+        style="flex:1;border:1.5px solid #E5E7EB;border-radius:100px;padding:8px 14px;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#1F2937;background:#F9FAFB;outline:none;"
         maxlength="200">
       <button onclick="_fabEnviar()"
         style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#5C2FA8,#7C4DCC);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
