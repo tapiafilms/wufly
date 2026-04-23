@@ -280,4 +280,218 @@ async function initCompanion() {
 /* ── Lanzar con delay tras carga ── */
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(initCompanion, COMPANION_DELAY);
+  initWuflyFAB();
 });
+
+/* ══════════════════════════════════════
+   FAB "Pregúntale a Wufly" — siempre visible
+   Anillo giratorio + burbuja de bienvenida
+   ══════════════════════════════════════ */
+
+function initWuflyFAB() {
+  if (document.getElementById('wuflyFAB')) return;
+
+  /* ── Estilos del FAB ── */
+  const style = document.createElement('style');
+  style.textContent = `
+    #wuflyFAB {
+      position: fixed;
+      bottom: 96px;
+      right: 16px;
+      z-index: 7000;
+    }
+    #wuflyFABBtn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      background: none;
+      position: relative;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Anillo exterior giratorio */
+    #wuflyFABRing {
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, #7C4DCC, #5DD6A8, #F9B95C, #C026D3, #7C4DCC);
+      animation: fabSpin 2.4s linear infinite;
+    }
+    /* Centro blanco que cubre el anillo dejando solo el borde */
+    #wuflyFABRing::after {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: white;
+    }
+    /* Icono interior */
+    #wuflyFABInner {
+      position: relative;
+      z-index: 1;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #5C2FA8, #7C4DCC);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(92,47,168,0.45);
+      transition: transform 0.15s ease;
+    }
+    #wuflyFABBtn:active #wuflyFABInner {
+      transform: scale(0.92);
+    }
+    @keyframes fabSpin {
+      to { transform: rotate(360deg); }
+    }
+    /* Burbuja greeting */
+    #wuflyFABBubble {
+      position: fixed;
+      bottom: 162px;
+      right: 12px;
+      z-index: 7001;
+      width: min(280px, calc(100vw - 24px));
+      background: white;
+      border-radius: 18px 18px 4px 18px;
+      box-shadow: 0 8px 32px rgba(92,47,168,0.22), 0 2px 8px rgba(0,0,0,0.1);
+      border: 1.5px solid rgba(124,77,204,0.18);
+      overflow: hidden;
+      animation: fabBubbleIn 0.32s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes fabBubbleIn {
+      from { opacity:0; transform:translateY(16px) scale(0.9); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+  `;
+  document.head.appendChild(style);
+
+  /* ── HTML del botón ── */
+  const fab = document.createElement('div');
+  fab.id = 'wuflyFAB';
+  fab.innerHTML = `
+    <button id="wuflyFABBtn" aria-label="Pregúntale a Wufly">
+      <div id="wuflyFABRing"></div>
+      <div id="wuflyFABInner">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none">
+          <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.956 9.956 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z" fill="rgba(255,255,255,0.25)" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 11h.01M12 11h.01M16 11h.01" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </button>
+  `;
+  document.body.appendChild(fab);
+
+  /* ── Toggle burbuja ── */
+  let bubbleOpen = false;
+
+  document.getElementById('wuflyFABBtn').addEventListener('click', () => {
+    if (bubbleOpen) {
+      _fabCerrarBurbuja();
+    } else {
+      _fabAbrirBurbuja();
+    }
+  });
+}
+
+function _fabAbrirBurbuja() {
+  if (document.getElementById('wuflyFABBubble')) return;
+
+  const perfil = _cmpGetPerfil();
+  const nombre = perfil.nombre ? `, ${perfil.nombre}` : '';
+
+  const bubble = document.createElement('div');
+  bubble.id = 'wuflyFABBubble';
+  bubble.innerHTML = `
+    <div style="background:linear-gradient(135deg,#5C2FA8,#7C4DCC);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:13px;">🐾</div>
+        <span style="font-size:12px;font-weight:700;color:white;font-family:'Plus Jakarta Sans',sans-serif;">Wufly</span>
+      </div>
+      <button onclick="_fabCerrarBurbuja()" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.7);font-size:20px;line-height:1;padding:0 2px;">×</button>
+    </div>
+    <div style="padding:14px 14px 10px;">
+      <p style="font-size:13px;color:#2D1B6B;line-height:1.55;margin:0;font-family:'Plus Jakarta Sans',sans-serif;">
+        ¡Hola${nombre}! 👋 ¿Qué estás buscando en Wufly hoy?
+      </p>
+    </div>
+    <div style="padding:0 12px 12px;display:flex;gap:8px;">
+      <input id="wuflyFABInput" type="text" placeholder="Escríbeme algo..."
+        style="flex:1;border:1.5px solid #E5E7EB;border-radius:100px;padding:8px 14px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;color:#1F2937;background:#F9FAFB;outline:none;"
+        maxlength="200">
+      <button onclick="_fabEnviar()"
+        style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#5C2FA8,#7C4DCC);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </div>
+    <div style="padding:0 12px 12px;display:flex;gap:6px;flex-wrap:wrap;">
+      <button onclick="_fabSugerencia('¿Cómo puedo ayudar a mi mascota?')" style="font-size:10px;padding:5px 10px;border-radius:100px;background:#F0EAFB;color:#7C4DCC;border:1px solid rgba(124,77,204,0.2);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;">🩺 Dr. Wufly</button>
+      <button onclick="_fabSugerencia('Busco veterinarias cercanas')" style="font-size:10px;padding:5px 10px;border-radius:100px;background:#F0EAFB;color:#7C4DCC;border:1px solid rgba(124,77,204,0.2);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;">🏥 Vets</button>
+      <button onclick="_fabSugerencia('Quiero adoptar una mascota')" style="font-size:10px;padding:5px 10px;border-radius:100px;background:#F0EAFB;color:#7C4DCC;border:1px solid rgba(124,77,204,0.2);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;">🐾 Adoptar</button>
+    </div>
+  `;
+  document.body.appendChild(bubble);
+
+  setTimeout(() => document.getElementById('wuflyFABInput')?.focus(), 100);
+
+  document.getElementById('wuflyFABInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') _fabEnviar();
+  });
+
+  // Cerrar al tocar fuera
+  setTimeout(() => {
+    document.addEventListener('click', _fabClickFuera);
+  }, 50);
+
+  const btn = document.getElementById('wuflyFABBtn');
+  if (btn) { btn.setAttribute('aria-expanded', 'true'); }
+  window._fabBubbleOpen = true;
+}
+
+function _fabCerrarBurbuja() {
+  const b = document.getElementById('wuflyFABBubble');
+  if (!b) return;
+  b.style.transition = 'all 0.2s ease';
+  b.style.opacity = '0';
+  b.style.transform = 'translateY(10px) scale(0.95)';
+  setTimeout(() => b.remove(), 200);
+  document.removeEventListener('click', _fabClickFuera);
+  const btn = document.getElementById('wuflyFABBtn');
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+  window._fabBubbleOpen = false;
+}
+
+function _fabClickFuera(e) {
+  const bubble = document.getElementById('wuflyFABBubble');
+  const fabBtn = document.getElementById('wuflyFABBtn');
+  if (bubble && !bubble.contains(e.target) && !fabBtn.contains(e.target)) {
+    _fabCerrarBurbuja();
+  }
+}
+
+function _fabSugerencia(texto) {
+  const input = document.getElementById('wuflyFABInput');
+  if (input) { input.value = texto; input.focus(); }
+}
+
+function _fabEnviar() {
+  const input = document.getElementById('wuflyFABInput');
+  const texto = input?.value.trim();
+  if (!texto) return;
+
+  _fabCerrarBurbuja();
+
+  // Redirigir al Dr. Wufly con el texto
+  if (typeof switchTab === 'function') switchTab('drwufly');
+  setTimeout(() => {
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+      chatInput.value = texto;
+      chatInput.focus();
+    }
+  }, 350);
+}
