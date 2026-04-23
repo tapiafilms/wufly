@@ -151,22 +151,20 @@ function renderHome() {
         </div>
       </div>
 
-      <!-- CAROUSEL CLÍNICAS -->
+      <!-- CAROUSEL VIDEOS -->
       <div style="margin-bottom:20px;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:10px;">
-          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">🏥 CLÍNICAS DESTACADAS</div>
-          <button onclick="switchTab('restaurantes')" style="background:none;border:none;font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Ver todas →</button>
+          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">▶️ VIDEOS WUFLY</div>
+          <a href="https://www.youtube.com/@wufly" target="_blank" rel="noopener" style="background:none;border:none;font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;">Ver canal →</a>
         </div>
-        <!-- Clip container — overflow:hidden corta el track -->
         <div id="clinicas-clip" style="overflow:hidden;">
           <div id="clinicas-track"
             style="display:flex;gap:12px;padding:4px 0 12px 16px;will-change:transform;transition:transform 0.65s cubic-bezier(0.25,0.46,0.45,0.94);">
-            ${_carouselClinicas()}
+            ${_carouselVideos()}
           </div>
         </div>
-        <!-- Dots -->
         <div id="carousel-dots" style="display:flex;justify-content:center;gap:5px;margin-top:6px;">
-          ${[0,1,2,3,4].map(i => `<div class="cdot${i===0?' cdot-active':''}" style="width:${i===0?'20px':'6px'};height:6px;border-radius:100px;background:${i===0?'var(--purple)':'#D1D5DB'};transition:all 0.3s;"></div>`).join('')}
+          ${VIDEOS_WUFLY.map((_, i) => `<div class="cdot${i===0?' cdot-active':''}" style="width:${i===0?'20px':'6px'};height:6px;border-radius:100px;background:${i===0?'var(--purple)':'#D1D5DB'};transition:all 0.3s;"></div>`).join('')}
         </div>
       </div>
 
@@ -198,74 +196,63 @@ function renderHome() {
   setTimeout(_initCarouselDots, 50);
 }
 
-/* ── Datos del carousel (primeras 5 clínicas) ── */
-const _clinicasCarousel = [
+/* ── Videos Wufly — reemplaza youtubeId y preview cuando tengas el canal ── */
+const VIDEOS_WUFLY = [
   {
-    nombre: 'MEVETLAB',
-    tipo: 'Clínica · Laboratorio · Urgencias 24h',
-    desc: 'Laboratorio propio, hospitalización 24h y atención Fear Free.',
-    icon: '🏥',
-    urgencia: true,
-    ciudad: 'Viña del Mar',
-    grad: 'linear-gradient(135deg,#5C2FA8,#7C4DCC)',
+    titulo: 'Cómo cuidar a tu perro por primera vez',
+    categoria: 'Consejos',
+    duracion: '4:32',
+    youtubeId: 'jNQXAC9IVRw', // placeholder — reemplazar con ID real
+    preview: null,             // URL del mp4 corto (5s) cuando esté disponible
   },
   {
-    nombre: 'Clínica Artemisa',
-    tipo: 'Urgencias 24h · Exóticos · Peluquería',
-    desc: 'Urgencias permanentes, animales exóticos y farmacia.',
-    icon: '🐾',
-    urgencia: true,
-    ciudad: 'Viña del Mar',
-    grad: 'linear-gradient(135deg,#0F766E,#14B8A6)',
+    titulo: '¿Cómo saber si tu gato está enfermo?',
+    categoria: 'Salud',
+    duracion: '3:18',
+    youtubeId: 'jNQXAC9IVRw', // placeholder
+    preview: null,
   },
   {
-    nombre: 'Centro Veterinario Recreo',
-    tipo: 'Emergencias · Cirugía · Vacunación',
-    desc: 'Especialización en emergencias y cirugía. Trato cercano.',
-    icon: '🐾',
-    urgencia: true,
-    ciudad: 'Valparaíso',
-    grad: 'linear-gradient(135deg,#B45309,#F59E0B)',
-  },
-  {
-    nombre: 'Centro Quirúrgico Veterinario',
-    tipo: 'Cirugía · Radiografías · Ecografías',
-    desc: 'Especialistas en cirugías complejas con equipo calificado.',
-    icon: '🔬',
-    urgencia: false,
-    ciudad: 'Viña del Mar',
-    grad: 'linear-gradient(135deg,#1D4ED8,#3B82F6)',
-  },
-  {
-    nombre: 'Veterinaria Concón Reñaca',
-    tipo: 'Medicina General · Pet Shop',
-    desc: 'Clínica con pet shop integrado. Vacunas y desparasitación.',
-    icon: '🐕',
-    urgencia: false,
-    ciudad: 'Concón',
-    grad: 'linear-gradient(135deg,#6D28D9,#8B5CF6)',
+    titulo: 'Recetas caseras para perros — fácil y nutritivo',
+    categoria: 'Nutrición',
+    duracion: '5:10',
+    youtubeId: 'jNQXAC9IVRw', // placeholder
+    preview: null,
   },
 ];
 
-function _carouselClinicas() {
-  return _clinicasCarousel.map((c, i) => `
-    <div onclick="switchTab('restaurantes')"
-      style="flex:0 0 88%;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,0.18);">
-      <div style="background:${c.grad};padding:20px 20px 22px;">
-        ${c.urgencia
-          ? `<div style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.22);border-radius:100px;padding:3px 10px;font-size:10px;font-weight:700;color:white;margin-bottom:10px;">🚨 Urgencias 24h</div>`
-          : `<div style="height:22px;margin-bottom:10px;"></div>`}
-        <div style="font-size:28px;margin-bottom:8px;">${c.icon}</div>
-        <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:19px;color:white;margin-bottom:3px;line-height:1.2;">${c.nombre}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.75);font-weight:600;letter-spacing:0.04em;margin-bottom:8px;">${c.tipo}</div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.88);line-height:1.5;margin-bottom:16px;">${c.desc}</div>
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <div style="font-size:11px;color:rgba(255,255,255,0.7);">📍 ${c.ciudad}</div>
-          <div style="font-size:12px;font-weight:700;color:white;background:rgba(255,255,255,0.2);padding:5px 12px;border-radius:100px;">Ver clínica →</div>
-        </div>
+function abrirVideoYoutube(id) {
+  window.open('https://www.youtube.com/watch?v=' + id, '_blank', 'noopener');
+}
+
+function _carouselVideos() {
+  return VIDEOS_WUFLY.map(v => {
+    const thumb = `https://img.youtube.com/vi/${v.youtubeId}/hqdefault.jpg`;
+    const media = v.preview
+      ? `<video src="${v.preview}" autoplay muted loop playsinline
+           style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;"></video>`
+      : `<img src="${thumb}" alt="${v.titulo}"
+           style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;"
+           onerror="this.style.background='linear-gradient(135deg,#5C2FA8,#7C4DCC)';this.style.display='none'">`;
+    return `
+    <div onclick="abrirVideoYoutube('${v.youtubeId}')"
+      style="flex:0 0 88%;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,0.22);position:relative;aspect-ratio:16/9;">
+      ${media}
+      <!-- Overlay degradado -->
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.05) 30%,rgba(0,0,0,0.72) 100%);pointer-events:none;"></div>
+      <!-- Botón play -->
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);width:52px;height:52px;background:rgba(255,255,255,0.92);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.3);">
+        <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:#5C2FA8;margin-left:3px;"><polygon points="5,3 19,12 5,21"/></svg>
       </div>
-    </div>
-  `).join('');
+      <!-- Categoría badge -->
+      <div style="position:absolute;top:12px;right:12px;background:rgba(124,77,204,0.85);backdrop-filter:blur(4px);border-radius:100px;padding:3px 10px;font-size:10px;font-weight:700;color:white;">${v.categoria}</div>
+      <!-- Info pie -->
+      <div style="position:absolute;bottom:12px;left:12px;right:12px;">
+        <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:15px;color:white;line-height:1.3;text-shadow:0 1px 6px rgba(0,0,0,0.4);margin-bottom:4px;">${v.titulo}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.75);">▶ ${v.duracion} · Canal Wufly</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 /* ── Carousel: CSS transform + swipe táctil ── */
@@ -301,7 +288,7 @@ function _updateDots(idx) {
 function _initCarouselDots() {
   const clip  = document.getElementById('clinicas-clip');
   if (!clip) return;
-  const total = _clinicasCarousel.length;
+  const total = VIDEOS_WUFLY.length;
   _carouselIdx = 0;
 
   clip.addEventListener('touchstart', e => {
