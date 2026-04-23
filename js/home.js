@@ -77,9 +77,6 @@ function renderHome() {
 
       <!-- HERO con saludo -->
       <div style="
-        ${heroFoto
-          ? `background-image:url('${heroFoto}');background-size:cover;background-position:center top;`
-          : 'background:linear-gradient(135deg,#4C1D95,#7C4DCC,#9B6BE0);'}
         border-radius:0 0 38px 38px;
         min-height:430px;
         padding:0;
@@ -87,22 +84,29 @@ function renderHome() {
         margin-bottom:20px;
         position:relative;
         overflow:hidden;
+        background:#4C1D95;
       ">
-        <!-- Overlay de color (siempre presente, más oscuro cuando hay foto) -->
+        <!-- Video de fondo -->
+        <video autoplay muted loop playsinline
+          style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;"
+          poster="">
+          <source src="img/wufly-home.mp4" type="video/mp4">
+        </video>
+
+        ${heroFoto ? `
+        <!-- Foto de mascota como overlay circular cuando existe -->
+        <div style="position:absolute;inset:0;background-image:url('${heroFoto}');background-size:cover;background-position:center top;z-index:1;"></div>
+        ` : ''}
+
+        <!-- Overlay de color -->
         <div style="position:absolute;inset:0;background:${heroFoto
           ? 'linear-gradient(to bottom, rgba(30,10,70,0.45) 0%, rgba(76,29,149,0.72) 60%, rgba(50,10,100,0.88) 100%)'
-          : 'linear-gradient(135deg,rgba(76,29,149,0.0),rgba(0,0,0,0.08))'};border-radius:0 0 28px 28px;"></div>
+          : 'linear-gradient(to bottom, rgba(30,10,70,0.25) 0%, rgba(76,29,149,0.65) 60%, rgba(50,10,100,0.85) 100%)'};z-index:2;border-radius:0 0 28px 28px;"></div>
 
         ${_avatarHome}
 
-        ${!heroFoto ? `
-        <!-- Decoración de fondo (solo sin foto) -->
-        <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.05);"></div>
-        <div style="position:absolute;bottom:-30px;left:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.04);"></div>
-        ` : ''}
-        
         <!-- Contenido centrado verticalmente -->
-        <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:482px;padding:0 20px 28px;">
+        <div style="position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:482px;padding:0 20px 28px;">
           ${heroFoto ? '' : heroMediaEmoji}
           <div style="margin-top:${heroFoto ? '0' : '14px'};">
             <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:24px;color:white;line-height:1.2;text-shadow:0 2px 8px rgba(0,0,0,0.35);">${saludo}${nombre}!</div>
