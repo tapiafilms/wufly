@@ -90,7 +90,7 @@ function renderHome() {
         <video autoplay muted loop playsinline
           style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;"
           poster="">
-          <source src="img/wufly-home.mp4" type="video/mp4">
+          <source src="/img/wufly-home.mp4" type="video/mp4">
         </video>
 
         ${heroFoto ? `
@@ -198,6 +198,12 @@ function renderHome() {
 
   // Inicializar carousel cada vez que se renderiza el home
   setTimeout(_initCarouselDots, 50);
+
+  // Forzar play del video hero (iOS ignora autoplay en elementos creados con innerHTML)
+  setTimeout(() => {
+    const v = el.querySelector('video');
+    if (v) v.play().catch(() => {});
+  }, 100);
 }
 
 /* ── Videos Wufly — reemplaza youtubeId y preview cuando tengas el canal ── */
