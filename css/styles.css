@@ -183,6 +183,11 @@ body {
   animation: pageIn 0.28s ease forwards;
 }
 
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
 @keyframes pageIn {
   from {
     opacity: 0;

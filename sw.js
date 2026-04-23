@@ -6,7 +6,7 @@
    - Imágenes                           → Cache First
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'wufly-v34';
+const CACHE_NAME = 'wufly-v35';
 const API_HOST = 'divine-waterfall-d1dfsin-gluten-life.pablo77tapia.workers.dev';
 
 const STATIC_ASSETS = [
@@ -42,13 +42,18 @@ const STATIC_ASSETS = [
 /* ── INSTALL: pre-cachear assets estáticos ── */
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      // Cachear cada asset individualmente para que un fallo no bloquee todo
-      return Promise.allSettled(
+    caches.open(CACHE_NAME).then(cache =>
+      Promise.allSettled(
         STATIC_ASSETS.map(url => cache.add(url).catch(() => null))
-      );
-    }).then(() => self.skipWaiting())
+      )
+    )
+    // No llamamos skipWaiting() aquí — la página decide cuándo activar
   );
+});
+
+/* ── MESSAGE: recibir orden de activación desde la página ── */
+self.addEventListener('message', event => {
+  if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });
 
 /* ── ACTIVATE: limpiar caches viejos ── */
