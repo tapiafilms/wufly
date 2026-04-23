@@ -206,7 +206,7 @@ function renderGrooming() {
       : '';
     const stars     = g.rating ? '★'.repeat(Math.round(g.rating)) + '☆'.repeat(5 - Math.round(g.rating)) : '';
     const wspNum    = (g.wsp || '').replace(/\D/g, '');
-    const distBadge = g.distKm != null
+    const distBadge = g.distKm != null && g.distKm < 100
       ? `<span style="display:inline-block;background:var(--purple-light);color:var(--purple);font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;margin-bottom:4px;">📍 ${fmtDist(g.distKm)}</span><br>`
       : '';
     const trackAttr = g.fromOSM ? '' : `onclick="clickGrooming('${g.id}','${g.name.replace(/'/g,"\\'")}')"`

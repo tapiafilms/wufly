@@ -273,7 +273,7 @@ function renderTiendas() {
 
 /* ── Card para resultados geo (OpenStreetMap) ── */
 function _renderTiendaGeo(t) {
-  const distBadge = t.distKm != null
+  const distBadge = t.distKm != null && t.distKm < 100
     ? `<span style="background:var(--purple-light);color:var(--purple);font-size:10px;
         font-weight:700;padding:2px 8px;border-radius:100px;margin-bottom:5px;
         display:inline-block;">📍 ${fmtDist(t.distKm)}</span><br>`

@@ -166,7 +166,8 @@ function osmToGrooming(node, uLat, uLng) {
     desc:     tags.description || 'Peluquería canina encontrada cerca de tu ubicación.',
     tags:     ['Grooming'],
     address:  osmAddr(tags),
-    wsp:      osmTel(tags).replace(/\s/g, ''),
+    tel:      osmTel(tags),
+    wsp:      osmTel(tags).replace(/\D/g, ''),
     horario:  osmHorario(tags.opening_hours),
     especies: ['perro', 'gato'],
     distKm:   dist,
@@ -239,6 +240,20 @@ function renderGeoBanner(estado, msg = '') {
       banner.style.background  = '#FEF9C3';
       banner.style.borderColor = 'rgba(234,179,8,0.4)';
       banner.innerHTML = `<div style="font-size:12px;color:#92400E;">⚠️ Permiso de ubicación denegado. Actívalo en la configuración del navegador.</div>`;
+
+    } else if (estado === 'error') {
+      banner.style.display     = 'block';
+      banner.style.background  = '#FEF2F2';
+      banner.style.borderColor = 'rgba(220,38,38,0.3)';
+      banner.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <div style="font-size:12px;color:#DC2626;">⚠️ Error al buscar. Revisa tu conexión e inténtalo de nuevo.</div>
+          <button onclick="iniciarGeoBusqueda(true)"
+            style="font-size:11px;color:white;background:#DC2626;border:none;border-radius:100px;
+              padding:6px 12px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;flex-shrink:0;">
+            Reintentar
+          </button>
+        </div>`;
 
     } else {
       banner.style.display = 'none';
@@ -317,8 +332,7 @@ async function iniciarGeoBusqueda(forzar = false) {
       renderGeoBanner('denied');
     } else {
       geoStatus = 'error';
-      renderGeoBanner('idle');
-      /* error de geolocalización no crítico — banner ya actualizado */
+      renderGeoBanner('error');
     }
   }
 }
