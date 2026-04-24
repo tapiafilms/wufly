@@ -51,27 +51,7 @@ function renderHome() {
   const tipIndex = new Date().getDay(); // 0-6 según día de semana
   const tipHoy = tips[tipIndex];
 
-  /* ── Avatar de usuario (desde localStorage, sin depender de sesión) ── */
-  const _avatarUrl = (() => {
-    try {
-      const p = JSON.parse(localStorage.getItem('wufly_profile_v1') || '{}');
-      if (p.fotoDueno?.startsWith('http')) return p.fotoDueno;
-    } catch {}
-    const av = localStorage.getItem('wufly_avatar');
-    return av?.startsWith('http') ? av : null;
-  })();
-  const _sessionEmail = localStorage.getItem('wufly_session_email');
-  const _avatarInicial = (perfil.nombre || _sessionEmail || '').charAt(0).toUpperCase();
-  const _avatarHome = (_avatarUrl || _sessionEmail) ? `
-    <button onclick="switchTab('alergias')"
-      style="position:absolute;top:60px;right:16px;z-index:10;background:none;border:none;cursor:pointer;padding:0;display:flex;flex-direction:column;align-items:center;gap:3px;">
-      <div style="width:40px;height:40px;border-radius:50%;border:2.5px solid rgba(255,255,255,0.85);background:rgba(255,255,255,0.2);overflow:hidden;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,0.25);">
-        ${_avatarUrl
-          ? `<img src="${_avatarUrl}" style="width:100%;height:100%;object-fit:cover;" alt="perfil">`
-          : `<span style="font-size:16px;font-weight:700;color:white;line-height:1;">${_avatarInicial}</span>`}
-      </div>
-      <span style="font-size:9px;color:rgba(255,255,255,0.85);font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">Mi perfil</span>
-    </button>` : '';
+  const _avatarHome = '';
 
   /* ── Render ── */
   el.innerHTML = `

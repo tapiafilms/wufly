@@ -143,7 +143,7 @@ async function publicarAdopcion() {
 
   if (btn) { btn.disabled = false; btn.textContent = 'Publicar'; }
 
-  if (error) { alert('No se pudo publicar. Intenta de nuevo.'); return; }
+  if (error) { console.error('[adoptar]', error); alert('Error: ' + error.message); return; }
 
   ocultarFormAdopcion();
   document.getElementById('adoptNombre').value = '';

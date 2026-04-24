@@ -88,7 +88,7 @@ async function publicarPerdido(tipo) {
     });
 
     if (btn) { btn.disabled = false; btn.textContent = 'Publicar reporte'; }
-    if (error) { alert('No se pudo publicar. Intenta de nuevo.'); return; }
+    if (error) { console.error('[perdidos]', error); alert('Error: ' + error.message); return; }
 
     toggleFormPerdido();
     document.getElementById('perdidoDesc').value = '';
@@ -124,7 +124,7 @@ async function publicarPerdido(tipo) {
     });
 
     if (btn) { btn.disabled = false; btn.textContent = 'Publicar alerta'; }
-    if (error) { alert('No se pudo publicar. Intenta de nuevo.'); return; }
+    if (error) { console.error('[rescate]', error); alert('Error: ' + error.message); return; }
 
     toggleFormRescate();
     document.getElementById('rescateDesc').value = '';
