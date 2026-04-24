@@ -70,22 +70,28 @@ async function publicarPerdido(tipo) {
     const btn = document.getElementById('btnPublicarPerdido');
     if (btn) { btn.disabled = true; btn.textContent = 'Publicando...'; }
 
+    const _timeout = ms => new Promise((_, r) => setTimeout(() => r(new Error('Sin respuesta del servidor')), ms));
+
     let foto_url = null;
     if (perdidoFile) {
-      try { foto_url = await subirFotoComunidad(perdidoFile, 'perdidos'); }
+      try { foto_url = await Promise.race([subirFotoComunidad(perdidoFile, 'perdidos'), _timeout(10000)]); }
       catch { /* continuar sin foto */ }
     }
 
     const fechaVal = document.getElementById('perdidoFecha').value;
-    const { error } = await db.from('perdidos').insert({
-      user_id:        currentUser?.id || null,
-      especie:        document.getElementById('perdidoEspecie').value,
-      descripcion:    desc,
-      ubicacion:      ubic,
-      fecha_extravio: fechaVal || null,
-      wsp,
-      foto_url,
-    });
+    let error;
+    try {
+      const res = await Promise.race([db.from('perdidos').insert({
+        user_id:        currentUser?.id || null,
+        especie:        document.getElementById('perdidoEspecie').value,
+        descripcion:    desc,
+        ubicacion:      ubic,
+        fecha_extravio: fechaVal || null,
+        wsp,
+        foto_url,
+      }), _timeout(10000)]);
+      error = res.error;
+    } catch (e) { error = e; }
 
     if (btn) { btn.disabled = false; btn.textContent = 'Publicar reporte'; }
     if (error) { console.error('[perdidos]', error); alert('Error: ' + error.message); return; }
@@ -108,20 +114,26 @@ async function publicarPerdido(tipo) {
     const btn = document.getElementById('btnPublicarRescate');
     if (btn) { btn.disabled = true; btn.textContent = 'Publicando...'; }
 
+    const _timeout = ms => new Promise((_, r) => setTimeout(() => r(new Error('Sin respuesta del servidor')), ms));
+
     let foto_url = null;
     if (rescateFile) {
-      try { foto_url = await subirFotoComunidad(rescateFile, 'rescates'); }
+      try { foto_url = await Promise.race([subirFotoComunidad(rescateFile, 'rescates'), _timeout(10000)]); }
       catch { /* continuar sin foto */ }
     }
 
-    const { error } = await db.from('rescates').insert({
-      user_id:     currentUser?.id || null,
-      especie:     document.getElementById('rescateEspecie').value,
-      descripcion: desc,
-      ubicacion:   ubic,
-      foto_url,
-      estado:      'esperando',
-    });
+    let error;
+    try {
+      const res = await Promise.race([db.from('rescates').insert({
+        user_id:     currentUser?.id || null,
+        especie:     document.getElementById('rescateEspecie').value,
+        descripcion: desc,
+        ubicacion:   ubic,
+        foto_url,
+        estado:      'esperando',
+      }), _timeout(10000)]);
+      error = res.error;
+    } catch (e) { error = e; }
 
     if (btn) { btn.disabled = false; btn.textContent = 'Publicar alerta'; }
     if (error) { console.error('[rescate]', error); alert('Error: ' + error.message); return; }

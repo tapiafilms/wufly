@@ -117,13 +117,14 @@ async function publicarAdopcion() {
     alert('Ingresa un número de WhatsApp válido, ej: +56912345678'); return;
   }
 
-  const btn = document.getElementById('adoptUploadZone')?.closest('form')?.querySelector('button[onclick]') ||
-              document.querySelector('[onclick="publicarAdopcion()"]');
+  const btn = document.getElementById('adoptBtnPublicar');
   if (btn) { btn.disabled = true; btn.textContent = 'Publicando...'; }
+
+  const _timeout = ms => new Promise((_, r) => setTimeout(() => r(new Error('Sin respuesta del servidor')), ms));
 
   let foto_url = null;
   if (adoptFile) {
-    try { foto_url = await subirFotoComunidad(adoptFile, 'adopciones'); }
+    try { foto_url = await Promise.race([subirFotoComunidad(adoptFile, 'adopciones'), _timeout(10000)]); }
     catch { /* continuar sin foto */ }
   }
 
@@ -139,7 +140,13 @@ async function publicarAdopcion() {
     foto_url,
   };
 
-  const { error } = await db.from('adopciones').insert(payload);
+  let error;
+  try {
+    const res = await Promise.race([db.from('adopciones').insert(payload), _timeout(10000)]);
+    error = res.error;
+  } catch (e) {
+    error = e;
+  }
 
   if (btn) { btn.disabled = false; btn.textContent = 'Publicar'; }
 
