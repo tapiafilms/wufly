@@ -273,7 +273,11 @@ function _authErr(msg, tipo = 'error') {
 async function cerrarSesion() {
   await db.auth.signOut();
   currentUser = null;
+  localStorage.removeItem('wufly_session_email');
+  localStorage.removeItem('wufly_avatar');
+  localStorage.removeItem('wufly_profile_v1');
   renderAuthBanner();
+  abrirAuthModal('login');
 }
 
 /* ══ STORAGE: subir foto ══ */
