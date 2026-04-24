@@ -64,19 +64,20 @@ input, textarea, select {
   font-size: max(16px, 1em) !important;
 }
 
-/* Forzar orientación vertical en navegadores (la PWA usa manifest orientation) */
-@media screen and (orientation: landscape) and (max-height: 500px) {
+/* Pantalla de bloqueo en horizontal */
+@media screen and (orientation: landscape) {
   body::before {
-    content: 'Gira tu teléfono para ver Wufly 🐾';
+    content: '📱\A\AWufly es una app vertical.\AGira tu teléfono para continuar.';
+    white-space: pre;
     position: fixed; inset: 0; z-index: 99999;
-    background: var(--primary);
-    color: white;
+    background: #000;
+    color: #fff;
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 18px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center; text-align: center;
-    padding: 24px;
+    font-size: 16px; font-weight: 600; line-height: 1.6;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 32px;
   }
-  body > *:not(::before) { visibility: hidden; }
+  body > * { visibility: hidden; }
 }
 
 body {
