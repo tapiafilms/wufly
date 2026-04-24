@@ -288,6 +288,17 @@ async function subirFotoStorage(file, carpeta) {
   return data.publicUrl + '?t=' + Date.now();
 }
 
+/* ══ STORAGE: subir foto comunidad (ruta única por timestamp) ══ */
+async function subirFotoComunidad(file, tipo) {
+  const userId = currentUser?.id || 'anon';
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const path = `comunidad/${tipo}_${userId}_${Date.now()}.${ext}`;
+  const { error } = await db.storage.from('mascotas').upload(path, file, { upsert: false });
+  if (error) throw error;
+  const { data } = db.storage.from('mascotas').getPublicUrl(path);
+  return data.publicUrl;
+}
+
 /* ══ SINCRONIZAR PERFIL DB → localStorage ══ */
 async function sincronizarPerfil() {
   if (!currentUser) return;
