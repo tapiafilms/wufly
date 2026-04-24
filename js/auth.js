@@ -271,13 +271,11 @@ function _authErr(msg, tipo = 'error') {
 }
 
 async function cerrarSesion() {
-  await db.auth.signOut();
-  currentUser = null;
+  try { await db.auth.signOut(); } catch { /* ignorar error de red */ }
   localStorage.removeItem('wufly_session_email');
   localStorage.removeItem('wufly_avatar');
   localStorage.removeItem('wufly_profile_v1');
-  renderAuthBanner();
-  abrirAuthModal('login');
+  window.location.reload();
 }
 
 /* ══ STORAGE: subir foto ══ */
@@ -407,19 +405,23 @@ async function eliminarRecordatorioDB(id) {
 
 /* ── Init: restaurar sesión existente ── */
 document.addEventListener('DOMContentLoaded', async () => {
+  let session = null;
   try {
-    const { data: { session } } = await db.auth.getSession();
-    currentUser = session?.user ?? null;
-  } catch {
-    currentUser = null;
-  }
+    const { data } = await db.auth.getSession();
+    session = data?.session ?? null;
+  } catch { /* sin sesión */ }
+
+  currentUser = session?.user ?? null;
   renderAuthBanner();
+
   if (currentUser) {
+    // Ocultar modal que arranca visible
+    const modal = document.getElementById('authModal');
+    if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
     await sincronizarPerfil();
     await sincronizarRecordatorios();
     const overlay = document.getElementById('onboarding-overlay');
     if (overlay) overlay.remove();
-  } else {
-    setTimeout(() => abrirAuthModal('login'), 600);
   }
+  // Sin sesión: el modal ya está visible por defecto en el HTML
 });

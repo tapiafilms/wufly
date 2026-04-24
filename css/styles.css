@@ -64,8 +64,8 @@ input, textarea, select {
   font-size: max(16px, 1em) !important;
 }
 
-/* Pantalla de bloqueo en horizontal */
-@media screen and (orientation: landscape) {
+/* Pantalla de bloqueo en horizontal — solo móviles táctiles */
+@media screen and (orientation: landscape) and (hover: none) and (pointer: coarse) {
   body::before {
     content: '📱\A\AWufly es una app vertical.\AGira tu teléfono para continuar.';
     white-space: pre;
