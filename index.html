@@ -35,6 +35,9 @@
 <div class="desktop-layout">
 <div class="app-column">
 
+  <!-- Franja de color superior (visible en todas las vistas excepto home) -->
+  <div id="topColorBar" style="display:none;position:fixed;top:0;left:0;right:0;height:85px;background:#6742b5;z-index:97;pointer-events:none;"></div>
+
   <!-- Topbar con logo y botón de cuenta -->
   <div class="app-topbar">
     <div style="background: #3b1465;padding:15px 25px;display:flex;align-items:center;justify-content:space-between;position:absolute;border-radius:50px;margin-top:50px;margin-left:10px;">
@@ -591,9 +594,9 @@
 
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
-  <button class="nav-btn active" onclick="switchTab('home',this,true)">
-    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    HOME
+  <button class="nav-btn" onclick="switchTab('alergias',this,true)">
+    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    PERFIL
   </button>
   <button class="nav-btn" onclick="switchTab('restaurantes',this,true)">
     <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
