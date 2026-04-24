@@ -142,8 +142,8 @@ function abrirAuthModal(modo = 'login') {
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
   setTimeout(() => document.getElementById('authEmail')?.focus(), 120);
-  // Escape cierra el modal
-  modal._escHandler = (e) => { if (e.key === 'Escape') cerrarAuthModal(); };
+  // Escape bloqueado — login obligatorio
+  modal._escHandler = (e) => { if (e.key === 'Escape') e.preventDefault(); };
   document.addEventListener('keydown', modal._escHandler);
 }
 
