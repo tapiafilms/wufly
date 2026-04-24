@@ -142,11 +142,26 @@ async function publicarAdopcion() {
 
   let error;
   try {
-    const res = await Promise.race([db.from('adopciones').insert(payload), _timeout(10000)]);
-    error = res.error;
-  } catch (e) {
-    error = e;
-  }
+    const session = await db.auth.getSession();
+    const token = session?.data?.session?.access_token || SUPABASE_ANON;
+    const res = await Promise.race([
+      fetch(`${SUPABASE_URL}/rest/v1/adopciones`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON,
+          'Authorization': `Bearer ${token}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify(payload),
+      }),
+      _timeout(10000),
+    ]);
+    if (!res.ok) {
+      const txt = await res.text();
+      error = new Error(`HTTP ${res.status}: ${txt}`);
+    }
+  } catch (e) { error = e; }
 
   if (btn) { btn.disabled = false; btn.textContent = 'Publicar'; }
 
