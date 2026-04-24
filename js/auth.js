@@ -283,13 +283,21 @@ async function cerrarSesion() {
 /* ══ STORAGE: subir foto ══ */
 async function subirFotoStorage(file, carpeta) {
   if (!currentUser) throw new Error('Sin sesión');
-  const ext  = file.name.split('.').pop() || 'jpg';
-  const path = `${carpeta}/${currentUser.id}.${ext}`;
-  const { error } = await db.storage.from('mascotas').upload(path, file, { upsert: true });
-  if (error) throw error;
-  const { data } = db.storage.from('mascotas').getPublicUrl(path);
-  // Cache-bust para que el navegador actualice la imagen
-  return data.publicUrl + '?t=' + Date.now();
+  const path = `${carpeta}/${currentUser.id}.jpg`;
+  const ref = SUPABASE_URL.replace('https://', '').split('.')[0];
+  const stored = (() => { try { return JSON.parse(localStorage.getItem(`sb-${ref}-auth-token`) || 'null'); } catch { return null; } })();
+  const token = stored?.access_token || SUPABASE_ANON;
+  let blob = file;
+  if (file.type.startsWith('image/')) {
+    try { blob = await _comprimirImagen(file, 600, 0.70); } catch { /* subir sin comprimir */ }
+  }
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/mascotas/${path}`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'apikey': SUPABASE_ANON, 'Content-Type': 'image/jpeg', 'x-upsert': 'true' },
+    body: blob,
+  });
+  if (!res.ok) { const t = await res.text(); throw new Error(`Storage ${res.status}: ${t}`); }
+  return `${SUPABASE_URL}/storage/v1/object/public/mascotas/${path}?t=${Date.now()}`;
 }
 
 /* ══ STORAGE: subir foto comunidad (ruta única por timestamp) ══ */
