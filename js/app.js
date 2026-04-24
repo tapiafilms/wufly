@@ -40,6 +40,7 @@ function switchTab(name, el, fromNav = false) {
 
   document.getElementById('page-' + name).classList.add('active');
   if (name === 'restaurantes') renderClinicas?.();
+  if (name === 'home') renderHome?.();
 
   // Franja de color superior: visible en todas las vistas excepto home
   const topBar = document.getElementById('topColorBar');
@@ -47,7 +48,7 @@ function switchTab(name, el, fromNav = false) {
 
   // Páginas secundarias no tienen tab activo en nav — solo las 5 principales
   const secondary = ['recetas', 'recordatorios', 'detail'];
-  const order = ['alergias', 'restaurantes', 'drwufly', 'comunidad', 'servicios'];
+  const order = ['home', 'restaurantes', 'drwufly', 'comunidad', 'servicios'];
   const idx = order.indexOf(name);
   if (!secondary.includes(name)) {
     document.querySelectorAll('.tab')[idx]?.classList.add('active');

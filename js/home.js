@@ -64,7 +64,7 @@ function renderHome() {
   const _avatarInicial = (perfil.nombre || _sessionEmail || '').charAt(0).toUpperCase();
   const _avatarHome = (_avatarUrl || _sessionEmail) ? `
     <button onclick="switchTab('alergias')"
-      style="position:absolute;top:16px;right:16px;z-index:10;background:none;border:none;cursor:pointer;padding:0;display:flex;flex-direction:column;align-items:center;gap:3px;">
+      style="position:absolute;top:60px;right:16px;z-index:10;background:none;border:none;cursor:pointer;padding:0;display:flex;flex-direction:column;align-items:center;gap:3px;">
       <div style="width:40px;height:40px;border-radius:50%;border:2.5px solid rgba(255,255,255,0.85);background:rgba(255,255,255,0.2);overflow:hidden;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,0.25);">
         ${_avatarUrl
           ? `<img src="${_avatarUrl}" style="width:100%;height:100%;object-fit:cover;" alt="perfil">`
