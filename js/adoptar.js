@@ -140,10 +140,16 @@ async function publicarAdopcion() {
     foto_url,
   };
 
+  // Leer token desde localStorage sin hacer llamada de red
+  let token = SUPABASE_ANON;
+  try {
+    const ref = SUPABASE_URL.replace('https://', '').split('.')[0];
+    const stored = JSON.parse(localStorage.getItem(`sb-${ref}-auth-token`) || 'null');
+    if (stored?.access_token) token = stored.access_token;
+  } catch {}
+
   let error;
   try {
-    const session = await db.auth.getSession();
-    const token = session?.data?.session?.access_token || SUPABASE_ANON;
     const res = await Promise.race([
       fetch(`${SUPABASE_URL}/rest/v1/adopciones`, {
         method: 'POST',
