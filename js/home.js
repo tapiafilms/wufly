@@ -21,7 +21,9 @@ function renderHome() {
   else if (hora >= 20) saludo = 'Buenas noches';
 
   /* ── Nombre del dueño ── */
-  const nombre = perfil.nombre ? `, ${perfil.nombre}` : '';
+  const _emailGuardado = localStorage.getItem('wufly_session_email') || '';
+  const _nombreFallback = perfil.nombre || perfil.name || (_emailGuardado ? _emailGuardado.split('@')[0] : '');
+  const nombre = _nombreFallback ? `, ${_nombreFallback}` : '';
 
   /* ── Nombre y emoji de la mascota ── */
   const nombreMascota = perfil.nombreMascota || '';
@@ -103,10 +105,9 @@ function renderHome() {
           ? 'linear-gradient(to bottom, rgba(30,10,70,0.45) 0%, rgba(76,29,149,0.72) 60%, rgba(50,10,100,0.88) 100%)'
           : 'linear-gradient(to bottom, rgba(30,10,70,0.25) 0%, rgba(76,29,149,0.65) 60%, rgba(50,10,100,0.85) 100%)'};z-index:2;border-radius:0 0 28px 28px;"></div>
 
-        ${_avatarHome}
-
         <!-- Contenido centrado verticalmente -->
         <div style="position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:482px;padding:0 20px 28px;">
+          ${_avatarHome}
           ${heroFoto ? '' : heroMediaEmoji}
           <div style="margin-top:${heroFoto ? '0' : '14px'};">
             <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:24px;color:white;line-height:1.2;text-shadow:0 2px 8px rgba(0,0,0,0.35);">${saludo}${nombre}!</div>
