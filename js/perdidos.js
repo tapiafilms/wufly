@@ -154,13 +154,28 @@ async function marcarRescatado(id) {
   renderRescateFeed();
 }
 
+function _sbToken() {
+  try {
+    const ref = SUPABASE_URL.replace('https://', '').split('.')[0];
+    const s = JSON.parse(localStorage.getItem(`sb-${ref}-auth-token`) || 'null');
+    return s?.access_token || SUPABASE_ANON;
+  } catch { return SUPABASE_ANON; }
+}
+
 async function renderPerdidoFeed() {
   const feed = document.getElementById('perdidoFeed');
   if (!feed) return;
 
   feed.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px;">Cargando...</div>`;
 
-  const { data, error } = await db.from('perdidos').select('*').order('created_at', { ascending: false });
+  let data, error;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/perdidos?select=*&order=created_at.desc`, {
+      headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${_sbToken()}` }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    data = await res.json();
+  } catch (e) { error = e; }
 
   if (error) {
     feed.innerHTML = `<div style="text-align:center;padding:30px;color:#DC2626;font-size:13px;">Error al cargar reportes. Intenta de nuevo.</div>`;
@@ -219,7 +234,14 @@ async function renderRescateFeed() {
 
   feed.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px;">Cargando...</div>`;
 
-  const { data, error } = await db.from('rescates').select('*').order('created_at', { ascending: false });
+  let data, error;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rescates?select=*&order=created_at.desc`, {
+      headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${_sbToken()}` }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    data = await res.json();
+  } catch (e) { error = e; }
 
   if (error) {
     feed.innerHTML = `<div style="text-align:center;padding:30px;color:#DC2626;font-size:13px;">Error al cargar reportes. Intenta de nuevo.</div>`;

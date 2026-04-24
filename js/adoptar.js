@@ -11,16 +11,33 @@ function escHTML(str) {
     .replace(/'/g, '&#x27;');
 }
 
+function _sbToken() {
+  try {
+    const ref = SUPABASE_URL.replace('https://', '').split('.')[0];
+    const s = JSON.parse(localStorage.getItem(`sb-${ref}-auth-token`) || 'null');
+    return s?.access_token || SUPABASE_ANON;
+  } catch { return SUPABASE_ANON; }
+}
+
 async function renderAdopFeed() {
   const feed = document.getElementById('adoptFeed');
   if (!feed) return;
 
   feed.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px;">Cargando...</div>`;
 
-  let query = db.from('adopciones').select('*').order('created_at', { ascending: false });
-  if (adoptFilter !== 'todos') query = query.eq('especie', adoptFilter);
+  let url = `${SUPABASE_URL}/rest/v1/adopciones?select=*&order=created_at.desc`;
+  if (adoptFilter !== 'todos') url += `&especie=eq.${adoptFilter}`;
 
-  const { data, error } = await query;
+  let data, error;
+  try {
+    const res = await fetch(url, {
+      headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${_sbToken()}` }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    data = await res.json();
+  } catch (e) {
+    error = e;
+  }
 
   if (error) {
     feed.innerHTML = `<div style="text-align:center;padding:30px;color:#DC2626;font-size:13px;">Error al cargar publicaciones. Intenta de nuevo.</div>`;
