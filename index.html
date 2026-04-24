@@ -796,18 +796,21 @@
           }
         }
 
-        // SW ya estaba esperando al cargar la página
-        if (reg.waiting) showBanner();
+        // SW ya estaba esperando al cargar la página → aplicar inmediatamente
+        if (reg.waiting) applyUpdate();
 
-        // SW nuevo encontrado durante la sesión
+        // SW nuevo encontrado durante la sesión → aplicar al instalar
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing;
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              showBanner();
+              applyUpdate();
             }
           });
         });
+
+        // Forzar chequeo de nueva versión en cada carga
+        reg.update();
 
         // Al activarse el nuevo SW, recargar
         navigator.serviceWorker.addEventListener('controllerchange', () => {
