@@ -295,15 +295,20 @@ async function subirFotoStorage(file, carpeta) {
 /* ══ STORAGE: subir foto comunidad (ruta única por timestamp) ══ */
 async function subirFotoComunidad(file, tipo) {
   const userId = currentUser?.id || 'anon';
-  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-  const path = `comunidad/${tipo}_${userId}_${Date.now()}.${ext}`;
+  const path = `comunidad/${tipo}_${userId}_${Date.now()}.jpg`;
   const ref = SUPABASE_URL.replace('https://', '').split('.')[0];
   const stored = (() => { try { return JSON.parse(localStorage.getItem(`sb-${ref}-auth-token`) || 'null'); } catch { return null; } })();
   const token = stored?.access_token || SUPABASE_ANON;
+
+  let blob = file;
+  if (file.type.startsWith('image/')) {
+    try { blob = await _comprimirImagen(file, 600, 0.70); } catch { /* subir sin comprimir */ }
+  }
+
   const res = await fetch(`${SUPABASE_URL}/storage/v1/object/mascotas/${path}`, {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}`, 'apikey': SUPABASE_ANON, 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': 'false' },
-    body: file,
+    headers: { 'Authorization': `Bearer ${token}`, 'apikey': SUPABASE_ANON, 'Content-Type': 'image/jpeg', 'x-upsert': 'false' },
+    body: blob,
   });
   if (!res.ok) { const t = await res.text(); throw new Error(`Storage ${res.status}: ${t}`); }
   return `${SUPABASE_URL}/storage/v1/object/public/mascotas/${path}`;
