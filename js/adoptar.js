@@ -155,6 +155,6 @@ async function publicarAdopcion() {
   renderAdopFeed();
 }
 
-function renderAdoptar() { switchComunidadTab('adoptar'); }
+function renderAdoptar() { renderAdopFeed(); }
 
 document.addEventListener('DOMContentLoaded', () => { renderAdopFeed(); });

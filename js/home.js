@@ -95,21 +95,16 @@ function renderHome() {
           <source src="/img/wufly-home.mp4" type="video/mp4">
         </video>
 
-        ${heroFoto ? `
-        <!-- Foto de mascota como overlay circular cuando existe -->
-        <div style="position:absolute;inset:0;background-image:url('${heroFoto}');background-size:cover;background-position:center top;z-index:1;"></div>
-        ` : ''}
-
         <!-- Overlay de color -->
-        <div style="position:absolute;inset:0;background:${heroFoto
-          ? 'linear-gradient(to bottom, rgba(30,10,70,0.45) 0%, rgba(76,29,149,0.72) 60%, rgba(50,10,100,0.88) 100%)'
-          : 'linear-gradient(to bottom, rgba(30,10,70,0.25) 0%, rgba(76,29,149,0.65) 60%, rgba(50,10,100,0.85) 100%)'};z-index:2;border-radius:0 0 28px 28px;"></div>
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom, rgba(30,10,70,0.25) 0%, rgba(76,29,149,0.65) 60%, rgba(50,10,100,0.85) 100%);z-index:2;border-radius:0 0 28px 28px;"></div>
 
         <!-- Contenido centrado verticalmente -->
         <div style="position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:482px;padding:0 20px 28px;">
           ${_avatarHome}
-          ${heroFoto ? '' : heroMediaEmoji}
-          <div style="margin-top:${heroFoto ? '0' : '14px'};">
+          ${heroFoto
+            ? `<div style="width:82px;height:82px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.85);box-shadow:0 4px 16px rgba(0,0,0,0.35);margin-bottom:10px;"><img src="${heroFoto}" style="width:100%;height:100%;object-fit:cover;" alt="mascota"></div>`
+            : heroMediaEmoji}
+          <div style="margin-top:14px;">
             <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:24px;color:white;line-height:1.2;text-shadow:0 2px 8px rgba(0,0,0,0.35);">${saludo}${nombre}!</div>
             ${subtitulo}
           </div>
