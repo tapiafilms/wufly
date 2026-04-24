@@ -272,10 +272,12 @@ function _authErr(msg, tipo = 'error') {
 
 async function cerrarSesion() {
   try { await db.auth.signOut(); } catch { /* ignorar error de red */ }
+  currentUser = null;
   localStorage.removeItem('wufly_session_email');
   localStorage.removeItem('wufly_avatar');
   localStorage.removeItem('wufly_profile_v1');
-  window.location.reload();
+  renderAuthBanner();
+  abrirAuthModal('login');
 }
 
 /* ══ STORAGE: subir foto ══ */
@@ -415,13 +417,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderAuthBanner();
 
   if (currentUser) {
-    // Ocultar modal que arranca visible
     const modal = document.getElementById('authModal');
     if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
     await sincronizarPerfil();
     await sincronizarRecordatorios();
     const overlay = document.getElementById('onboarding-overlay');
     if (overlay) overlay.remove();
+  } else {
+    abrirAuthModal('login');
   }
-  // Sin sesión: el modal ya está visible por defecto en el HTML
 });
