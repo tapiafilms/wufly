@@ -297,10 +297,16 @@ async function subirFotoComunidad(file, tipo) {
   const userId = currentUser?.id || 'anon';
   const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
   const path = `comunidad/${tipo}_${userId}_${Date.now()}.${ext}`;
-  const { error } = await db.storage.from('mascotas').upload(path, file, { upsert: false });
-  if (error) throw error;
-  const { data } = db.storage.from('mascotas').getPublicUrl(path);
-  return data.publicUrl;
+  const ref = SUPABASE_URL.replace('https://', '').split('.')[0];
+  const stored = (() => { try { return JSON.parse(localStorage.getItem(`sb-${ref}-auth-token`) || 'null'); } catch { return null; } })();
+  const token = stored?.access_token || SUPABASE_ANON;
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/mascotas/${path}`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'apikey': SUPABASE_ANON, 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': 'false' },
+    body: file,
+  });
+  if (!res.ok) { const t = await res.text(); throw new Error(`Storage ${res.status}: ${t}`); }
+  return `${SUPABASE_URL}/storage/v1/object/public/mascotas/${path}`;
 }
 
 /* ══ SINCRONIZAR PERFIL DB → localStorage ══ */

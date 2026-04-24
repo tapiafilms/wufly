@@ -81,16 +81,15 @@ async function publicarPerdido(tipo) {
     const fechaVal = document.getElementById('perdidoFecha').value;
     let error;
     try {
-      const res = await Promise.race([db.from('perdidos').insert({
-        user_id:        currentUser?.id || null,
-        especie:        document.getElementById('perdidoEspecie').value,
-        descripcion:    desc,
-        ubicacion:      ubic,
-        fecha_extravio: fechaVal || null,
-        wsp,
-        foto_url,
-      }), _timeout(10000)]);
-      error = res.error;
+      const res = await Promise.race([
+        fetch(`${SUPABASE_URL}/rest/v1/perdidos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${_sbToken()}`, 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ user_id: currentUser?.id || null, especie: document.getElementById('perdidoEspecie').value, descripcion: desc, ubicacion: ubic, fecha_extravio: fechaVal || null, wsp, foto_url }),
+        }),
+        _timeout(10000),
+      ]);
+      if (!res.ok) { const t = await res.text(); error = new Error(`HTTP ${res.status}: ${t}`); }
     } catch (e) { error = e; }
 
     if (btn) { btn.disabled = false; btn.textContent = 'Publicar reporte'; }
@@ -124,15 +123,15 @@ async function publicarPerdido(tipo) {
 
     let error;
     try {
-      const res = await Promise.race([db.from('rescates').insert({
-        user_id:     currentUser?.id || null,
-        especie:     document.getElementById('rescateEspecie').value,
-        descripcion: desc,
-        ubicacion:   ubic,
-        foto_url,
-        estado:      'esperando',
-      }), _timeout(10000)]);
-      error = res.error;
+      const res = await Promise.race([
+        fetch(`${SUPABASE_URL}/rest/v1/rescates`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${_sbToken()}`, 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ user_id: currentUser?.id || null, especie: document.getElementById('rescateEspecie').value, descripcion: desc, ubicacion: ubic, foto_url, estado: 'esperando' }),
+        }),
+        _timeout(10000),
+      ]);
+      if (!res.ok) { const t = await res.text(); error = new Error(`HTTP ${res.status}: ${t}`); }
     } catch (e) { error = e; }
 
     if (btn) { btn.disabled = false; btn.textContent = 'Publicar alerta'; }
