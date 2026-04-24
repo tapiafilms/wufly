@@ -6,7 +6,7 @@
    - Imágenes                           → Cache First
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'wufly-v42';
+const CACHE_NAME = 'wufly-v43';
 const API_HOST = 'divine-waterfall-d1dfsin-gluten-life.pablo77tapia.workers.dev';
 
 const STATIC_ASSETS = [
@@ -98,6 +98,12 @@ self.addEventListener('fetch', event => {
   // Google Fonts archivos → Cache First (son inmutables)
   if (url.hostname === 'fonts.gstatic.com') {
     event.respondWith(cacheFirst(request));
+    return;
+  }
+
+  // Archivos JS → Network First (siempre frescos, cache como fallback offline)
+  if (url.pathname.endsWith('.js')) {
+    event.respondWith(networkFirst(request));
     return;
   }
 
