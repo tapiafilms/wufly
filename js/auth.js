@@ -226,7 +226,7 @@ async function submitAuth() {
       'Password should be at least 6 characters':   'La contraseña debe tener al menos 6 caracteres.',
       'Email not confirmed':                        'Confirma tu correo antes de entrar.',
     };
-    _authErr(mapa[e.message] || `Error: ${e.message}`);
+    _authErr(mapa[e.message] || 'Ocurrió un error. Intenta de nuevo.');
     // Restaurar botón SIN llamar _actualizarModalModo (que oculta el error)
     btn.disabled = false;
     btn.textContent = modo === 'register' ? 'Crear cuenta' : 'Entrar';
