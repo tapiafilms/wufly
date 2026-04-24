@@ -62,27 +62,20 @@ function cargarRescates() {
   try { const r = localStorage.getItem(RESCATE_KEY); return r ? JSON.parse(r) : rescateEjemplos; }
   catch { return rescateEjemplos; }
 }
-function guardarPerdidos(l) { try { localStorage.setItem(PERDIDOS_KEY, JSON.stringify(l)); } catch(e){} }
-function guardarRescates(l) { try { localStorage.setItem(RESCATE_KEY, JSON.stringify(l)); } catch(e){} }
+function guardarPerdidos(l) {
+  try { localStorage.setItem(PERDIDOS_KEY, JSON.stringify(l)); return true; }
+  catch(e) { alert('No se pudo guardar el reporte. Espacio de almacenamiento insuficiente.'); return false; }
+}
+function guardarRescates(l) {
+  try { localStorage.setItem(RESCATE_KEY, JSON.stringify(l)); return true; }
+  catch(e) { alert('No se pudo guardar el reporte. Espacio de almacenamiento insuficiente.'); return false; }
+}
 
 function initPerdidos() {
   if (!localStorage.getItem(PERDIDOS_KEY)) guardarPerdidos(perdidosEjemplos);
   if (!localStorage.getItem(RESCATE_KEY))  guardarRescates(rescateEjemplos);
 }
 
-/* ── Switch sub-tabs ── */
-function switchSubTab(tab) {
-  const esPerdidos = tab === 'perdidos';
-  document.getElementById('sub-perdidos').style.display = esPerdidos ? 'block' : 'none';
-  document.getElementById('sub-rescate').style.display  = esPerdidos ? 'none'  : 'block';
-
-  const btnP = document.getElementById('tab-perdidos');
-  const btnR = document.getElementById('tab-rescate');
-  btnP.style.background = esPerdidos ? 'var(--purple)' : 'transparent';
-  btnP.style.color      = esPerdidos ? 'white' : 'var(--text-muted)';
-  btnR.style.background = esPerdidos ? 'transparent' : '#F9B95C';
-  btnR.style.color      = esPerdidos ? 'var(--text-muted)' : '#2D1B6B';
-}
 
 /* ── Toggle formularios ── */
 function toggleFormPerdido() {
@@ -149,9 +142,9 @@ function publicarPerdido(tipo) {
       desc, ubicacion: ubic, fecha: document.getElementById('perdidoFecha').value,
       wsp, foto: perdidoImgB64, publicado: Date.now(),
     });
-    guardarPerdidos(lista);
+    if (!guardarPerdidos(lista)) return;
     toggleFormPerdido();
-    renderPerdidoFeed();
+    renderPerdidoFeed(lista);
     document.getElementById('perdidoDesc').value = '';
     document.getElementById('perdidoWsp').value = '';
     document.getElementById('perdidoUbicacion').value = '';
@@ -170,9 +163,9 @@ function publicarPerdido(tipo) {
       desc, ubicacion: ubic, foto: rescateImgB64,
       estado: 'esperando', publicado: Date.now(),
     });
-    guardarRescates(lista);
+    if (!guardarRescates(lista)) return;
     toggleFormRescate();
-    renderRescateFeed();
+    renderRescateFeed(lista);
     document.getElementById('rescateDesc').value = '';
     document.getElementById('rescateUbicacion').value = '';
     document.getElementById('rescatePreviewImg').style.display = 'none';
@@ -189,10 +182,10 @@ function marcarRescatado(id) {
 /* ── Render feeds ── */
 const iconMap = { perro:'🐕', gato:'🐈', otro:'🐾' };
 
-function renderPerdidoFeed() {
+function renderPerdidoFeed(listaDirecta) {
   const feed = document.getElementById('perdidoFeed');
   if (!feed) return;
-  const lista = cargarPerdidos();
+  const lista = listaDirecta || cargarPerdidos();
   if (!lista.length) {
     feed.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-muted);"><div style="font-size:32px;margin-bottom:8px;">🔍</div><div style="font-size:13px;">No hay mascotas perdidas reportadas</div></div>`;
     return;
@@ -234,10 +227,10 @@ function renderPerdidoFeed() {
   }).join('');
 }
 
-function renderRescateFeed() {
+function renderRescateFeed(listaDirecta) {
   const feed = document.getElementById('rescateFeed');
   if (!feed) return;
-  const lista = cargarRescates();
+  const lista = listaDirecta || cargarRescates();
   if (!lista.length) {
     feed.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-muted);"><div style="font-size:32px;margin-bottom:8px;">🆘</div><div style="font-size:13px;">No hay reportes de rescate</div></div>`;
     return;
@@ -291,3 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderPerdidoFeed();
   renderRescateFeed();
 });
+
+/* ── Aliases para switchComunidadTab ── */
+function renderPerdidos() { renderPerdidoFeed(); }
+function renderRescate()  { renderRescateFeed(); }
