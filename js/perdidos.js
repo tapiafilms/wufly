@@ -55,6 +55,7 @@ function toggleFormRescate() {
 }
 
 async function publicarPerdido(tipo) {
+  if (!currentUser) { abrirAuthModal('login'); return; }
   if (tipo === 'perdido') {
     const desc = document.getElementById('perdidoDesc').value.trim();
     const ubic = document.getElementById('perdidoUbicacion').value.trim();

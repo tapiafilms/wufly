@@ -403,20 +403,19 @@ async function eliminarRecordatorioDB(id) {
 
 /* ── Init: restaurar sesión existente ── */
 document.addEventListener('DOMContentLoaded', async () => {
-  const { data: { session } } = await db.auth.getSession();
-  currentUser = session?.user ?? null;
+  try {
+    const { data: { session } } = await db.auth.getSession();
+    currentUser = session?.user ?? null;
+  } catch {
+    currentUser = null;
+  }
   renderAuthBanner();
   if (currentUser) {
     await sincronizarPerfil();
     await sincronizarRecordatorios();
-    // Si el onboarding ya está visible, cerrarlo porque tenemos perfil
     const overlay = document.getElementById('onboarding-overlay');
     if (overlay) overlay.remove();
   } else {
-    // Sin sesión → mostrar modal de login obligatorio (siempre)
-    // Pequeño delay para que el DOM esté listo
-    setTimeout(() => {
-      abrirAuthModal('login');
-    }, 600);
+    setTimeout(() => abrirAuthModal('login'), 600);
   }
 });

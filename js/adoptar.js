@@ -106,6 +106,8 @@ function ocultarFormAdopcion() {
 }
 
 async function publicarAdopcion() {
+  if (!currentUser) { abrirAuthModal('login'); return; }
+
   const nombre = document.getElementById('adoptNombre').value.trim();
   const wsp    = document.getElementById('adoptWsp').value.trim();
 
