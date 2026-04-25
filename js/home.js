@@ -69,11 +69,13 @@ function renderHome() {
         background:#4C1D95;
       ">
         <!-- Video de fondo -->
-        <video autoplay muted loop playsinline
-          style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;"
+        <video id="hero-video" autoplay muted loop playsinline
+          style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transition:opacity 0.9s ease;"
           poster="">
           <source src="/img/wufly-home.mp4" type="video/mp4">
         </video>
+        <!-- Loader sutil: sólo visible mientras el video no ha cargado -->
+        <div id="hero-loader" style="position:absolute;inset:0;z-index:1;background:linear-gradient(135deg,#3b1a7a,#4C1D95);animation:heroPulse 2s ease-in-out infinite;border-radius:0 0 38px 38px;pointer-events:none;"></div>
 
         <!-- Overlay de color -->
         <div style="position:absolute;inset:0;background:linear-gradient(to bottom, rgba(30,10,70,0.25) 0%, rgba(76,29,149,0.65) 60%, rgba(50,10,100,0.85) 100%);z-index:2;border-radius:0 0 28px 28px;"></div>
@@ -176,9 +178,25 @@ function renderHome() {
   setTimeout(_initCarouselDots, 50);
 
   // Forzar play del video hero (iOS ignora autoplay en elementos creados con innerHTML)
+  // Al cargar, fade-in del video y fade-out del loader
   setTimeout(() => {
-    const v = el.querySelector('video');
-    if (v) v.play().catch(() => {});
+    const v = el.querySelector('#hero-video');
+    const loader = el.querySelector('#hero-loader');
+    if (!v) return;
+    const onReady = () => {
+      v.style.opacity = '1';
+      if (loader) {
+        loader.style.transition = 'opacity 0.9s ease';
+        loader.style.opacity = '0';
+        setTimeout(() => { if (loader.parentNode) loader.parentNode.removeChild(loader); }, 950);
+      }
+    };
+    if (v.readyState >= 3) {
+      onReady();
+    } else {
+      v.addEventListener('canplay', onReady, { once: true });
+    }
+    v.play().catch(() => {});
   }, 100);
 }
 
