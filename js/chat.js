@@ -1,5 +1,43 @@
 /* ══ DRA. WUFLY — ASISTENTE VETERINARIA ══ */
 
+/* Precarga voces del navegador (algunas cargan async) */
+if (window.speechSynthesis) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.addEventListener('voiceschanged', () => {
+    window.speechSynthesis.getVoices();
+  });
+}
+
+function drwGetVoice() {
+  const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+  return (
+    voices.find(v => v.lang.startsWith('es') && /mónica|monica|lucía|lucia|elena|female/i.test(v.name)) ||
+    voices.find(v => v.lang === 'es-ES') ||
+    voices.find(v => v.lang.startsWith('es')) ||
+    null
+  );
+}
+
+function drwSpeak(text) {
+  if (!window.speechSynthesis) { drwSetVideo('escuchando'); return; }
+  window.speechSynthesis.cancel();
+
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'es-ES';
+  utt.rate = 0.92;
+  utt.pitch = 1.05;
+  utt.volume = 1.0;
+
+  const voice = drwGetVoice();
+  if (voice) utt.voice = voice;
+
+  utt.onstart  = () => drwSetVideo('hablando');
+  utt.onend    = () => drwSetVideo('escuchando');
+  utt.onerror  = () => drwSetVideo('escuchando');
+
+  window.speechSynthesis.speak(utt);
+}
+
 function drwSetBubble(text, type) {
   const bubble = document.getElementById('drw-bubble');
   const bubbleText = document.getElementById('drw-bubble-text');
@@ -87,11 +125,8 @@ Aviso: Entregas orientación general, no diagnóstico médico.`;
     const data = await res.json();
     const text = data.content.map(i => i.text || '').join('');
 
-    drwSetVideo('hablando');
     drwSetBubble(text, 'doc');
-
-    const readTime = Math.max(3500, text.length * 55);
-    setTimeout(() => drwSetVideo('escuchando'), readTime);
+    drwSpeak(text);
 
   } catch (e) {
     clearTimeout(timeoutId);
