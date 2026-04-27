@@ -6,6 +6,13 @@ if (window.speechSynthesis) {
   window.speechSynthesis.addEventListener('voiceschanged', () => {
     window.speechSynthesis.getVoices();
   });
+  /* Keepalive para iOS — evita que Safari pause el speech a los 15s */
+  setInterval(() => {
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.pause();
+      window.speechSynthesis.resume();
+    }
+  }, 10000);
 }
 
 function drwGetVoice() {
@@ -86,6 +93,14 @@ async function sendChat() {
   inp.value = '';
 
   document.getElementById('btnSend').disabled = true;
+
+  /* Desbloquear speechSynthesis en iOS sincrónicamente dentro del gesto */
+  if (window.speechSynthesis) {
+    const unlock = new SpeechSynthesisUtterance(' ');
+    unlock.volume = 0;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(unlock);
+  }
 
   drwSetBubble(msg, 'user');
 
