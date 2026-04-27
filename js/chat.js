@@ -91,15 +91,12 @@ async function sendChat() {
 
   const userContext = typeof getUserContext === 'function' ? getUserContext() : '';
 
-  const sys = `Eres la Dra. Wufly, asistente veterinaria virtual de la app Wufly. Eres amable, empática y de pocas palabras.
-${userContext ? `PERFIL DE LA MASCOTA: ${userContext}` : ''}
-Reglas:
-- Máximo 2 oraciones cortas. Sé directa y cálida.
-- Usa el perfil de la mascota para personalizar tu respuesta si está disponible.
-- Si la situación es urgente (envenenamiento, dificultad respiratoria, trauma, convulsiones), indícalo claramente y recomienda ir INMEDIATAMENTE a una clínica.
-- Puedes mencionar la sección VETS de la app para clínicas con urgencias 24h.
-- Siempre aclara que el diagnóstico definitivo lo da un veterinario presencial.
-Aviso: Entregas orientación general, no diagnóstico médico.`;
+  const sys = `Eres la Dra. Wufly, asistente veterinaria virtual. Amable, directa y MUY breve — como si hablaras en voz alta.
+${userContext ? `MASCOTA: ${userContext}` : ''}
+REGLAS ESTRICTAS:
+- MÁXIMO 2 oraciones cortas. Nunca más. Sin listas ni puntos.
+- Si es urgente (envenenamiento, convulsiones, dificultad respiratoria), di ir a clínica YA.
+- El diagnóstico lo da el veterinario presencial, no tú.`;
 
   setTimeout(() => drwSetBubble('', 'loading'), 400);
 
@@ -112,7 +109,7 @@ Aviso: Entregas orientación general, no diagnóstico médico.`;
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 150,
+        max_tokens: 80,
         system: sys,
         messages: [{ role: 'user', content: msg }]
       }),
