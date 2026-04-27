@@ -106,9 +106,7 @@ function setConsultaRapida(texto) {
   const input = document.getElementById('chatInput');
   if (!input) return;
   input.value = texto;
-  input.focus();
-  // Scroll to input
-  input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  sendChat();
 }
 
 /* ══ OBTENER CONTEXTO COMPLETO DEL PERFIL PARA LA IA ══ */

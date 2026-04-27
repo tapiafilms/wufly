@@ -1,4 +1,45 @@
-/* ══ ASISTENTE VETERINARIO WUFLY ══ */
+/* ══ DRA. WUFLY — ASISTENTE VETERINARIA ══ */
+
+function drwSetBubble(text, type) {
+  const bubble = document.getElementById('drw-bubble');
+  const bubbleText = document.getElementById('drw-bubble-text');
+  if (!bubble || !bubbleText) return;
+
+  bubble.classList.remove('visible');
+
+  setTimeout(() => {
+    bubble.classList.remove('drw-bubble--doc', 'drw-bubble--user');
+
+    if (type === 'loading') {
+      bubble.classList.add('drw-bubble--doc');
+      bubbleText.innerHTML = '<span class="drw-dot"></span><span class="drw-dot"></span><span class="drw-dot"></span>';
+    } else if (type === 'user') {
+      bubble.classList.add('drw-bubble--user');
+      bubbleText.textContent = text;
+    } else {
+      bubble.classList.add('drw-bubble--doc');
+      bubbleText.textContent = text;
+    }
+
+    bubble.classList.add('visible');
+  }, 180);
+}
+
+function drwSetVideo(state) {
+  const escuchando = document.getElementById('drw-escuchando');
+  const hablando = document.getElementById('drw-hablando');
+  if (!escuchando) return;
+
+  if (state === 'hablando' && hablando) {
+    escuchando.style.display = 'none';
+    hablando.style.display = 'block';
+    hablando.play().catch(() => {});
+  } else {
+    if (hablando) { hablando.pause(); hablando.style.display = 'none'; }
+    escuchando.style.display = 'block';
+    escuchando.play().catch(() => {});
+  }
+}
 
 async function sendChat() {
   const inp = document.getElementById('chatInput');
@@ -6,23 +47,23 @@ async function sendChat() {
   if (!msg) return;
   inp.value = '';
 
-  addMsg(msg, 'user');
   document.getElementById('btnSend').disabled = true;
-  const loading = addMsg('Escribiendo...', 'loading-msg');
+
+  drwSetBubble(msg, 'user');
 
   const userContext = typeof getUserContext === 'function' ? getUserContext() : '';
 
-  const sys = `Eres Wufly AI, un asistente especializado en salud animal y bienestar de mascotas. Respondes en español de forma clara, empática y práctica.
+  const sys = `Eres la Dra. Wufly, asistente veterinaria virtual de la app Wufly. Eres amable, empática y de pocas palabras.
 ${userContext ? `PERFIL DE LA MASCOTA: ${userContext}` : ''}
-Usa el perfil para personalizar cada respuesta (tipo de mascota, edad, condiciones de salud).
-Reglas importantes:
-- Responde siempre en lenguaje simple, sin tecnicismos innecesarios
-- Si la situación es urgente (envenenamiento, dificultad respiratoria, trauma, convulsiones), indícalo claramente y recomienda ir INMEDIATAMENTE a una clínica veterinaria
-- Si corresponde, menciona que puede encontrar clínicas con urgencias 24h en la sección VETS de la app
-- Para consultas de salud, siempre aclara que eres un orientador y que el diagnóstico definitivo lo debe dar un veterinario presencialmente
-- Sé empático — los dueños suelen estar preocupados por sus mascotas
-- Para cachorros y animales senior, sé más precavido en tus recomendaciones
-Aviso: Este asistente entrega orientación general y no constituye un diagnóstico médico veterinario.`;
+Reglas:
+- Máximo 2 oraciones cortas. Sé directa y cálida.
+- Usa el perfil de la mascota para personalizar tu respuesta si está disponible.
+- Si la situación es urgente (envenenamiento, dificultad respiratoria, trauma, convulsiones), indícalo claramente y recomienda ir INMEDIATAMENTE a una clínica.
+- Puedes mencionar la sección VETS de la app para clínicas con urgencias 24h.
+- Siempre aclara que el diagnóstico definitivo lo da un veterinario presencial.
+Aviso: Entregas orientación general, no diagnóstico médico.`;
+
+  setTimeout(() => drwSetBubble('', 'loading'), 400);
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000);
@@ -33,7 +74,7 @@ Aviso: Este asistente entrega orientación general y no constituye un diagnósti
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 500,
+        max_tokens: 150,
         system: sys,
         messages: [{ role: 'user', content: msg }]
       }),
@@ -41,38 +82,26 @@ Aviso: Este asistente entrega orientación general y no constituye un diagnósti
     });
     clearTimeout(timeoutId);
 
-    if (res.status >= 500) throw new Error('server');
-    if (!res.ok) throw new Error('client');
+    if (!res.ok) throw new Error(res.status >= 500 ? 'server' : 'client');
 
     const data = await res.json();
     const text = data.content.map(i => i.text || '').join('');
-    loading.remove();
-    addMsg(text, 'bot');
+
+    drwSetVideo('hablando');
+    drwSetBubble(text, 'doc');
+
+    const readTime = Math.max(3500, text.length * 55);
+    setTimeout(() => drwSetVideo('escuchando'), readTime);
+
   } catch (e) {
     clearTimeout(timeoutId);
     let errMsg;
-    if (e.name === 'AbortError') {
-      errMsg = 'La respuesta tardó demasiado. Intenta de nuevo. ⏱️';
-    } else if (!navigator.onLine) {
-      errMsg = 'Sin conexión a internet. Conéctate para chatear.';
-    } else if (e.message === 'server') {
-      errMsg = 'El asistente no está disponible ahora. Intenta más tarde. 🙏';
-    } else {
-      errMsg = 'No pude conectarme. Intenta de nuevo en un momento.';
-    }
-    loading.className = 'msg bot error-msg';
-    loading.textContent = errMsg;
+    if (e.name === 'AbortError') errMsg = 'La respuesta tardó demasiado. Intenta de nuevo.';
+    else if (!navigator.onLine) errMsg = 'Sin conexión a internet.';
+    else errMsg = 'No pude conectarme. Intenta en un momento.';
+    drwSetBubble(errMsg, 'doc');
+    drwSetVideo('escuchando');
   }
 
   document.getElementById('btnSend').disabled = false;
-}
-
-function addMsg(text, type) {
-  const wrap = document.getElementById('chatMessages');
-  const div = document.createElement('div');
-  div.className = 'msg ' + type;
-  div.textContent = text;
-  wrap.appendChild(div);
-  wrap.scrollTop = wrap.scrollHeight;
-  return div;
 }
