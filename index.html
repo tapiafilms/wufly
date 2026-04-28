@@ -282,17 +282,9 @@
     <button class="btn-send" id="btnSend" onclick="sendChat()">Enviar</button>
   </div>
 
-  <!-- Síntomas rápidos -->
-  <div style="margin-bottom:16px;">
-    <div style="font-size:11px;font-weight:700;color:var(--text-hint);letter-spacing:0.06em;margin-bottom:8px;">CONSULTAS FRECUENTES</div>
-    <div style="display:flex;flex-wrap:wrap;gap:7px;">
-      <button onclick="setConsultaRapida('Mi perro vomitó varias veces hoy y no quiere comer')" class="chip">🤢 Vómitos</button>
-      <button onclick="setConsultaRapida('Mi perro está muy decaído, sin energía y duerme todo el día')" class="chip">😴 Decaimiento</button>
-      <button onclick="setConsultaRapida('Mi perro se rasca mucho y tiene zonas sin pelo en la piel')" class="chip">🐛 Picazón / Piel</button>
-      <button onclick="setConsultaRapida('Mi perro cojea de una pata desde ayer')" class="chip">🦴 Cojera</button>
-      <button onclick="setConsultaRapida('Mi gato no ha comido nada en todo el día y está escondido')" class="chip">🐈 Gato sin apetito</button>
-      <button onclick="setConsultaRapida('Mi mascota puede haber comido algo tóxico')" class="chip">⚠️ Posible intoxicación</button>
-    </div>
+  <!-- Banner decorativo -->
+  <div style="width:100%;height:130px;border-radius:var(--r);overflow:hidden;margin-bottom:16px;background:var(--purple-light);">
+    <img src="img/dra-wufly-banner.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none'">
   </div>
 
   <!-- Acceso rápido a vets de urgencia -->
