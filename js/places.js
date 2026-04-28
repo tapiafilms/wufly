@@ -177,27 +177,6 @@ function renderClinicas() {
       </div>
     </div>`;
 
-  /* ── Search bar ── */
-  const searchBarHtml = `
-    <div class="search-bar">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <input type="text" placeholder="Buscar clínica o servicio..." id="searchClinicas"
-        value="${q.replace(/"/g,'&quot;')}" oninput="onSearchClinicas()" aria-label="Buscar clínica veterinaria">
-    </div>`;
-
-  /* ── Filter row ── */
-  const geoCount  = geoResults?.clinicas?.length || 0;
-  const geoBtnVis = (geoDisponible || (typeof geoStatus !== 'undefined' && geoStatus === 'ok')) ? 'inline-flex' : 'none';
-  const filterRow = `
-    <div class="filter-row">
-      <button class="filter-btn fcli${filtro==='todos' ?' active':''}" onclick="setFilterClinicas(this,'todos')">Todas</button>
-      <button id="clinicaGeoBtn" class="filter-btn fcli${filtro==='geo'?' active':''}" onclick="setFilterClinicas(this,'geo')" style="display:${geoBtnVis};">
-        📍 Cerca${geoCount>0?` <span style="background:var(--purple);color:white;border-radius:100px;padding:1px 6px;font-size:10px;margin-left:4px;">${geoCount}</span>`:''}
-      </button>
-      <button class="filter-btn fcli${filtro==='viña'  ?' active':''}" onclick="setFilterClinicas(this,'viña')">Viña del Mar</button>
-      <button class="filter-btn fcli${filtro==='valpo' ?' active':''}" onclick="setFilterClinicas(this,'valpo')">Valparaíso</button>
-      <button class="filter-btn fcli${filtro==='concon'?' active':''}" onclick="setFilterClinicas(this,'concon')">Concón</button>
-    </div>`;
 
   /* ── Loading spinner ── */
   const loadingHtml = geoLoading ? `
@@ -246,57 +225,21 @@ function renderClinicas() {
     return n.includes(q) || d.includes(q) || s.includes(q) || t.includes(q);
   };
 
-  /* ── Contenido principal ── */
-  let contentHtml = '';
+  /* ── 3 clínicas destacadas ── */
+  const destHtml = (CLINICAS_DESTACADAS || []).length > 0
+    ? `<div style="font-size:11px;font-weight:700;color:var(--purple);letter-spacing:0.07em;padding:0 2px 10px;">⭐ DESTACADAS</div>
+       ${(CLINICAS_DESTACADAS || []).map(_renderClinicaDestacada).join('')}`
+    : '';
 
-  if (filtro === 'geo') {
-    contentHtml = geoDisponible
-      ? `<div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;padding:4px 0 10px;">
-           📍 ${geoResults.clinicas.length} CLÍNICAS ENCONTRADAS CERCA DE TI
-         </div>
-         ${geoResults.clinicas.map(_renderClinicaGeo).join('')}`
-      : `<div style="text-align:center;padding:40px 20px;color:var(--text-muted);">
-           <div style="font-size:36px;margin-bottom:10px;">🗺</div>
-           <div style="font-weight:700;margin-bottom:6px;">Activa la ubicación primero</div>
-           <div style="font-size:13px;">Toca el botón de arriba para buscar clínicas cercanas.</div>
-         </div>`;
-  } else {
-    const destFil = (CLINICAS_DESTACADAS || []).filter(c => matchCity(c) && matchSearch(c));
-    const regFil  = clinicas.filter(c => matchCity(c) && matchSearch(c));
+  /* ── Resultados geo (si están disponibles) ── */
+  const geoMixHtml = geoDisponible
+    ? `<div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;padding:16px 0 10px;">
+         📍 ${geoResults.clinicas.length} CLÍNICAS CERCANAS
+       </div>
+       ${geoResults.clinicas.map(_renderClinicaGeo).join('')}`
+    : '';
 
-    /* Geo mix en "Todas" */
-    let geoMixHtml = '';
-    if (filtro === 'todos' && geoDisponible) {
-      const gf = q
-        ? geoResults.clinicas.filter(c => c.name.toLowerCase().includes(q) || (c.address||'').toLowerCase().includes(q))
-        : geoResults.clinicas;
-      if (gf.length > 0) {
-        geoMixHtml = `
-          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;padding:16px 0 10px;">
-            📍 ${gf.length} CLÍNICAS CERCANAS (OpenStreetMap)
-          </div>
-          ${gf.map(_renderClinicaGeo).join('')}`;
-      }
-    }
-
-    const destHtml = destFil.length > 0
-      ? `<div style="font-size:11px;font-weight:700;color:var(--purple);letter-spacing:0.07em;padding:0 2px 10px;">⭐ DESTACADAS</div>
-         ${destFil.map(_renderClinicaDestacada).join('')}`
-      : '';
-
-    const regHtml = regFil.length > 0
-      ? `<div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;padding:${destFil.length||geoMixHtml?'16px':'0'} 2px 10px;">DIRECTORIO VERIFICADO</div>
-         ${regFil.map(_renderClinicaCard).join('')}`
-      : '';
-
-    if (!destFil.length && !regFil.length && !geoMixHtml) {
-      contentHtml = `<div class="empty-state"><div style="font-size:36px">🏥</div><p>No hay clínicas para ese filtro.</p></div>`;
-    } else {
-      contentHtml = destHtml + geoMixHtml + regHtml;
-    }
-  }
-
-  list.innerHTML = heroBanner + searchBarHtml + filterRow + loadingHtml + geoBtnHtml + contentHtml;
+  list.innerHTML = heroBanner + loadingHtml + destHtml + geoMixHtml + geoBtnHtml;
 }
 
 /* ── Card clínica destacada ── */
