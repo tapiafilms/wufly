@@ -60,11 +60,12 @@ async function publicarPerdido(tipo) {
     const desc = document.getElementById('perdidoDesc').value.trim();
     const ubic = document.getElementById('perdidoUbicacion').value.trim();
     const wsp  = document.getElementById('perdidoWsp').value.trim();
+    const link = document.getElementById('perdidoLink').value.trim();
     if (!desc || desc.length < 10) { alert('Por favor describe la mascota con más detalle (mínimo 10 caracteres).'); return; }
     if (!ubic || ubic.length < 5)  { alert('Por favor indica la ubicación (mínimo 5 caracteres).'); return; }
-    if (!wsp)  { alert('Por favor ingresa un WhatsApp de contacto.'); return; }
-    if (!/^\+?\d{7,15}$/.test(wsp.replace(/[\s\-()]/g, ''))) {
-      alert('Ingresa un número de WhatsApp válido, ej: +56912345678'); return;
+    if (!wsp && !link) { alert('Ingresa al menos un contacto: número de WhatsApp o un link.'); return; }
+    if (wsp && !/^\+?\d{7,15}$/.test(wsp.replace(/[\s\-()]/g, ''))) {
+      alert('El número de WhatsApp no es válido, ej: +56912345678'); return;
     }
 
     const btn = document.getElementById('btnPublicarPerdido');
@@ -85,7 +86,7 @@ async function publicarPerdido(tipo) {
         fetch(`${SUPABASE_URL}/rest/v1/perdidos`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${_sbToken()}`, 'Prefer': 'return=minimal' },
-          body: JSON.stringify({ user_id: currentUser?.id || null, especie: document.getElementById('perdidoEspecie').value, descripcion: desc, ubicacion: ubic, fecha_extravio: fechaVal || null, wsp, foto_url }),
+          body: JSON.stringify({ user_id: currentUser?.id || null, especie: document.getElementById('perdidoEspecie').value, descripcion: desc, ubicacion: ubic, fecha_extravio: fechaVal || null, wsp: wsp || null, link: link || null, foto_url }),
         }),
         _timeout(10000),
       ]);
@@ -98,6 +99,7 @@ async function publicarPerdido(tipo) {
     toggleFormPerdido();
     document.getElementById('perdidoDesc').value = '';
     document.getElementById('perdidoWsp').value = '';
+    document.getElementById('perdidoLink').value = '';
     document.getElementById('perdidoUbicacion').value = '';
     const prev = document.getElementById('perdidoPreviewImg');
     if (prev) { prev.style.display = 'none'; prev.src = ''; }
@@ -107,8 +109,14 @@ async function publicarPerdido(tipo) {
   } else {
     const desc = document.getElementById('rescateDesc').value.trim();
     const ubic = document.getElementById('rescateUbicacion').value.trim();
+    const wsp  = document.getElementById('rescateWsp').value.trim();
+    const link = document.getElementById('rescateLink').value.trim();
     if (!desc || desc.length < 10) { alert('Por favor describe el animal con más detalle (mínimo 10 caracteres).'); return; }
     if (!ubic || ubic.length < 5)  { alert('Por favor indica la ubicación exacta (mínimo 5 caracteres).'); return; }
+    if (!wsp && !link) { alert('Ingresa al menos un contacto: número de WhatsApp o un link.'); return; }
+    if (wsp && !/^\+?\d{7,15}$/.test(wsp.replace(/[\s\-()]/g, ''))) {
+      alert('El número de WhatsApp no es válido, ej: +56912345678'); return;
+    }
 
     const btn = document.getElementById('btnPublicarRescate');
     if (btn) { btn.disabled = true; btn.textContent = 'Publicando...'; }
@@ -127,7 +135,7 @@ async function publicarPerdido(tipo) {
         fetch(`${SUPABASE_URL}/rest/v1/rescates`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${_sbToken()}`, 'Prefer': 'return=minimal' },
-          body: JSON.stringify({ user_id: currentUser?.id || null, especie: document.getElementById('rescateEspecie').value, descripcion: desc, ubicacion: ubic, foto_url, estado: 'esperando' }),
+          body: JSON.stringify({ user_id: currentUser?.id || null, especie: document.getElementById('rescateEspecie').value, descripcion: desc, ubicacion: ubic, wsp: wsp || null, link: link || null, foto_url, estado: 'esperando' }),
         }),
         _timeout(10000),
       ]);
@@ -140,6 +148,8 @@ async function publicarPerdido(tipo) {
     toggleFormRescate();
     document.getElementById('rescateDesc').value = '';
     document.getElementById('rescateUbicacion').value = '';
+    document.getElementById('rescateWsp').value = '';
+    document.getElementById('rescateLink').value = '';
     const prev = document.getElementById('rescatePreviewImg');
     if (prev) { prev.style.display = 'none'; prev.src = ''; }
     rescateFile = null;
@@ -195,9 +205,23 @@ async function renderPerdidoFeed() {
       ? new Date(p.fecha_extravio + 'T12:00:00').toLocaleDateString('es-CL', { day: 'numeric', month: 'long' })
       : '';
     const fotoHtml = p.foto_url
-      ? `<img src="${escHTMLPerdidos(p.foto_url)}" alt="" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;">`
+      ? `<img src="${escHTMLPerdidos(p.foto_url)}" alt="" onclick="abrirLightbox('${escHTMLPerdidos(p.foto_url)}')" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;cursor:pointer;">`
       : `<div style="width:100%;height:90px;background:linear-gradient(135deg,#FAF0EE,#FEF3E8);border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:44px;">${iconMapP[p.especie] || '🐾'}</div>`;
     const wspClean = (p.wsp || '').replace(/\D/g, '');
+    const tieneWsp = wspClean.length >= 7;
+    const tieneLink = !!(p.link || '').trim();
+    const btnWspP = tieneWsp ? `
+      <a href="https://wa.me/${encodeURIComponent(wspClean)}" target="_blank" rel="noopener noreferrer"
+        style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:#25D366;color:white;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;text-decoration:none;">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:white;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        Contactar
+      </a>` : '';
+    const btnLinkP = tieneLink ? `
+      <a href="${escHTMLPerdidos(p.link)}" target="_blank" rel="noopener noreferrer"
+        style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--purple);color:white;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;text-decoration:none;">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:white;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        Ver más
+      </a>` : '';
     return `<div style="background:var(--surface);border-radius:var(--r);border:1.5px solid rgba(215,137,127,0.25);overflow:hidden;box-shadow:var(--shadow-sm);">
       ${fotoHtml}
       <div style="padding:13px;">
@@ -211,11 +235,7 @@ async function renderPerdidoFeed() {
           ${fechaStr ? `<div>📅 <strong style="color:var(--text);">Perdido el:</strong> ${escHTMLPerdidos(fechaStr)}</div>` : ''}
         </div>
         <div style="display:flex;gap:8px;">
-          <a href="https://wa.me/${encodeURIComponent(wspClean)}" target="_blank" rel="noopener noreferrer"
-            style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:#25D366;color:white;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;text-decoration:none;">
-            <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:white;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-            Contactar
-          </a>
+          ${btnWspP}${btnLinkP}
           <button onclick="compartirReporte('perdido','${escHTMLPerdidos(p.id)}')"
             style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:var(--purple-light);color:var(--purple);border:none;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;cursor:pointer;">
             <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -259,8 +279,23 @@ async function renderRescateFeed() {
     const tiempo = dias === 0 ? `Hace ${horas}h` : dias === 1 ? 'Ayer' : `Hace ${dias} días`;
     const esRescatado = p.estado === 'rescatado';
     const fotoHtml = p.foto_url
-      ? `<img src="${escHTMLPerdidos(p.foto_url)}" alt="" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;${esRescatado ? 'filter:grayscale(0.4);' : ''}">`
+      ? `<img src="${escHTMLPerdidos(p.foto_url)}" alt="" onclick="abrirLightbox('${escHTMLPerdidos(p.foto_url)}')" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;cursor:pointer;${esRescatado ? 'filter:grayscale(0.4);' : ''}">`
       : `<div style="width:100%;height:90px;background:linear-gradient(135deg,#FEF3E8,#FFF8E8);border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:44px;">${iconMapP[p.especie] || '🐾'}</div>`;
+    const wspRClean = (p.wsp || '').replace(/\D/g, '');
+    const tieneWspR = wspRClean.length >= 7;
+    const tieneLinkR = !!(p.link || '').trim();
+    const btnWspR = tieneWspR ? `
+      <a href="https://wa.me/${encodeURIComponent(wspRClean)}" target="_blank" rel="noopener noreferrer"
+        style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:#25D366;color:white;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;text-decoration:none;">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:white;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        Contactar
+      </a>` : '';
+    const btnLinkR = tieneLinkR ? `
+      <a href="${escHTMLPerdidos(p.link)}" target="_blank" rel="noopener noreferrer"
+        style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--purple);color:white;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;text-decoration:none;">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:white;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        Ver más
+      </a>` : '';
     return `<div style="background:var(--surface);border-radius:var(--r);border:1.5px solid rgba(249,185,92,0.3);overflow:hidden;box-shadow:var(--shadow-sm);">
       ${fotoHtml}
       <div style="padding:13px;">
@@ -274,10 +309,11 @@ async function renderRescateFeed() {
         <p style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:8px;">${escHTMLPerdidos(p.descripcion)}</p>
         <div style="font-size:12px;color:var(--text-muted);margin-bottom:11px;">📍 <strong style="color:var(--text);">Se encuentra en:</strong> ${escHTMLPerdidos(p.ubicacion)}</div>
         <div style="display:flex;gap:8px;">
+          ${btnWspR}${btnLinkR}
           <button onclick="compartirReporte('rescate','${escHTMLPerdidos(p.id)}')"
-            style="flex:2;display:flex;align-items:center;justify-content:center;gap:6px;background:${esRescatado ? 'var(--mint-light)' : '#FEF3E8'};color:${esRescatado ? 'var(--mint-dark)' : '#E8A820'};border:none;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;cursor:pointer;">
+            style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:${esRescatado ? 'var(--mint-light)' : '#FEF3E8'};color:${esRescatado ? 'var(--mint-dark)' : '#E8A820'};border:none;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;cursor:pointer;">
             <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            ${esRescatado ? 'Gracias por ayudar' : 'Difundir para rescatar'}
+            ${esRescatado ? 'Gracias' : 'Difundir'}
           </button>
           ${!esRescatado ? `<button onclick="marcarRescatado('${escHTMLPerdidos(p.id)}')"
             style="flex:1;display:flex;align-items:center;justify-content:center;background:var(--mint-light);color:var(--mint-dark);border:none;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;cursor:pointer;">✓ Rescatado</button>` : ''}
