@@ -39,7 +39,12 @@ function switchTab(name, el, fromNav = false) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
   document.getElementById('page-' + name).classList.add('active');
-  if (name === 'restaurantes') renderClinicas?.();
+  if (name === 'restaurantes') {
+    renderClinicas?.();
+    /* Auto-buscar clínicas cercanas al entrar a VETS (solo si aún no se ha buscado) */
+    const yaHayGeo = typeof geoStatus !== 'undefined' && (geoStatus === 'ok' || geoStatus === 'loading');
+    if (!yaHayGeo) activarBusquedaGeo?.();
+  }
   if (name === 'home') renderHome?.();
 
   // Franja de color superior: visible en todas las vistas excepto home
