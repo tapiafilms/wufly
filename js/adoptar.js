@@ -223,14 +223,18 @@ function abrirLightbox(url) {
   img.src = url;
   lb.style.display = 'flex';
   document.body.style.overflow = 'hidden';
+  requestAnimationFrame(() => requestAnimationFrame(() => lb.classList.add('lb-active')));
 }
 
 function cerrarLightbox() {
   const lb = document.getElementById('photoLightbox');
   if (!lb) return;
-  lb.style.display = 'none';
-  document.getElementById('photoLightboxImg').src = '';
-  document.body.style.overflow = '';
+  lb.classList.remove('lb-active');
+  setTimeout(() => {
+    lb.style.display = 'none';
+    document.getElementById('photoLightboxImg').src = '';
+    document.body.style.overflow = '';
+  }, 280);
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarLightbox(); });
