@@ -106,8 +106,10 @@ async function publicarPerdido(tipo) {
     const prev = document.getElementById('perdidoPreviewImg');
     if (prev) { prev.style.display = 'none'; prev.src = ''; }
     perdidoFile = null;
-    await renderPerdidoFeed();
-    document.getElementById('perdidoFeed').scrollIntoView({ behavior: 'smooth' });
+    setTimeout(async () => {
+      await renderPerdidoFeed();
+      document.getElementById('perdidoFeed').scrollIntoView({ behavior: 'smooth' });
+    }, 600);
 
   } else {
     const desc = document.getElementById('rescateDesc').value.trim();
@@ -212,6 +214,7 @@ async function renderPerdidoFeed() {
     const wspClean = (p.wsp || '').replace(/\D/g, '');
     const tieneWsp = wspClean.length >= 7;
     const tieneLink = !!(p.link || '').trim();
+    const linkUrl = tieneLink ? ((p.link.startsWith('http') ? p.link : `https://${p.link}`)) : '';
     const btnWspP = tieneWsp ? `
       <a href="https://wa.me/${encodeURIComponent(wspClean)}" target="_blank" rel="noopener noreferrer"
         style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:#25D366;color:white;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;text-decoration:none;">
@@ -219,7 +222,7 @@ async function renderPerdidoFeed() {
         Contactar
       </a>` : '';
     const btnLinkP = tieneLink ? `
-      <a href="${escHTMLPerdidos(p.link)}" target="_blank" rel="noopener noreferrer"
+      <a href="${escHTMLPerdidos(linkUrl)}" target="_blank" rel="noopener noreferrer"
         style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--purple);color:white;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;text-decoration:none;">
         <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:white;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
         Ver más
@@ -286,6 +289,7 @@ async function renderRescateFeed() {
     const wspRClean = (p.wsp || '').replace(/\D/g, '');
     const tieneWspR = wspRClean.length >= 7;
     const tieneLinkR = !!(p.link || '').trim();
+    const linkUrlR = tieneLinkR ? (p.link.startsWith('http') ? p.link : `https://${p.link}`) : '';
     const btnWspR = tieneWspR ? `
       <a href="https://wa.me/${encodeURIComponent(wspRClean)}" target="_blank" rel="noopener noreferrer"
         style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:#25D366;color:white;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;text-decoration:none;">
@@ -293,7 +297,7 @@ async function renderRescateFeed() {
         Contactar
       </a>` : '';
     const btnLinkR = tieneLinkR ? `
-      <a href="${escHTMLPerdidos(p.link)}" target="_blank" rel="noopener noreferrer"
+      <a href="${escHTMLPerdidos(linkUrlR)}" target="_blank" rel="noopener noreferrer"
         style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--purple);color:white;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;text-decoration:none;">
         <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:white;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
         Ver más
