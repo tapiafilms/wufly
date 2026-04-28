@@ -96,6 +96,8 @@ async function publicarPerdido(tipo) {
     if (btn) { btn.disabled = false; btn.textContent = 'Publicar reporte'; }
     if (error) { console.error('[perdidos]', error); alert('Error: ' + error.message); return; }
 
+    if (typeof notificarMascotaPerdida === 'function') notificarMascotaPerdida(desc, ubic);
+
     toggleFormPerdido();
     document.getElementById('perdidoDesc').value = '';
     document.getElementById('perdidoWsp').value = '';

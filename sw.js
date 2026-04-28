@@ -6,7 +6,7 @@
    - Imágenes                           → Cache First
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'wufly-v47';
+const CACHE_NAME = 'wufly-v48';
 const API_HOST = 'divine-waterfall-d1dfsin-gluten-life.pablo77tapia.workers.dev';
 
 const STATIC_ASSETS = [
@@ -160,6 +160,35 @@ async function fetchAndCache(request) {
     return new Response('', { status: 503 });
   }
 }
+
+/* ── Push Notifications ── */
+self.addEventListener('push', event => {
+  if (!event.data) return;
+  let data;
+  try { data = event.data.json(); } catch { return; }
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'Wufly', {
+      body:    data.body  || '',
+      icon:    data.icon  || '/img/icono.png',
+      badge:   data.badge || '/img/icon-192.svg',
+      data:    { url: data.url || '/' },
+      vibrate: [200, 100, 200],
+    })
+  );
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const url = event.notification.data?.url || '/';
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const c of list) {
+        if (c.url.includes(self.location.origin)) return c.focus();
+      }
+      return clients.openWindow(url);
+    })
+  );
+});
 
 /* ── Página offline inline ── */
 function offlinePage() {
