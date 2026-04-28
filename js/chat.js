@@ -45,12 +45,17 @@ function drwSpeak(text) {
   window.speechSynthesis.speak(utt);
 }
 
+let _typeTimer = null;
+
 function drwSetBubble(text, type) {
   const bubble = document.getElementById('drw-bubble');
   const bubbleText = document.getElementById('drw-bubble-text');
   if (!bubble || !bubbleText) return;
 
-  bubble.classList.remove('visible');
+  if (_typeTimer) { clearTimeout(_typeTimer); _typeTimer = null; }
+
+  bubble.classList.remove('visible', 'drw-bubble--doc', 'drw-bubble--user');
+  void bubble.offsetWidth; /* fuerza reflow para reiniciar animación */
 
   setTimeout(() => {
     bubble.classList.remove('drw-bubble--doc', 'drw-bubble--user');
@@ -58,16 +63,26 @@ function drwSetBubble(text, type) {
     if (type === 'loading') {
       bubble.classList.add('drw-bubble--doc');
       bubbleText.innerHTML = '<span class="drw-dot"></span><span class="drw-dot"></span><span class="drw-dot"></span>';
+      bubble.classList.add('visible');
     } else if (type === 'user') {
       bubble.classList.add('drw-bubble--user');
       bubbleText.textContent = text;
+      bubble.classList.add('visible');
     } else {
       bubble.classList.add('drw-bubble--doc');
-      bubbleText.textContent = text;
+      bubbleText.textContent = '';
+      bubble.classList.add('visible');
+      /* Escritura letra por letra */
+      let i = 0;
+      function typeNext() {
+        if (i < text.length) {
+          bubbleText.textContent += text[i++];
+          _typeTimer = setTimeout(typeNext, 18);
+        }
+      }
+      typeNext();
     }
-
-    bubble.classList.add('visible');
-  }, 180);
+  }, 150);
 }
 
 function drwSetVideo(state) {
