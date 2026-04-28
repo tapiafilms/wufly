@@ -167,7 +167,7 @@ function renderClinicas() {
 
   /* ── Hero banner ── */
   const heroBanner = `
-    <div style="margin:0 -20px 16px;height:220px;overflow:hidden;border-radius:0 0 24px 24px;position:relative;background:#c4b5dc;">
+    <div style="margin:-45px -20px 16px;height:220px;overflow:hidden;border-radius:0 0 24px 24px;position:relative;background:#c4b5dc;">
       <img src="img/vets-hero.jpg" alt="Clínicas veterinarias"
         style="width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;"
         onerror="this.style.display='none'">
