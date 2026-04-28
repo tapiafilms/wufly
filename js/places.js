@@ -167,6 +167,12 @@ function renderClinicas() {
 
   /* ── Hero banner ── */
   const heroBanner = `
+    <div style="margin:0 -20px 16px;height:220px;overflow:hidden;border-radius:0 0 24px 24px;position:relative;background:#c4b5dc;">
+      <img src="img/vets-hero.jpg" alt="Clínicas veterinarias"
+        style="width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;"
+        onerror="this.style.display='none'">
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.08) 0%,rgba(0,0,0,0.38) 100%);"></div>
+    </div>
     <div class="hero-banner" style="margin-bottom:16px;">
       <h2>Clínicas Veterinarias</h2>
       <p>Veterinarias verificadas en Viña del Mar, Valparaíso y Concón</p>
