@@ -629,6 +629,9 @@ body.app-ready { opacity:1; }
 .chat-input-row input:focus { border-color:var(--green); }
 .btn-send { background:var(--green); color:white; border:none; border-radius:var(--r-xs); padding:10px 16px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans', sans-serif; white-space:nowrap; }
 .btn-send:disabled { background:#9AB59A; cursor:not-allowed; }
+.btn-mic { background:var(--purple-light); color:var(--purple); border:none; border-radius:var(--r-xs); padding:10px 12px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:background 0.2s, color 0.2s; }
+.btn-mic.recording { background:#FEE2E2; color:#DC2626; animation:mic-pulse 1s ease-in-out infinite; }
+@keyframes mic-pulse { 0%,100% { transform:scale(1); box-shadow:0 0 0 0 rgba(220,38,38,0.3); } 50% { transform:scale(1.08); box-shadow:0 0 0 6px rgba(220,38,38,0); } }
 
 /* ── DRA. WUFLY AVATAR ── */
 .drw-wrap {

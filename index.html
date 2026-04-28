@@ -278,6 +278,9 @@
 
   <!-- Input -->
   <div class="chat-input-row" style="margin-bottom:16px;border-top:none;padding:0;">
+    <button class="btn-mic" id="btnMic" onclick="toggleMic()" style="display:none;" title="Hablar con Dra. Wufly">
+      <svg id="micIcon" viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
+    </button>
     <input type="text" id="chatInput" placeholder="Ej: Mi perro lleva 2 días sin comer..." onkeydown="if(event.key==='Enter')sendChat()">
     <button class="btn-send" id="btnSend" onclick="sendChat()">Enviar</button>
   </div>

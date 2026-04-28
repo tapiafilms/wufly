@@ -1,5 +1,71 @@
 /* ══ DRA. WUFLY — ASISTENTE VETERINARIA ══ */
 
+let _recognition = null;
+let _micActive = false;
+const _chatPlaceholder = 'Ej: Mi perro lleva 2 días sin comer...';
+
+function initMic() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+
+  const btn = document.getElementById('btnMic');
+  if (btn) btn.style.display = 'flex';
+
+  _recognition = new SR();
+  _recognition.lang = 'es-CL';
+  _recognition.continuous = false;
+  _recognition.interimResults = true;
+
+  _recognition.onstart = () => {
+    _micActive = true;
+    btn.classList.add('recording');
+    drwSetVideo('escuchando');
+    document.getElementById('chatInput').placeholder = 'Escuchando...';
+  };
+
+  _recognition.onresult = (e) => {
+    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+    document.getElementById('chatInput').value = transcript;
+  };
+
+  _recognition.onend = () => {
+    _micActive = false;
+    btn.classList.remove('recording');
+    document.getElementById('chatInput').placeholder = _chatPlaceholder;
+    const val = document.getElementById('chatInput').value.trim();
+    if (val) sendChat();
+  };
+
+  _recognition.onerror = (e) => {
+    _micActive = false;
+    btn.classList.remove('recording');
+    if (e.error !== 'no-speech' && e.error !== 'aborted') {
+      document.getElementById('chatInput').placeholder = 'No se pudo acceder al micrófono';
+      setTimeout(() => {
+        document.getElementById('chatInput').placeholder = _chatPlaceholder;
+      }, 2500);
+    } else {
+      document.getElementById('chatInput').placeholder = _chatPlaceholder;
+    }
+  };
+}
+
+function toggleMic() {
+  if (!_recognition) return;
+  if (_micActive) {
+    _recognition.stop();
+  } else {
+    if (window.speechSynthesis) {
+      const u = new SpeechSynthesisUtterance(' ');
+      u.volume = 0;
+      window.speechSynthesis.speak(u);
+    }
+    try { _recognition.start(); } catch {}
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initMic);
+
 /* Precarga voces del navegador (algunas cargan async) */
 if (window.speechSynthesis) {
   window.speechSynthesis.getVoices();
