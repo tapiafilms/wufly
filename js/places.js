@@ -171,7 +171,7 @@ function renderClinicas() {
       <img src="img/vets-hero.jpg" alt="Clínicas veterinarias"
         style="width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;"
         onerror="this.style.display='none'">
-      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.05) 40%,rgba(0,0,0,0.45) 100%);"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(30,10,70,0.18) 0%,rgba(76,29,149,0.52) 100%);"></div>
     </div>
     <div style="margin:0 -20px 16px;background:var(--bg);border-radius:36px 36px 0 0;padding:22px 20px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;position:relative;z-index:1;margin-top:-36px;">
       <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:20px;color:var(--text);line-height:1.25;flex:1;">Veterinarias<br>cerca de ti</div>
