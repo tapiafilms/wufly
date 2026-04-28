@@ -541,6 +541,25 @@
   <div id="recetasFeed"></div>
 </div>
 
+<!-- Modal permiso de ubicación -->
+<div id="geoModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.45);align-items:flex-end;justify-content:center;">
+  <div style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:32px 24px 44px;text-align:center;animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);">
+    <div style="font-size:52px;margin-bottom:16px;">📍</div>
+    <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:22px;color:var(--text);margin-bottom:10px;">¿Activar ubicación?</div>
+    <div style="font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:28px;max-width:300px;margin-left:auto;margin-right:auto;">
+      Wufly usa tu ubicación para mostrarte clínicas veterinarias, tiendas y servicios cerca de ti.
+    </div>
+    <button onclick="geoModalPermitir()"
+      style="width:100%;padding:16px;background:linear-gradient(135deg,var(--purple-dark),var(--purple));border:none;border-radius:var(--r-xs);font-size:15px;font-weight:700;color:white;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;box-shadow:0 4px 18px rgba(92,47,168,0.35);margin-bottom:12px;">
+      Permitir ubicación
+    </button>
+    <button onclick="geoModalRechazar()"
+      style="width:100%;padding:14px;background:none;border:none;font-size:14px;font-weight:600;color:var(--text-muted);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+      Ahora no
+    </button>
+  </div>
+</div>
+
 <!-- Modal detalle receta -->
 <div id="recetaModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.5);align-items:flex-end;justify-content:center;">
   <div id="recetaModalBody" style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;"></div>

@@ -41,9 +41,9 @@ function switchTab(name, el, fromNav = false) {
   document.getElementById('page-' + name).classList.add('active');
   if (name === 'restaurantes') {
     renderClinicas?.();
-    /* Auto-buscar clínicas cercanas al entrar a VETS (solo si aún no se ha buscado) */
+    /* Auto-buscar solo si el usuario ya permitió la ubicación antes */
     const yaHayGeo = typeof geoStatus !== 'undefined' && (geoStatus === 'ok' || geoStatus === 'loading');
-    if (!yaHayGeo) activarBusquedaGeo?.();
+    if (!yaHayGeo && localStorage.getItem('wufly_geo_granted')) activarBusquedaGeo?.();
   }
   if (name === 'home') renderHome?.();
 
@@ -291,6 +291,25 @@ function injectProfileStyles() {
 }
 
 /* ══ INIT ══ */
+/* ══ MODAL PERMISO UBICACIÓN ══ */
+function showGeoModal() {
+  if (localStorage.getItem('wufly_geo_granted')) return;
+  if (sessionStorage.getItem('wufly_geo_declined')) return;
+  const modal = document.getElementById('geoModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function geoModalPermitir() {
+  document.getElementById('geoModal').style.display = 'none';
+  localStorage.setItem('wufly_geo_granted', '1');
+  activarBusquedaGeo?.();
+}
+
+function geoModalRechazar() {
+  document.getElementById('geoModal').style.display = 'none';
+  sessionStorage.setItem('wufly_geo_declined', '1');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   injectProfileStyles();
   buildAllergyGrid();
@@ -298,4 +317,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // renderStore(); // TODO: tiendas mascotas
   updateAllergyBanner();
   renderProfileSummary();
+  /* Mostrar modal de ubicación tras 1.5s si aún no se ha respondido */
+  setTimeout(showGeoModal, 1500);
 });
