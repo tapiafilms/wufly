@@ -10,9 +10,20 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 let currentUser = null;
 
+/* Revela la app con fade-in una sola vez */
+let _appRevealed = false;
+function _revealApp() {
+  if (_appRevealed) return;
+  _appRevealed = true;
+  document.body.classList.add('app-ready');
+}
+/* Fallback: si Supabase tarda más de 1.5s, mostrar igual */
+setTimeout(_revealApp, 1500);
+
 /* ── Escuchar cambios de sesión ── */
 db.auth.onAuthStateChange(async (event, session) => {
   currentUser = session?.user ?? null;
+  _revealApp();
   if (currentUser) {
     localStorage.setItem('wufly_session_email', currentUser.email);
   } else if (event === 'SIGNED_OUT') {

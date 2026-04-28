@@ -88,7 +88,10 @@ body {
   max-width:480px;
   margin:0 auto;
   padding-bottom:90px;
+  opacity:0;
+  transition:opacity 0.3s ease;
 }
+body.app-ready { opacity:1; }
 
 /* app-topbar: visible y sticky en mobile */
 .app-topbar {
