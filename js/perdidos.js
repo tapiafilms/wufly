@@ -113,7 +113,6 @@ async function publicarPerdido(tipo) {
     const link = document.getElementById('rescateLink').value.trim();
     if (!desc || desc.length < 10) { alert('Por favor describe el animal con más detalle (mínimo 10 caracteres).'); return; }
     if (!ubic || ubic.length < 5)  { alert('Por favor indica la ubicación exacta (mínimo 5 caracteres).'); return; }
-    if (!wsp && !link) { alert('Ingresa al menos un contacto: número de WhatsApp o un link.'); return; }
     if (wsp && !/^\+?\d{7,15}$/.test(wsp.replace(/[\s\-()]/g, ''))) {
       alert('El número de WhatsApp no es válido, ej: +56912345678'); return;
     }
