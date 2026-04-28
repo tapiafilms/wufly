@@ -171,16 +171,9 @@ function renderClinicas() {
       <img src="img/vets-hero.jpg" alt="Clínicas veterinarias"
         style="width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;"
         onerror="this.style.display='none'">
-      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(30,10,70,0.18) 0%,rgba(76,29,149,0.52) 100%);"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.05) 40%,rgba(0,0,0,0.25) 100%);"></div>
     </div>
-    <div style="margin:0 -20px 16px;background:var(--bg);border-radius:36px 36px 0 0;padding:22px 20px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;position:relative;z-index:1;margin-top:-36px;">
-      <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:20px;color:var(--text);line-height:1.25;flex:1;">Veterinarias<br>cerca de ti</div>
-      <button onclick="activarBusquedaGeo()"
-        style="display:flex;align-items:center;gap:10px;background:var(--purple-dark);border:none;border-radius:100px;padding:10px 10px 10px 18px;cursor:pointer;flex-shrink:0;box-shadow:0 4px 14px rgba(92,47,168,0.35);">
-        <span style="color:white;font-size:13px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;">Clínicas cercanas</span>
-        <div style="width:38px;height:38px;background:var(--mint);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">📍</div>
-      </button>
-    </div>
+    <div style="margin:-36px -20px 16px;background:var(--bg);border-radius:36px 36px 0 0;height:36px;position:relative;z-index:1;"></div>
     <div class="hero-banner" style="margin-bottom:16px;">
       <h2>Clínicas Veterinarias</h2>
       <p>Veterinarias verificadas en Viña del Mar, Valparaíso y Concón</p>
