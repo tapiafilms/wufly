@@ -68,7 +68,7 @@ async function publicarPerdido(tipo) {
       alert('El número de WhatsApp no es válido, ej: +56912345678'); return;
     }
 
-    const btn = document.getElementById('btnPublicarPerdido');
+    const btn = document.getElementById('perdidoSubmitBtn');
     if (btn) { btn.disabled = true; btn.textContent = 'Publicando...'; }
 
     const _timeout = ms => new Promise((_, r) => setTimeout(() => r(new Error('Sin respuesta del servidor')), ms));
@@ -93,7 +93,7 @@ async function publicarPerdido(tipo) {
       if (!res.ok) { const t = await res.text(); error = new Error(`HTTP ${res.status}: ${t}`); }
     } catch (e) { error = e; }
 
-    if (btn) { btn.disabled = false; btn.textContent = 'Publicar reporte'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Publicar 🔍'; }
     if (error) { console.error('[perdidos]', error); alert('Error: ' + error.message); return; }
 
     if (typeof notificarMascotaPerdida === 'function') notificarMascotaPerdida(desc, ubic);
@@ -106,7 +106,8 @@ async function publicarPerdido(tipo) {
     const prev = document.getElementById('perdidoPreviewImg');
     if (prev) { prev.style.display = 'none'; prev.src = ''; }
     perdidoFile = null;
-    renderPerdidoFeed();
+    await renderPerdidoFeed();
+    document.getElementById('perdidoFeed').scrollIntoView({ behavior: 'smooth' });
 
   } else {
     const desc = document.getElementById('rescateDesc').value.trim();
