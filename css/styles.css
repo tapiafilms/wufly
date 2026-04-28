@@ -1052,7 +1052,7 @@ body.app-ready { opacity:1; }
 /* ── Lightbox ── */
 #photoLightbox {
   opacity: 0;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.38s ease;
 }
 #photoLightbox.lb-active {
   opacity: 1;
@@ -1060,7 +1060,7 @@ body.app-ready { opacity:1; }
 #photoLightboxImg {
   transform: scale(0.86);
   opacity: 0;
-  transition: transform 0.32s cubic-bezier(0.34, 1.46, 0.64, 1), opacity 0.22s ease;
+  transition: transform 0.48s cubic-bezier(0.34, 1.46, 0.64, 1), opacity 0.32s ease;
 }
 #photoLightbox.lb-active #photoLightboxImg {
   transform: scale(1);
@@ -1069,7 +1069,7 @@ body.app-ready { opacity:1; }
 #photoLightbox button {
   opacity: 0;
   transform: scale(0.7);
-  transition: opacity 0.2s ease 0.15s, transform 0.2s ease 0.15s;
+  transition: opacity 0.28s ease 0.22s, transform 0.28s ease 0.22s;
 }
 #photoLightbox.lb-active button {
   opacity: 1;

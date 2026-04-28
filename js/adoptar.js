@@ -234,7 +234,7 @@ function cerrarLightbox() {
     lb.style.display = 'none';
     document.getElementById('photoLightboxImg').src = '';
     document.body.style.overflow = '';
-  }, 280);
+  }, 400);
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarLightbox(); });
