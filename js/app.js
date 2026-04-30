@@ -28,6 +28,230 @@ const PRESET_ALLERGIES = [
 let selectedAllergies = new Set();
 let customAllergies   = [];
 
+/* ══ CONTENIDO PANEL DERECHO (desktop) ══ */
+const INFO_COLUMN_CONTENT = {
+  home: `
+    <div class="info-card">
+      <div class="info-card-tag">🐾 Bienvenido a Wufly</div>
+      <h2>Todo para el cuidado de tu mascota</h2>
+      <p>La plataforma de mascotas más completa de Viña del Mar, Valparaíso y Concón.</p>
+      <div class="info-card-divider"></div>
+      <div class="info-stat-row">
+        <div class="info-stat"><div class="info-stat-num">11</div><div class="info-stat-label">Veterinarias</div></div>
+        <div class="info-stat"><div class="info-stat-num">10</div><div class="info-stat-label">Tiendas</div></div>
+        <div class="info-stat"><div class="info-stat-num">3</div><div class="info-stat-label">Ciudades</div></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-tag">💡 ¿Sabías que?</div>
+      <h2>El 40% de los perros tiene sobrepeso en Chile</h2>
+      <p>La obesidad es la enfermedad nutricional más común en mascotas. Puede reducir hasta 2 años de vida y aumentar el riesgo de diabetes, artritis y problemas cardíacos.</p>
+      <div class="info-card-divider"></div>
+      <div class="info-stat-row">
+        <div class="info-stat"><div class="info-stat-num">40%</div><div class="info-stat-label">con sobrepeso</div></div>
+        <div class="info-stat"><div class="info-stat-num">-2</div><div class="info-stat-label">años de vida</div></div>
+        <div class="info-stat"><div class="info-stat-num">80%</div><div class="info-stat-label">prevenible</div></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-tag">⚠️ Alimentos tóxicos para mascotas</div>
+      <h2>Nunca darle estos alimentos a tu perro o gato</h2>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;">
+        <span class="info-tag-pill">🍫 Chocolate</span>
+        <span class="info-tag-pill">🧅 Cebolla y ajo</span>
+        <span class="info-tag-pill">🍇 Uvas y pasas</span>
+        <span class="info-tag-pill">🥑 Palta</span>
+        <span class="info-tag-pill">☕ Cafeína</span>
+        <span class="info-tag-pill">🍬 Xilitol</span>
+        <span class="info-tag-pill">🦴 Huesos cocidos</span>
+        <span class="info-tag-pill">🧂 Sal en exceso</span>
+      </div>
+    </div>`,
+
+  restaurantes: `
+    <div class="info-card">
+      <div class="info-card-tag">🏥 Clínicas veterinarias</div>
+      <h2>Encuentra la clínica más cercana</h2>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
+        <div class="info-tip"><div class="info-tip-icon">📍</div><div class="info-tip-text"><strong>Activa tu ubicación</strong>Wufly ordena las clínicas por distancia para que encuentres la más cercana al instante.</div></div>
+        <div class="info-tip"><div class="info-tip-icon">🚨</div><div class="info-tip-text"><strong>Urgencias 24h</strong>Algunas clínicas tienen servicio de urgencias disponible toda la noche.</div></div>
+        <div class="info-tip"><div class="info-tip-icon">📋</div><div class="info-tip-text"><strong>Qué llevar a la consulta</strong>Carnet de vacunas, historial médico y, si es posible, una muestra de heces reciente.</div></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-tag">📊 Directorio</div>
+      <h2>Clínicas disponibles en la región</h2>
+      <div class="info-card-divider"></div>
+      <div class="info-stat-row">
+        <div class="info-stat"><div class="info-stat-num">11</div><div class="info-stat-label">Clínicas</div></div>
+        <div class="info-stat"><div class="info-stat-num">3</div><div class="info-stat-label">Con 24h</div></div>
+        <div class="info-stat"><div class="info-stat-num">3</div><div class="info-stat-label">Ciudades</div></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-tag">🚨 Señales de urgencia</div>
+      <h2>Ve a urgencias de inmediato si tu mascota…</h2>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;">
+        <span class="info-tag-pill" style="background:rgba(220,38,38,0.2);color:#fca5a5;border-color:rgba(220,38,38,0.3);">No respira bien</span>
+        <span class="info-tag-pill" style="background:rgba(220,38,38,0.2);color:#fca5a5;border-color:rgba(220,38,38,0.3);">Convulsiona</span>
+        <span class="info-tag-pill" style="background:rgba(220,38,38,0.2);color:#fca5a5;border-color:rgba(220,38,38,0.3);">No puede orinar</span>
+        <span class="info-tag-pill" style="background:rgba(220,38,38,0.2);color:#fca5a5;border-color:rgba(220,38,38,0.3);">Vómitos repetidos</span>
+        <span class="info-tag-pill" style="background:rgba(220,38,38,0.2);color:#fca5a5;border-color:rgba(220,38,38,0.3);">Sangrado</span>
+        <span class="info-tag-pill" style="background:rgba(220,38,38,0.2);color:#fca5a5;border-color:rgba(220,38,38,0.3);">Pérdida de equilibrio</span>
+      </div>
+    </div>`,
+
+  drwufly: `
+    <div class="info-card">
+      <div class="info-card-tag">🩺 Dra. Wufly IA</div>
+      <h2>Tu asistente veterinaria disponible 24/7</h2>
+      <p>Cuéntale los síntomas de tu mascota y recibirás orientación inmediata. No reemplaza una consulta presencial.</p>
+      <div class="info-card-divider"></div>
+      <div class="info-stat-row">
+        <div class="info-stat"><div class="info-stat-num">24/7</div><div class="info-stat-label">Disponible</div></div>
+        <div class="info-stat"><div class="info-stat-num">IA</div><div class="info-stat-label">Claude AI</div></div>
+        <div class="info-stat"><div class="info-stat-num">🆓</div><div class="info-stat-label">Gratis</div></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-tag">💬 Cómo usarla mejor</div>
+      <h2>Consejos para una mejor consulta</h2>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
+        <div class="info-tip"><div class="info-tip-icon">📝</div><div class="info-tip-text"><strong>Sé específico</strong>Indica especie, edad, peso y hace cuánto comenzaron los síntomas.</div></div>
+        <div class="info-tip"><div class="info-tip-icon">📸</div><div class="info-tip-text"><strong>Adjunta fotos</strong>Si hay herida o lesión visible, adjunta una foto para un mejor diagnóstico.</div></div>
+        <div class="info-tip"><div class="info-tip-icon">⚠️</div><div class="info-tip-text"><strong>En emergencias, ve al vet</strong>Si no puede respirar, convulsiona o sangra, ve directamente a una clínica.</div></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-tag">🔬 Síntomas frecuentes</div>
+      <h2>Consultas más comunes en mascotas</h2>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;">
+        <span class="info-tag-pill">🤢 Vómitos</span>
+        <span class="info-tag-pill">😴 Letargia</span>
+        <span class="info-tag-pill">🍽️ Sin apetito</span>
+        <span class="info-tag-pill">💧 Diarrea</span>
+        <span class="info-tag-pill">😮‍💨 Tos seca</span>
+        <span class="info-tag-pill">🦷 Problemas dentales</span>
+        <span class="info-tag-pill">🐾 Cojea</span>
+        <span class="info-tag-pill">🫧 Picazón</span>
+      </div>
+    </div>`,
+
+  comunidad: `
+    <div class="info-card">
+      <div class="info-card-tag">🐾 Comunidad Wufly</div>
+      <h2>Juntos por el bienestar animal</h2>
+      <p>Publica mascotas en adopción, reporta perdidos o animales en situación de calle. Cada publicación puede cambiar una vida.</p>
+      <div class="info-card-divider"></div>
+      <div class="info-stat-row">
+        <div class="info-stat"><div class="info-stat-num">🏠</div><div class="info-stat-label">Adopción</div></div>
+        <div class="info-stat"><div class="info-stat-num">🔍</div><div class="info-stat-label">Perdidos</div></div>
+        <div class="info-stat"><div class="info-stat-num">🆘</div><div class="info-stat-label">Rescate</div></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-tag">📋 Cómo publicar</div>
+      <h2>Pasos para publicar una mascota</h2>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
+        <div class="info-tip"><div class="info-tip-icon">📸</div><div class="info-tip-text"><strong>Foto clara</strong>Una buena foto aumenta las posibilidades de adopción o de encontrar al dueño.</div></div>
+        <div class="info-tip"><div class="info-tip-icon">📝</div><div class="info-tip-text"><strong>Descripción completa</strong>Incluye personalidad, señas particulares, si está vacunado o castrado.</div></div>
+        <div class="info-tip"><div class="info-tip-icon">📱</div><div class="info-tip-text"><strong>Contacto directo</strong>Agrega tu WhatsApp para que quienes quieran ayudar puedan contactarte fácilmente.</div></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-tag">🍲 Recetas caseras</div>
+      <h2>Comida natural para tu mascota</h2>
+      <p>Descubre recetas sin conservantes ni aditivos. Prepara en casa snacks y comidas balanceadas para perros y gatos.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;">
+        <span class="info-tag-pill">🐕 Perros</span>
+        <span class="info-tag-pill">🐈 Gatos</span>
+        <span class="info-tag-pill">🥩 Carnes</span>
+        <span class="info-tag-pill">🥦 Verduras</span>
+        <span class="info-tag-pill">🍚 Arroz</span>
+      </div>
+    </div>`,
+
+  servicios: `
+    <div class="info-card">
+      <div class="info-card-tag">🛍️ Servicios para mascotas</div>
+      <h2>Todo lo que tu mascota necesita</h2>
+      <p>Tiendas, peluquerías, paseadores y artistas. Encuentra los mejores servicios en la región.</p>
+      <div class="info-card-divider"></div>
+      <div class="info-stat-row">
+        <div class="info-stat"><div class="info-stat-num">10</div><div class="info-stat-label">Tiendas</div></div>
+        <div class="info-stat"><div class="info-stat-num">9</div><div class="info-stat-label">Grooming</div></div>
+        <div class="info-stat"><div class="info-stat-num">5</div><div class="info-stat-label">Artistas</div></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-tag">✂️ Grooming profesional</div>
+      <h2>¿Cuándo llevar a tu mascota a la peluquería?</h2>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
+        <div class="info-tip"><div class="info-tip-icon">🐕</div><div class="info-tip-text"><strong>Pelo largo: cada 6-8 semanas</strong>Razas como Shih Tzu, Poodle o Maltés requieren corte frecuente para evitar enredos.</div></div>
+        <div class="info-tip"><div class="info-tip-icon">🐩</div><div class="info-tip-text"><strong>Pelo corto: cada 3-4 meses</strong>Un baño y cepillado profesional mantiene el pelaje sano y sin parásitos.</div></div>
+        <div class="info-tip"><div class="info-tip-icon">🐈</div><div class="info-tip-text"><strong>Gatos: según necesidad</strong>La mayoría se autolimpia, pero los de pelo largo se benefician de un grooming ocasional.</div></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-tag">🎨 Arte de mascotas</div>
+      <h2>Inmortaliza a tu compañero</h2>
+      <p>Artistas verificados en Viña del Mar ofrecen retratos en óleo, acuarela, lápiz y arte digital.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;">
+        <span class="info-tag-pill">🖼️ Óleo</span>
+        <span class="info-tag-pill">🎨 Acuarela</span>
+        <span class="info-tag-pill">✏️ Lápiz</span>
+        <span class="info-tag-pill">💻 Digital</span>
+        <span class="info-tag-pill">📦 Envío incluido</span>
+      </div>
+    </div>`,
+
+  alergias: `
+    <div class="info-card">
+      <div class="info-card-tag">👤 Mi perfil</div>
+      <h2>Tu mascota y tú en un solo lugar</h2>
+      <p>Guarda la información de tu mascota, accede a sus recordatorios de vacunas y controles, y gestiona tu cuenta Wufly.</p>
+      <div class="info-card-divider"></div>
+      <div class="info-stat-row">
+        <div class="info-stat"><div class="info-stat-num">📅</div><div class="info-stat-label">Recordatorios</div></div>
+        <div class="info-stat"><div class="info-stat-num">🍲</div><div class="info-stat-label">Recetas</div></div>
+        <div class="info-stat"><div class="info-stat-num">🐾</div><div class="info-stat-label">Perfil</div></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-tag">💉 Vacunación anual</div>
+      <h2>Vacunas esenciales para tu mascota</h2>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
+        <div class="info-tip"><div class="info-tip-icon">🐕</div><div class="info-tip-text"><strong>Perros: polivalente + rabia</strong>Moquillo, hepatitis, parvovirus, parainfluenza y rabia. Refuerzo anual obligatorio.</div></div>
+        <div class="info-tip"><div class="info-tip-icon">🐈</div><div class="info-tip-text"><strong>Gatos: trivalente felina</strong>Panleucopenia, rinotraqueítis y calicivirus. Refuerzo anual o cada 3 años según el producto.</div></div>
+        <div class="info-tip"><div class="info-tip-icon">📅</div><div class="info-tip-text"><strong>Usa los recordatorios</strong>Wufly te avisa cuándo toca la próxima vacuna para que nunca se te olvide.</div></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-tag">🔬 Chequeo preventivo</div>
+      <h2>La salud de tu mascota en tus manos</h2>
+      <p>Un chequeo anual detecta problemas a tiempo. Para mascotas senior (7+ años), se recomienda cada 6 meses.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;">
+        <span class="info-tag-pill">🦷 Salud dental</span>
+        <span class="info-tag-pill">⚖️ Peso ideal</span>
+        <span class="info-tag-pill">🩸 Examen de sangre</span>
+        <span class="info-tag-pill">🫀 Corazón</span>
+        <span class="info-tag-pill">👁️ Ojos y oídos</span>
+      </div>
+    </div>`
+};
+
+function updateInfoColumn(tabName) {
+  if (window.innerWidth < 900) return;
+  const col = document.getElementById('infoColumn');
+  if (!col) return;
+  const content = INFO_COLUMN_CONTENT[tabName] || INFO_COLUMN_CONTENT.home;
+  col.style.opacity = '0';
+  setTimeout(() => {
+    col.innerHTML = content;
+    col.style.opacity = '1';
+  }, 180);
+}
+
 /* ══ NAVEGACIÓN ══ */
 function switchTab(name, el, fromNav = false) {
   if (typeof currentUser !== 'undefined' && !currentUser) {
@@ -38,6 +262,11 @@ function switchTab(name, el, fromNav = false) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
+  // Actualizar sidebar desktop
+  document.querySelectorAll('.dsb-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === name);
+  });
+
   document.getElementById('page-' + name).classList.add('active');
   if (name === 'restaurantes') {
     renderClinicas?.();
@@ -46,6 +275,9 @@ function switchTab(name, el, fromNav = false) {
     if (!yaHayGeo && localStorage.getItem('wufly_geo_granted')) activarBusquedaGeo?.();
   }
   if (name === 'home') renderHome?.();
+
+  // Panel derecho dinámico (solo desktop)
+  updateInfoColumn(name);
 
   // Franja de color superior: visible en todas las vistas excepto home
   const topBar = document.getElementById('topColorBar');
@@ -317,6 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // renderStore(); // TODO: tiendas mascotas
   updateAllergyBanner();
   renderProfileSummary();
+  updateInfoColumn('home');
   /* Mostrar modal de ubicación tras 1.5s si aún no se ha respondido */
   setTimeout(showGeoModal, 1500);
 });

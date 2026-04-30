@@ -45,8 +45,8 @@ const CLINICAS_DESTACADAS = [
     fotos: [],
     veterinarios: [],
     tags: ['Urgencias 24h', 'Laboratorio propio', 'Hospitalización', 'Cirugía', 'Fear Free'],
-    lat: null,
-    lng: null,
+    lat: -33.02587,
+    lng: -71.55578,
   },
   {
     id: 'artemisa',
@@ -67,8 +67,8 @@ const CLINICAS_DESTACADAS = [
     fotos: [],
     veterinarios: [],
     tags: ['Urgencias 24h', 'Animales exóticos', 'Peluquería canina', 'Farmacia'],
-    lat: null,
-    lng: null,
+    lat: -33.01618,
+    lng: -71.54760,
   },
   {
     id: 'recreo',
@@ -89,7 +89,7 @@ const CLINICAS_DESTACADAS = [
     fotos: [],
     veterinarios: [],
     tags: ['Emergencias', 'Cirugía', 'Vacunación', 'Medicina preventiva'],
-    lat: null,
-    lng: null,
+    lat: -33.02869,
+    lng: -71.57712,
   },
 ];

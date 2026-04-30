@@ -17,6 +17,7 @@ const tiendas = [
     horario: 'Lun–Sáb 10–19:30h · Dom 10–17h',
     rating: 4.5,
     wsp: '+56934471222',
+    lat: -33.01663, lng: -71.55033,
   },
   {
     id: 'mypets-vina',
@@ -30,6 +31,7 @@ const tiendas = [
     horario: 'Lun–Sáb 10–19h',
     rating: 4.4,
     wsp: '+56993496270',
+    lat: -33.02648, lng: -71.55385,
   },
   {
     id: 'mypets-valpo',
@@ -43,6 +45,7 @@ const tiendas = [
     horario: 'Lun–Sáb 10–19h',
     rating: 4.3,
     wsp: '+56974389737',
+    lat: -33.05419, lng: -71.61424,
   },
   {
     id: 'mypets-concon',
@@ -56,6 +59,7 @@ const tiendas = [
     horario: 'Lun–Sáb 10–19h',
     rating: 4.5,
     wsp: '+56987545004',
+    lat: -32.94445, lng: -71.54561,
   },
   {
     id: 'camada',
@@ -69,6 +73,7 @@ const tiendas = [
     horario: 'Lun–Sáb 10–18h',
     rating: 4.4,
     wsp: null,
+    lat: -32.94239, lng: -71.54588,
   },
   {
     id: 'puppis-online',
@@ -220,47 +225,63 @@ function renderTiendas() {
       ${cards}`;
   }
 
-  /* ── Lista estática (fallback cuando geo no encuentra nada) ── */
-  let staticHtml = '';
-  if (geoCompletado && !geoDisponible) {
-    const cards = tiendas.map(t => {
-      const isOnline  = t.tipo === 'online';
-      const tipoBg    = isOnline ? '#E6F9F3' : '#F0EAFB';
-      const tipoClr   = isOnline ? '#3DAF87' : '#7C4DCC';
-      const tipoTxt   = isOnline ? '🌐 Online' : '📍 Física';
-      const stars     = t.rating ? '★'.repeat(Math.round(t.rating)) + '☆'.repeat(5 - Math.round(t.rating)) : '';
-      const accion    = t.web
-        ? `onclick="window.open('https://${t.web}','_blank')"`
-        : t.wsp ? `onclick="window.open('https://wa.me/${t.wsp.replace(/\\D/g,'')}','_blank')"` : '';
-      return `
-        <div class="place-card" ${accion} style="${accion ? 'cursor:pointer;' : ''}">
-          <div class="place-card-inner">
-            <div class="place-icon" style="background:#F0EAFB;">${t.icon}</div>
-            <div class="place-info">
-              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;">
-                <div class="place-name">${t.nombre}</div>
-                <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;
-                  background:${tipoBg};color:${tipoClr};">${tipoTxt}</span>
-              </div>
-              ${stars ? `<div style="font-size:11px;color:var(--text-hint);margin-bottom:4px;">${stars} ${t.rating}</div>` : ''}
-              <div class="place-desc">${t.desc}</div>
-              <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">
-                ${t.categorias.slice(0,3).map(c=>`<span class="place-tag">${c}</span>`).join('')}
-              </div>
-              ${t.address ? `<div style="font-size:11px;color:var(--text-muted);margin-top:5px;">📍 ${t.address}</div>` : ''}
-              ${t.horario  ? `<div style="font-size:11px;color:var(--text-muted);">🕐 ${t.horario}</div>`  : ''}
-              ${t.web      ? `<div style="font-size:11px;color:#059669;margin-top:2px;">🌐 ${t.web}</div>` : ''}
+  /* ── Lista estática (siempre visible, ordenada por distancia si hay ubicación) ── */
+  const loc = typeof userLocation !== 'undefined' ? userLocation : null;
+  const tiendasConDist = tiendas.map(t => {
+    const distKm = (loc && t.lat && t.lng)
+      ? haversine(loc.lat, loc.lng, t.lat, t.lng)
+      : null;
+    return { ...t, distKm };
+  });
+  if (loc) tiendasConDist.sort((a, b) => {
+    // físicas primero (con distancia), luego online
+    if (a.tipo === 'fisica' && b.tipo === 'online') return -1;
+    if (a.tipo === 'online' && b.tipo === 'fisica') return 1;
+    return (a.distKm ?? 9999) - (b.distKm ?? 9999);
+  });
+
+  const cards = tiendasConDist.map(t => {
+    const isOnline  = t.tipo === 'online';
+    const tipoBg    = isOnline ? '#E6F9F3' : '#F0EAFB';
+    const tipoClr   = isOnline ? '#3DAF87' : '#7C4DCC';
+    const tipoTxt   = isOnline ? '🌐 Online' : '📍 Física';
+    const stars     = t.rating ? '★'.repeat(Math.round(t.rating)) + '☆'.repeat(5 - Math.round(t.rating)) : '';
+    const distBadge = t.distKm != null && t.distKm < 100
+      ? `<span style="background:var(--purple-light);color:var(--purple);font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;margin-bottom:5px;display:inline-block;">📍 ${fmtDist(t.distKm)}</span><br>`
+      : '';
+    const accion    = t.web
+      ? `onclick="window.open('https://${t.web}','_blank')"`
+      : t.wsp ? `onclick="window.open('https://wa.me/${t.wsp.replace(/\\D/g,'')}','_blank')"` : '';
+    return `
+      <div class="place-card" ${accion} style="${accion ? 'cursor:pointer;' : ''}">
+        <div class="place-card-inner">
+          <div class="place-icon" style="background:#F0EAFB;">${t.icon}</div>
+          <div class="place-info">
+            ${distBadge}
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;">
+              <div class="place-name">${t.nombre}</div>
+              <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;
+                background:${tipoBg};color:${tipoClr};">${tipoTxt}</span>
             </div>
+            ${stars ? `<div style="font-size:11px;color:var(--text-hint);margin-bottom:4px;">${stars} ${t.rating}</div>` : ''}
+            <div class="place-desc">${t.desc}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">
+              ${t.categorias.slice(0,3).map(c=>`<span class="place-tag">${c}</span>`).join('')}
+            </div>
+            ${t.address ? `<div style="font-size:11px;color:var(--text-muted);margin-top:5px;">📍 ${t.address}</div>` : ''}
+            ${t.horario  ? `<div style="font-size:11px;color:var(--text-muted);">🕐 ${t.horario}</div>`  : ''}
+            ${t.web      ? `<div style="font-size:11px;color:#059669;margin-top:2px;">🌐 ${t.web}</div>` : ''}
           </div>
-        </div>`;
-    }).join('');
-    staticHtml = `
-      <div style="font-size:11px;font-weight:700;color:var(--text-muted);
-        letter-spacing:0.07em;padding:16px 0 10px;">
-        🛒 TIENDAS VERIFICADAS POR WUFLY
-      </div>
-      ${cards}`;
-  }
+        </div>
+      </div>`;
+  }).join('');
+
+  const staticHtml = `
+    <div style="font-size:11px;font-weight:700;color:var(--text-muted);
+      letter-spacing:0.07em;padding:16px 0 10px;">
+      🛒 DIRECTORIO VERIFICADO${loc ? ' · ordenado por distancia' : ''}
+    </div>
+    ${cards}`;
 
   list.innerHTML =
     `<div style="font-size:11px;font-weight:700;color:var(--purple);

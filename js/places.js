@@ -19,7 +19,8 @@ const clinicas = [
     address: '2 Norte 1102, Viña del Mar',
     tel: '+56 32 268 62...',
     web: '',
-    horario: 'Lun–Vie 9–20h · Sáb 10–14h'
+    horario: 'Lun–Vie 9–20h · Sáb 10–14h',
+    lat: -33.02221, lng: -71.54671,
   },
   {
     id: 'quirurgico',
@@ -35,7 +36,8 @@ const clinicas = [
     address: '3 Norte 1230, Viña del Mar',
     tel: '+56 9 3082 9186',
     web: '',
-    horario: 'Lun–Vie 9–20h · Sáb 10–14h'
+    horario: 'Lun–Vie 9–20h · Sáb 10–14h',
+    lat: -33.02157, lng: -71.54431,
   },
   {
     id: 'vetclin',
@@ -51,7 +53,8 @@ const clinicas = [
     address: 'Calle Pastor Willis Hoover 512, Viña del Mar',
     tel: '+56 32 221 142...',
     web: '',
-    horario: 'Lun–Vie 9–20h · Sáb 10–14h'
+    horario: 'Lun–Vie 9–20h · Sáb 10–14h',
+    lat: -33.02445, lng: -71.55176,
   },
   {
     id: 'benidorm',
@@ -67,7 +70,8 @@ const clinicas = [
     address: 'Av. Benidorm 1314, Viña del Mar',
     tel: '',
     web: '',
-    horario: 'Lun–Vie 9–21h · Sáb–Dom 10–14h'
+    horario: 'Lun–Vie 9–21h · Sáb–Dom 10–14h',
+    lat: -33.00894, lng: -71.54295,
   },
   {
     id: 'valparaiso1',
@@ -83,7 +87,8 @@ const clinicas = [
     address: 'Doce de Febrero 73, Valparaíso',
     tel: '',
     web: '',
-    horario: 'Lun–Vie 9–19h · Sáb 10–14h'
+    horario: 'Lun–Vie 9–19h · Sáb 10–14h',
+    lat: -33.04626, lng: -71.60530,
   },
   {
     id: 'valparaiso2',
@@ -99,7 +104,8 @@ const clinicas = [
     address: 'Almirante Barroso 557, local 1, Valparaíso',
     tel: '',
     web: '',
-    horario: 'Lun–Dom 9–22h'
+    horario: 'Lun–Dom 9–22h',
+    lat: -33.05039, lng: -71.60658,
   },
   {
     id: 'concon1',
@@ -115,7 +121,8 @@ const clinicas = [
     address: 'Av. Concón Reñaca 4000, Local 8B, Concón',
     tel: '',
     web: '',
-    horario: 'Lun–Vie 9–20h · Sáb 10–15h'
+    horario: 'Lun–Vie 9–20h · Sáb 10–15h',
+    lat: -32.93789, lng: -71.54563,
   },
   {
     id: 'concon2',
@@ -131,7 +138,8 @@ const clinicas = [
     address: 'Av. Manantiales 955, Concón',
     tel: '',
     web: '',
-    horario: 'Lun–Vie 9–19h · Sáb 10–14h'
+    horario: 'Lun–Vie 9–19h · Sáb 10–14h',
+    lat: -32.93092, lng: -71.52037,
   },
 ];
 
@@ -237,15 +245,33 @@ function renderClinicas() {
        ${(CLINICAS_DESTACADAS || []).map(_renderClinicaDestacada).join('')}`
     : '';
 
-  /* ── Resultados geo (si están disponibles) ── */
+  /* ── Directorio verificado con distancia ── */
+  const loc = typeof userLocation !== 'undefined' ? userLocation : null;
+  const clinicasConDist = clinicas.map(c => {
+    const distKm = (loc && c.lat && c.lng)
+      ? haversine(loc.lat, loc.lng, c.lat, c.lng)
+      : null;
+    return { ...c, distKm };
+  });
+  if (loc) clinicasConDist.sort((a, b) => (a.distKm ?? 9999) - (b.distKm ?? 9999));
+  const clinicasFiltradas = clinicasConDist.filter(c => matchCity(c) && matchSearch(c));
+  const staticHtml = clinicasFiltradas.length > 0
+    ? `<div style="font-size:11px;font-weight:700;color:var(--text-muted);
+         letter-spacing:0.07em;padding:16px 0 10px;">
+         🏥 DIRECTORIO VERIFICADO${loc ? ' · ordenado por distancia' : ''}
+       </div>
+       ${clinicasFiltradas.map(_renderClinicaCard).join('')}`
+    : '';
+
+  /* ── Resultados geo extra (OpenStreetMap) ── */
   const geoMixHtml = geoDisponible
     ? `<div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;padding:16px 0 10px;">
-         📍 ${geoResults.clinicas.length} CLÍNICAS CERCANAS
+         📍 MÁS CLÍNICAS ENCONTRADAS CERCA
        </div>
        ${geoResults.clinicas.map(_renderClinicaGeo).join('')}`
     : '';
 
-  list.innerHTML = heroBanner + loadingHtml + destHtml + geoMixHtml + geoBtnHtml;
+  list.innerHTML = heroBanner + loadingHtml + destHtml + staticHtml + geoMixHtml + geoBtnHtml;
 }
 
 /* ── Card clínica destacada ── */
@@ -284,7 +310,10 @@ function _renderClinicaDestacada(c) {
 /* ── Card clínica del directorio estático ── */
 function _renderClinicaCard(c) {
   const urgBadge = c.urgencia
-    ? `<span style="display:inline-block;background:rgba(220,38,38,0.1);color:#DC2626;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;margin-bottom:6px;">🚨 Urgencias 24h</span><br>`
+    ? `<span style="display:inline-block;background:rgba(220,38,38,0.1);color:#DC2626;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;margin-bottom:5px;">🚨 Urgencias 24h</span><br>`
+    : '';
+  const distBadge = c.distKm != null && c.distKm < 100
+    ? `<span style="background:var(--purple-light);color:var(--purple);font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;margin-bottom:5px;display:inline-block;">📍 ${fmtDist(c.distKm)}</span><br>`
     : '';
   const mapLink = c.lat && c.lng
     ? `<a href="https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lng}"
@@ -297,7 +326,7 @@ function _renderClinicaCard(c) {
       <div class="place-card-inner">
         <div class="place-icon" style="background:var(--purple-light);">${c.icon || '🏥'}</div>
         <div class="place-info">
-          ${urgBadge}
+          ${urgBadge}${distBadge}
           <div class="place-name">${c.name}</div>
           <div class="place-type">${c.type}</div>
           <div class="place-desc">${c.desc}</div>
