@@ -139,7 +139,8 @@ async function publicarAdopcion() {
 
   const nombre = document.getElementById('adoptNombre').value.trim();
   const wsp    = document.getElementById('adoptWsp').value.trim();
-  const link   = document.getElementById('adoptLink').value.trim();
+  const rawLink = document.getElementById('adoptLink').value.trim();
+  const link = rawLink && !rawLink.startsWith('http') ? `https://${rawLink}` : rawLink;
 
   if (!nombre || nombre.length < 2) { alert('Por favor ingresa el nombre de la mascota (mínimo 2 caracteres).'); return; }
   if (!wsp && !link) { alert('Ingresa al menos un contacto: número de WhatsApp o un link.'); return; }
