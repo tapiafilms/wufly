@@ -144,7 +144,7 @@ async function publicarAdopcion() {
 
   if (!nombre || nombre.length < 2) { alert('Por favor ingresa el nombre de la mascota (mínimo 2 caracteres).'); return; }
   if (!wsp && !link) { alert('Ingresa al menos un contacto: número de WhatsApp o un link.'); return; }
-  if (wsp && !/^\+?\d{7,15}$/.test(wsp.replace(/[\s\-()]/g, ''))) {
+  if (wsp && wsp.replace(/\D/g, '').length < 7) {
     alert('El número de WhatsApp no es válido, ej: +56912345678'); return;
   }
 
@@ -180,6 +180,8 @@ async function publicarAdopcion() {
     if (stored?.access_token) token = stored.access_token;
   } catch {}
 
+  console.log('[adoptar] payload:', JSON.stringify(payload));
+
   let error;
   try {
     const res = await Promise.race([
@@ -197,13 +199,16 @@ async function publicarAdopcion() {
     ]);
     if (!res.ok) {
       const txt = await res.text();
-      error = new Error(`HTTP ${res.status}: ${txt}`);
+      let msg = `HTTP ${res.status}`;
+      try { const j = JSON.parse(txt); msg += ': ' + (j.message || j.hint || j.details || txt); }
+      catch { msg += ': ' + txt; }
+      error = new Error(msg);
     }
   } catch (e) { error = e; }
 
   if (btn) { btn.disabled = false; btn.textContent = 'Publicar'; }
 
-  if (error) { console.error('[adoptar]', error); alert('Error: ' + error.message); return; }
+  if (error) { console.error('[adoptar] error completo:', error); alert('Error al publicar: ' + error.message); return; }
 
   ocultarFormAdopcion();
   document.getElementById('adoptNombre').value = '';
