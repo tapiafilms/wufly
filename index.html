@@ -33,6 +33,40 @@
 
 <!-- DESKTOP LAYOUT WRAPPER -->
 <div class="desktop-layout">
+
+<!-- SIDEBAR DE NAVEGACIÓN (solo desktop) -->
+<nav class="desktop-sidebar" id="desktopSidebar">
+  <button onclick="window.location.reload()" class="dsb-logo" title="Actualizar Wufly">
+    <img src="img/icono.png" alt="Wufly">
+  </button>
+  <div class="dsb-nav">
+    <button class="dsb-btn active" data-tab="home" onclick="switchTab('home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="dsb-btn" data-tab="restaurantes" onclick="switchTab('restaurantes')">
+      <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
+      <span>Vets</span>
+    </button>
+    <button class="dsb-btn" data-tab="drwufly" onclick="switchTab('drwufly')">
+      <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      <span>Dra. Wufly</span>
+    </button>
+    <button class="dsb-btn" data-tab="comunidad" onclick="switchTab('comunidad')">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      <span>Comunidad</span>
+    </button>
+    <button class="dsb-btn" data-tab="servicios" onclick="switchTab('servicios')">
+      <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+      <span>Servicios</span>
+    </button>
+  </div>
+  <button class="dsb-btn" data-tab="alergias" onclick="switchTab('alergias')">
+    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>Perfil</span>
+  </button>
+</nav>
+
 <div class="app-column">
 
   <!-- Franja de color superior (visible en todas las vistas excepto home) -->
@@ -696,78 +730,8 @@
 
 </div><!-- /app-column -->
 
-<!-- COLUMNA INFORMATIVA (solo visible en desktop) -->
-<div class="info-column">
-
-  <!-- Card 1: Sabías que -->
-  <div class="info-card">
-    <div class="info-card-tag">💡 ¿Sabías que?</div>
-    <h2>El 40% de los perros tiene sobrepeso en Chile</h2>
-    <p>La obesidad es la enfermedad nutricional más común en mascotas. Puede reducir hasta 2 años de vida y aumentar el riesgo de diabetes, artritis y problemas cardíacos.</p>
-    <div class="info-card-divider"></div>
-    <div class="info-stat-row">
-      <div class="info-stat">
-        <div class="info-stat-num">40%</div>
-        <div class="info-stat-label">con sobrepeso</div>
-      </div>
-      <div class="info-stat">
-        <div class="info-stat-num">-2</div>
-        <div class="info-stat-label">años de vida</div>
-      </div>
-      <div class="info-stat">
-        <div class="info-stat-num">80%</div>
-        <div class="info-stat-label">prevenible</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Card 2: Tips -->
-  <div class="info-card">
-    <div class="info-card-tag">🐾 Tips de cuidado animal</div>
-    <h2>Hábitos que alargan la vida de tu mascota</h2>
-    <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
-      <div class="info-tip">
-        <div class="info-tip-icon">🦷</div>
-        <div class="info-tip-text">
-          <strong>Cuida su dentadura</strong>
-          El 80% de los perros mayores de 3 años tiene enfermedad periodontal. Cepilla sus dientes 3 veces por semana.
-        </div>
-      </div>
-      <div class="info-tip">
-        <div class="info-tip-icon">💉</div>
-        <div class="info-tip-text">
-          <strong>Vacunas al día</strong>
-          Las vacunas anuales previenen enfermedades graves como moquillo, parvovirus y leptospirosis.
-        </div>
-      </div>
-      <div class="info-tip">
-        <div class="info-tip-icon">🔬</div>
-        <div class="info-tip-text">
-          <strong>Chequeo anual</strong>
-          Un examen veterinario al año detecta enfermedades a tiempo. Para seniors, cada 6 meses.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Card 3: Alimentos peligrosos -->
-  <div class="info-card">
-    <div class="info-card-tag">⚠️ Alimentos tóxicos para mascotas</div>
-    <h2>Nunca darle estos alimentos a tu perro o gato</h2>
-    <p>Algunos alimentos humanos son muy peligrosos para las mascotas:</p>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;">
-      <span style="background:rgba(93,214,168,0.2);color:#3DAF87;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid rgba(93,214,168,0.3);">🍫 Chocolate</span>
-      <span style="background:rgba(93,214,168,0.2);color:#3DAF87;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid rgba(93,214,168,0.3);">🧅 Cebolla y ajo</span>
-      <span style="background:rgba(93,214,168,0.2);color:#3DAF87;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid rgba(93,214,168,0.3);">🍇 Uvas y pasas</span>
-      <span style="background:rgba(93,214,168,0.2);color:#3DAF87;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid rgba(93,214,168,0.3);">🥑 Palta</span>
-      <span style="background:rgba(93,214,168,0.2);color:#3DAF87;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid rgba(93,214,168,0.3);">☕ Cafeína</span>
-      <span style="background:rgba(93,214,168,0.2);color:#3DAF87;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid rgba(93,214,168,0.3);">🍬 Xilitol</span>
-      <span style="background:rgba(93,214,168,0.2);color:#3DAF87;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid rgba(93,214,168,0.3);">🦴 Huesos cocidos</span>
-      <span style="background:rgba(93,214,168,0.2);color:#3DAF87;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid rgba(93,214,168,0.3);">🧂 Sal en exceso</span>
-    </div>
-  </div>
-
-</div><!-- /info-column -->
+<!-- COLUMNA INFORMATIVA (solo visible en desktop, contenido dinámico via JS) -->
+<div class="info-column" id="infoColumn"></div><!-- /info-column -->
 </div><!-- /desktop-layout -->
 
 <!-- BANNER DE ACTUALIZACIÓN SW -->
@@ -823,30 +787,30 @@
   </div>
 </div>
 
-<!-- JS -->
-<script src="js/supabase.min.js"></script>
-<script src="js/clinicas-destacadas.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/analytics.js"></script>
-<script src="js/vitrina.js"></script>
-<script src="js/geo.js"></script>
-<script src="js/places.js"></script>
-<script src="js/onboarding.js"></script>
-<script src="js/app.js"></script>
-<script src="js/perdidos.js"></script>
-<script src="js/notificaciones.js"></script>
-<script src="js/adoptar.js"></script>
-<script src="js/tiendas-destacadas.js"></script>
-<script src="js/tiendas.js"></script>
-<script src="js/grooming.js"></script>
-<script src="js/paseadores.js"></script>
-<script src="js/arte.js"></script>
-<script src="js/recetas.js"></script>
-<script src="js/recordatorios.js"></script>
-<script src="js/perfil.js"></script>
-<script src="js/chat.js"></script>
-<script src="js/home.js"></script>
-<script src="js/companion.js"></script>
+<!-- JS — defer: descarga en paralelo, ejecuta en orden tras el parsing -->
+<script defer src="js/supabase.min.js"></script>
+<script defer src="js/clinicas-destacadas.js"></script>
+<script defer src="js/auth.js"></script>
+<script defer src="js/analytics.js"></script>
+<script defer src="js/vitrina.js"></script>
+<script defer src="js/geo.js"></script>
+<script defer src="js/places.js"></script>
+<script defer src="js/onboarding.js"></script>
+<script defer src="js/app.js"></script>
+<script defer src="js/perdidos.js"></script>
+<script defer src="js/notificaciones.js"></script>
+<script defer src="js/adoptar.js"></script>
+<script defer src="js/tiendas-destacadas.js"></script>
+<script defer src="js/tiendas.js"></script>
+<script defer src="js/grooming.js"></script>
+<script defer src="js/paseadores.js"></script>
+<script defer src="js/arte.js"></script>
+<script defer src="js/recetas.js"></script>
+<script defer src="js/recordatorios.js"></script>
+<script defer src="js/perfil.js"></script>
+<script defer src="js/chat.js"></script>
+<script defer src="js/home.js"></script>
+<script defer src="js/companion.js"></script>
 
 <!-- PWA: Service Worker registration -->
 <script>
