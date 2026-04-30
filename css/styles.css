@@ -104,6 +104,7 @@ body.app-ready { opacity:1; }
 .app-column { display: contents; }
 /*.app-pages { display: contents; }*/
 .info-column { display: none; }
+.desktop-sidebar { display: none; }
 
 
 .topbar {
@@ -872,15 +873,16 @@ body.app-ready { opacity:1; }
   /* El topbar global se oculta — se usa el que está dentro de app-column */
   .topbar { display: none; }
 
-  /* Layout principal: dos columnas a 100vh */
+  /* Layout principal: sidebar + app + panel */
   .desktop-layout {
     display: flex;
     flex-direction: row;
     width: 100%;
     height: 100vh;
+    padding-left: 40px;
   }
 
-  /* ── COLUMNA IZQUIERDA: app completa con su propio topbar ── */
+  /* ── COLUMNA CENTRAL: app completa ── */
   .app-column {
     width: 460px;
     min-width: 460px;
@@ -888,31 +890,19 @@ body.app-ready { opacity:1; }
     display: flex;
     flex-direction: column;
     background: var(--bg);
-    /* 3. Sombra que separa ambas secciones */
-    box-shadow: 6px 0 40px rgba(0,0,0,1);
+    box-shadow: 4px 0 32px rgba(0,0,0,0.28);
     position: relative;
     z-index: 10;
     overflow: hidden;
-    /* 4. Pequeño margen izquierdo */
-    margin-left: 140px;
-    border-radius: 0 0 0 0;
-    border-left: 1px solid #888c67;
-    border-right: 1px solid #888c67;
-  }
-
-  /* Topbar propio dentro de la columna izquierda — siempre visible */
-  .app-column .app-topbar {
-    display: block !important;
-    flex-shrink: 0;
-  }
-
-  /* El topbar dentro del app-column debe funcionar normal (no sticky) */
-  .app-column .app-topbar .topbar {
-    display: block !important;
-    position: relative;
-    max-width: 100%;
+    margin-left: 20px;
     border-radius: 0;
+    border-left: 1px solid rgba(255,255,255,0.15);
+    border-right: 1px solid rgba(255,255,255,0.08);
   }
+
+  /* Topbar oculto en desktop — logo y nav están en el sidebar */
+  .app-column .app-topbar { display: none !important; }
+  #topColorBar { display: none !important; }
 
   /* 2. Área scrollable de las páginas — overflow-y: auto para habilitar scroll */
   .app-column .app-pages {
@@ -929,18 +919,20 @@ body.app-ready { opacity:1; }
 
   .app-column .page { padding: 0px; }
 
-  /* ── COLUMNA DERECHA: info sin scroll ── */
+  /* ── COLUMNA DERECHA: panel dinámico ── */
   .info-column {
     flex: 1;
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding-right: 170px;
+    padding-left: 24px;
+    padding-right: 120px;
     padding-top: 40px;
     padding-bottom: 40px;
     gap: 0;
     overflow: hidden;
+    transition: opacity 0.2s ease;
   }
 
   /* Cards que se distribuyen en el espacio disponible */
@@ -1043,11 +1035,99 @@ body.app-ready { opacity:1; }
     color: rgba(255,255,255,0.55);
     margin-top: 3px;
   }
+
+  /* ── Tag pills en info-column ── */
+  .info-tag-pill {
+    background: rgba(93,214,168,0.2);
+    color: var(--mint);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 100px;
+    border: 1px solid rgba(93,214,168,0.3);
+  }
+
+  /* ── SIDEBAR DE NAVEGACIÓN ── */
+  .desktop-sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80px;
+    flex-shrink: 0;
+    height: 100vh;
+    padding: 24px 8px 28px;
+  }
+
+  .dsb-logo {
+    background: rgba(255,255,255,0.12);
+    border: 1.5px solid rgba(255,255,255,0.2);
+    border-radius: 16px;
+    cursor: pointer;
+    padding: 10px;
+    margin-bottom: 28px;
+    transition: background 0.2s, transform 0.15s;
+    flex-shrink: 0;
+  }
+  .dsb-logo:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+  .dsb-logo img { width: 40px; height: 40px; border-radius: 10px; display: block; }
+
+  .dsb-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    width: 100%;
+  }
+
+  .dsb-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 6px;
+    border: none;
+    background: transparent;
+    border-radius: 14px;
+    cursor: pointer;
+    color: rgba(255,255,255,0.45);
+    transition: all 0.2s;
+    width: 100%;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .dsb-btn svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .dsb-btn span {
+    font-size: 9px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.25;
+    letter-spacing: 0.02em;
+  }
+  .dsb-btn:hover {
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.85);
+  }
+  .dsb-btn.active {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+  }
 }
 
 @media (min-width: 900px) and (max-width: 1100px) {
+  .desktop-layout { padding-left: 16px; }
+  .desktop-sidebar { width: 64px; }
+  .dsb-logo { margin-bottom: 20px; }
+  .dsb-logo img { width: 34px; height: 34px; }
   .app-column { width: 400px; min-width: 400px; }
-  .info-column { padding: 28px 32px; }
+  .info-column { padding: 24px 28px 24px 16px; }
   .info-card h2 { font-size: 18px; }
   .info-card { padding: 18px 22px; }
 }
