@@ -218,7 +218,7 @@ async function publicarAdopcion() {
   const prev = document.getElementById('adoptPreviewImg');
   if (prev) { prev.style.display = 'none'; prev.src = ''; }
   adoptFile = null;
-  renderAdopFeed();
+  setTimeout(() => renderAdopFeed(), 800);
 }
 
 function renderAdoptar() { renderAdopFeed(); }
