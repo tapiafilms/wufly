@@ -166,8 +166,8 @@ async function publicarAdopcion() {
     edad:        document.getElementById('adoptEdad').value,
     tamano:      document.getElementById('adoptTamano').value,
     descripcion: document.getElementById('adoptDesc').value.trim() || 'Mascota en busca de un hogar lleno de amor.',
-    wsp:         wsp || null,
-    link:        link || null,
+    wsp:         wsp || '',
+    link:        link || '',
     ciudad:      document.getElementById('adoptCiudad').value,
     foto_url,
   };
