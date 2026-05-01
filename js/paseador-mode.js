@@ -136,7 +136,7 @@ async function enviarSolicitudPaseador() {
   try {
     // Guardar solicitud en Supabase
     if (typeof db !== 'undefined') {
-      const { error } = await db.from('solicitudes_paseador').upsert({
+      const { error } = await db.from('solicitudes_paseador').insert({
         user_id:     currentUser.id,
         email:       currentUser.email,
         nombre,
