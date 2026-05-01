@@ -411,4 +411,5 @@ function editarNombreMascota() {
 document.addEventListener('DOMContentLoaded', () => {
   const p = cargarPerfilLocal();
   renderPerfilUI(p);
+  if (typeof renderSeccionPaseador === 'function') renderSeccionPaseador();
 });
