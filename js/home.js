@@ -192,25 +192,25 @@ function renderHome() {
 /* ── Videos Wufly — reemplaza youtubeId y preview cuando tengas el canal ── */
 const VIDEOS_WUFLY = [
   {
-    titulo: 'Cómo cuidar a tu perro por primera vez',
+    titulo: 'Cómo gatificar tu casa',
     categoria: 'Consejos',
-    duracion: '4:32',
+    duracion: '30:32',
     canal: 'Mascotas y Familias Felices',
     youtubeId: 'jNQXAC9IVRw', // reemplazar con ID real de YouTube
     preview: '/img/video1.mp4',
   },
   {
-    titulo: '¿Cómo saber si tu gato está enfermo?',
-    categoria: 'Salud',
-    duracion: '3:18',
+    titulo: 'Todas las razas de perros',
+    categoria: 'Educación',
+    duracion: '51:30',
     canal: 'Experto Animal',
     youtubeId: 'jNQXAC9IVRw', // reemplazar con ID real de YouTube
     preview: '/img/video2.mp4',
   },
   {
-    titulo: 'Recetas caseras para perros — fácil y nutritivo',
-    categoria: 'Nutrición',
-    duracion: '5:10',
+    titulo: 'Acción Animal E1T1',
+    categoria: 'Veterinaria',
+    duracion: '49:00',
     canal: 'TVN',
     youtubeId: 'jNQXAC9IVRw', // reemplazar con ID real de YouTube
     preview: '/img/video3.mp4',
