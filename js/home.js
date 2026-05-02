@@ -192,24 +192,27 @@ function renderHome() {
 /* ── Videos Wufly — reemplaza youtubeId y preview cuando tengas el canal ── */
 const VIDEOS_WUFLY = [
   {
-    titulo: 'Cómo gatificar tu casa',
+    titulo: 'Cómo cuidar a tu perro por primera vez',
     categoria: 'Consejos',
-    duracion: '30:32',
-    youtubeId: 'zBGdDpx84Es', // reemplazar con ID real de YouTube
+    duracion: '4:32',
+    canal: 'Mascotas y Familias Felices',
+    youtubeId: 'jNQXAC9IVRw', // reemplazar con ID real de YouTube
     preview: '/img/video1.mp4',
   },
   {
-    titulo: 'Todas las razas de perros',
+    titulo: '¿Cómo saber si tu gato está enfermo?',
     categoria: 'Salud',
-    duracion: '51:18',
-    youtubeId: 'uqY9f8SOnQw', // reemplazar con ID real de YouTube
+    duracion: '3:18',
+    canal: 'Experto Animal',
+    youtubeId: 'jNQXAC9IVRw', // reemplazar con ID real de YouTube
     preview: '/img/video2.mp4',
   },
   {
-    titulo: 'Acción Animal, E1T1',
-    categoria: 'Veterinaria',
-    duracion: '48:45',
-    youtubeId: '-b_PcM8Zi-s', // reemplazar con ID real de YouTube
+    titulo: 'Recetas caseras para perros — fácil y nutritivo',
+    categoria: 'Nutrición',
+    duracion: '5:10',
+    canal: 'TVN',
+    youtubeId: 'jNQXAC9IVRw', // reemplazar con ID real de YouTube
     preview: '/img/video3.mp4',
   },
 ];
@@ -242,7 +245,7 @@ function _carouselVideos() {
       <!-- Info pie -->
       <div style="position:absolute;bottom:12px;left:12px;right:12px;">
         <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:15px;color:white;line-height:1.3;text-shadow:0 1px 6px rgba(0,0,0,0.4);margin-bottom:4px;">${v.titulo}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.75);">▶ ${v.duracion} · Canal Wufly</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.75);">▶ ${v.duracion} · ${v.canal}</div>
       </div>
     </div>`;
   }).join('');
