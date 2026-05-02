@@ -145,7 +145,7 @@ async function enviarSolicitudPaseador() {
         tarifa:      tarifa || null,
         estado:      'pendiente',
         created_at:  new Date().toISOString(),
-      });
+      }).select();
       if (error) throw error;
     }
 
