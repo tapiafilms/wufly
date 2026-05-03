@@ -1173,3 +1173,9 @@ body.app-ready { opacity:1; }
   transform: scale(0.97);
   filter: brightness(0.88);
 }
+
+/* ── Spinner dots hero video ── */
+@keyframes wufly-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+  40%           { transform: translateY(-7px); opacity: 1; }
+}
