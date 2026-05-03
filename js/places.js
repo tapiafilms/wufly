@@ -1,163 +1,7 @@
 /* ══════════════════════════════════════
    CLÍNICAS VETERINARIAS — WUFLY
-   Verificadas en fuentes públicas (2025)
-   Viña del Mar · Valparaíso · Concón
+   3 clínicas destacadas fijas + resultados geo cercanos
    ══════════════════════════════════════ */
-
-const clinicas = [
-  {
-    id: 'meneses',
-    name: 'Clínica Veterinaria Drs. Meneses',
-    type: 'CLÍNICA · CIRUGÍA · MEDICINA GENERAL',
-    icon: '⚕️',
-    city: 'viña',
-    urgencia: false,
-    rating: 4.5,
-    reviews: 189,
-    desc: 'Clínica de trayectoria en Viña del Mar. Consultas, cirugías especializadas, vacunaciones y cuidados preventivos. Personal reconocido por su trato cálido.',
-    tags: ['Cirugía', 'Vacunación', 'Medicina preventiva', 'Consultas'],
-    address: '2 Norte 1102, Viña del Mar',
-    tel: '+56 32 268 62...',
-    web: '',
-    horario: 'Lun–Vie 9–20h · Sáb 10–14h',
-    lat: -33.02221, lng: -71.54671,
-  },
-  {
-    id: 'quirurgico',
-    name: 'Centro Quirúrgico Veterinario',
-    type: 'CIRUGÍA · CONSULTAS · MEDICINA PREVENTIVA',
-    icon: '🔬',
-    city: 'viña',
-    urgencia: false,
-    rating: 4.6,
-    reviews: 229,
-    desc: 'Centro especializado en cirugías veterinarias complejas. Consultas generales, vacunaciones y cuidados preventivos. Equipo altamente calificado.',
-    tags: ['Cirugía especializada', 'Vacunación', 'Radiografías', 'Ecografías'],
-    address: '3 Norte 1230, Viña del Mar',
-    tel: '+56 9 3082 9186',
-    web: '',
-    horario: 'Lun–Vie 9–20h · Sáb 10–14h',
-    lat: -33.02157, lng: -71.54431,
-  },
-  {
-    id: 'vetclin',
-    name: 'Vetclin Centro Veterinario',
-    type: 'CLÍNICA · LABORATORIO · FISIOTERAPIA',
-    icon: '🏨',
-    city: 'viña',
-    urgencia: false,
-    rating: 4.4,
-    reviews: 156,
-    desc: 'Centro veterinario integral con laboratorio clínico, radiografías, fisioterapia y rehabilitación.',
-    tags: ['Laboratorio', 'Fisioterapia', 'Ecografías', 'Vacunación'],
-    address: 'Calle Pastor Willis Hoover 512, Viña del Mar',
-    tel: '+56 32 221 142...',
-    web: '',
-    horario: 'Lun–Vie 9–20h · Sáb 10–14h',
-    lat: -33.02445, lng: -71.55176,
-  },
-  {
-    id: 'benidorm',
-    name: 'Clínica Veterinaria Benidorm',
-    type: 'CLÍNICA · EMERGENCIAS · MEDICINA GENERAL',
-    icon: '🐕',
-    city: 'viña',
-    urgencia: true,
-    rating: 4.3,
-    reviews: 142,
-    desc: 'Clínica completa con emergencias, medicina preventiva, cirugías y radiografías. Atención a domicilio disponible.',
-    tags: ['Emergencias', 'Cirugía', 'Radiografías', 'Domicilio'],
-    address: 'Av. Benidorm 1314, Viña del Mar',
-    tel: '',
-    web: '',
-    horario: 'Lun–Vie 9–21h · Sáb–Dom 10–14h',
-    lat: -33.00894, lng: -71.54295,
-  },
-  {
-    id: 'valparaiso1',
-    name: 'Clínica Veterinaria Valparaíso Centro',
-    type: 'CLÍNICA · MEDICINA GENERAL · CIRUGÍA',
-    icon: '🏥',
-    city: 'valpo',
-    urgencia: false,
-    rating: 4.4,
-    reviews: 203,
-    desc: 'Clínica veterinaria en el corazón de Valparaíso. Consultas, vacunaciones, cirugías y control de peso.',
-    tags: ['Cirugía', 'Vacunación', 'Control de peso', 'Consultas'],
-    address: 'Doce de Febrero 73, Valparaíso',
-    tel: '',
-    web: '',
-    horario: 'Lun–Vie 9–19h · Sáb 10–14h',
-    lat: -33.04626, lng: -71.60530,
-  },
-  {
-    id: 'valparaiso2',
-    name: 'Centro Veterinario Almirante Barroso',
-    type: 'CLÍNICA · URGENCIAS · FARMACIA',
-    icon: '⚕️',
-    city: 'valpo',
-    urgencia: true,
-    rating: 4.2,
-    reviews: 118,
-    desc: 'Centro veterinario con urgencias, farmacia y laboratorio en Valparaíso. Especialistas en medicina interna.',
-    tags: ['Urgencias', 'Farmacia', 'Laboratorio', 'Medicina interna'],
-    address: 'Almirante Barroso 557, local 1, Valparaíso',
-    tel: '',
-    web: '',
-    horario: 'Lun–Dom 9–22h',
-    lat: -33.05039, lng: -71.60658,
-  },
-  {
-    id: 'concon1',
-    name: 'Veterinaria Concón Reñaca',
-    type: 'CLÍNICA · MEDICINA GENERAL · PET SHOP',
-    icon: '🐕',
-    city: 'concon',
-    urgencia: false,
-    rating: 4.5,
-    reviews: 134,
-    desc: 'Clínica veterinaria en Concón con pet shop integrado. Vacunas, desparasitación y alimentos premium.',
-    tags: ['Vacunación', 'Pet Shop', 'Alimentos premium', 'Desparasitación'],
-    address: 'Av. Concón Reñaca 4000, Local 8B, Concón',
-    tel: '',
-    web: '',
-    horario: 'Lun–Vie 9–20h · Sáb 10–15h',
-    lat: -32.93789, lng: -71.54563,
-  },
-  {
-    id: 'concon2',
-    name: 'Clínica Veterinaria Manantiales',
-    type: 'CLÍNICA · CIRUGÍA · DOMICILIO',
-    icon: '🏥',
-    city: 'concon',
-    urgencia: false,
-    rating: 4.6,
-    reviews: 98,
-    desc: 'Clínica veterinaria en Concón con atención a domicilio, cirugías y medicina preventiva.',
-    tags: ['Atención domicilio', 'Cirugía', 'Vacunación', 'Microchip'],
-    address: 'Av. Manantiales 955, Concón',
-    tel: '',
-    web: '',
-    horario: 'Lun–Vie 9–19h · Sáb 10–14h',
-    lat: -32.93092, lng: -71.52037,
-  },
-];
-
-/* ══ ESTADO DE FILTROS ══ */
-let _clinicaFiltro   = 'todos';
-let _clinicaBusqueda = '';
-
-function setFilterClinicas(btn, filtro) {
-  _clinicaFiltro = filtro;
-  document.querySelectorAll('.fcli').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  renderClinicas();
-}
-
-function onSearchClinicas() {
-  _clinicaBusqueda = (document.getElementById('searchClinicas')?.value || '').toLowerCase();
-  renderClinicas();
-}
 
 /* ══ RENDER PRINCIPAL ══ */
 function renderClinicas() {
@@ -166,14 +10,9 @@ function renderClinicas() {
 
   const geoDisponible = typeof geoResults !== 'undefined' && geoResults.clinicas?.length > 0;
   const geoLoading    = typeof geoStatus  !== 'undefined' && geoStatus === 'loading';
-  const q             = _clinicaBusqueda;
-  const filtro        = _clinicaFiltro;
-
-  /* ── Stats para hero ── */
-  const todas = [...(CLINICAS_DESTACADAS || []), ...clinicas];
-  const totalUrgencias = todas.filter(c => c.urgencia).length;
 
   /* ── Hero banner ── */
+  const totalUrgencias = (CLINICAS_DESTACADAS || []).filter(c => c.urgencia).length;
   const heroBanner = `
     <div style="margin:-45px -20px 0;height:260px;overflow:hidden;position:relative;background:#c4b5dc;">
       <img src="img/vets-hero.jpg" alt="Clínicas veterinarias"
@@ -185,14 +24,32 @@ function renderClinicas() {
       <h2>Clínicas Veterinarias</h2>
       <p>Veterinarias verificadas en Viña del Mar, Valparaíso y Concón</p>
       <div class="stat-row">
-        <div class="stat"><div class="stat-num">${todas.length}</div><div class="stat-label">Clínicas</div></div>
+        <div class="stat"><div class="stat-num">${(CLINICAS_DESTACADAS||[]).length}</div><div class="stat-label">Destacadas</div></div>
         <div class="stat"><div class="stat-num">3</div><div class="stat-label">Ciudades</div></div>
         <div class="stat"><div class="stat-num">${totalUrgencias}</div><div class="stat-label">Urgencias 24h</div></div>
       </div>
     </div>`;
 
+  /* ── Buscador ── */
+  const searchBar = `
+    <div class="search-bar" style="margin-bottom:12px;">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" placeholder="Buscar clínica, servicio..." id="searchClinicas"
+        oninput="onSearchClinicas()" aria-label="Buscar clínica veterinaria">
+    </div>`;
 
-  /* ── Loading spinner ── */
+  /* ── 3 clínicas destacadas (siempre fijas) ── */
+  const q = (document.getElementById('searchClinicas')?.value || '').toLowerCase();
+  const destacadasFiltradas = (CLINICAS_DESTACADAS || []).filter(c => {
+    if (!q) return true;
+    return (c.nombre + c.subtitulo + c.descripcion + (c.tags||[]).join(' ')).toLowerCase().includes(q);
+  });
+  const destHtml = destacadasFiltradas.length > 0
+    ? `<div style="font-size:11px;font-weight:700;color:var(--purple);letter-spacing:0.07em;padding:0 2px 10px;">⭐ DESTACADAS</div>
+       ${destacadasFiltradas.map(_renderClinicaDestacada).join('')}`
+    : '';
+
+  /* ── Loading spinner geo ── */
   const loadingHtml = geoLoading ? `
     <div style="display:flex;align-items:center;gap:12px;padding:18px;background:var(--purple-light);border-radius:14px;margin-bottom:16px;">
       <div style="width:20px;height:20px;border:3px solid rgba(124,77,204,0.25);border-top-color:var(--purple);border-radius:50%;animation:geoSpin 0.8s linear infinite;flex-shrink:0;"></div>
@@ -202,76 +59,56 @@ function renderClinicas() {
       </div>
     </div>` : '';
 
-  /* ── Botón geo (activar / actualizar) ── */
-  let geoBtnHtml = '';
+  /* ── Resultados geo cercanos ── */
+  let geoHtml = '';
   if (!geoLoading) {
-    geoBtnHtml = geoDisponible
-      ? `<button onclick="activarBusquedaGeo()"
-           style="width:100%;padding:14px;background:var(--purple-light);border:2px dashed var(--purple);
-             border-radius:14px;font-size:13px;font-weight:700;color:var(--purple);cursor:pointer;
-             font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:16px;">
-           🔄 Actualizar clínicas cercanas
-         </button>`
-      : `<button onclick="activarBusquedaGeo()"
-           style="width:100%;padding:16px;background:linear-gradient(135deg,#5C2FA8,#7C4DCC);border:none;
-             border-radius:14px;font-size:14px;font-weight:700;color:white;cursor:pointer;
-             font-family:'Plus Jakarta Sans',sans-serif;box-shadow:0 4px 18px rgba(92,47,168,0.35);margin-bottom:16px;">
-           📍 Ver clínicas cerca de ti
-         </button>`;
+    if (geoDisponible) {
+      const geoFiltradas = geoResults.clinicas.filter(c => {
+        if (!q) return true;
+        return (c.name + (c.type||'') + (c.desc||'')).toLowerCase().includes(q);
+      });
+      geoHtml = geoFiltradas.length > 0
+        ? `<div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;padding:16px 0 10px;">
+             📍 CLÍNICAS CERCANAS
+           </div>
+           ${geoFiltradas.map(_renderClinicaGeo).join('')}`
+        : `<div style="text-align:center;padding:28px 16px;background:var(--surface);border-radius:16px;margin-top:16px;border:1.5px solid var(--border-md);">
+             <div style="font-size:32px;margin-bottom:10px;">🔍</div>
+             <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:6px;">Sin resultados para tu búsqueda</div>
+             <div style="font-size:13px;color:var(--text-muted);">Prueba con otro término</div>
+           </div>`;
+    } else {
+      /* No se ha buscado aún o no encontró nada */
+      const yaIntento = typeof geoStatus !== 'undefined' && (geoStatus === 'ok' || geoStatus === 'error' || geoStatus === 'denied');
+      geoHtml = `
+        <div style="text-align:center;padding:28px 16px;background:var(--surface);border-radius:16px;margin-top:16px;border:1.5px solid var(--border-md);">
+          <div style="font-size:36px;margin-bottom:10px;">${yaIntento ? '😕' : '📍'}</div>
+          <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:6px;">
+            ${yaIntento ? 'No se encontraron clínicas cercanas' : 'Encuentra clínicas cerca de ti'}
+          </div>
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.5;">
+            ${yaIntento
+              ? 'No encontramos veterinarias en tu zona. Puedes intentarlo nuevamente.'
+              : 'Activa tu ubicación para ver las clínicas más cercanas a donde estás.'}
+          </div>
+          <button onclick="activarBusquedaGeo()"
+            style="padding:12px 24px;background:var(--purple);border:none;border-radius:12px;
+              font-size:14px;font-weight:700;color:white;cursor:pointer;
+              font-family:'Plus Jakarta Sans',sans-serif;box-shadow:0 4px 14px rgba(92,47,168,0.3);">
+            ${yaIntento ? '🔄 Intenta nuevamente' : '📍 Ver clínicas cercanas'}
+          </button>
+        </div>`;
+    }
   }
 
-  /* ── Helpers de filtro ── */
-  const matchCity = c => {
-    if (filtro === 'todos' || filtro === 'geo') return true;
-    const cy = (c.city   || '').toLowerCase();
-    const cd = (c.ciudad || '').toLowerCase();
-    if (filtro === 'viña')   return cy === 'viña'   || cd.includes('viña');
-    if (filtro === 'valpo')  return cy === 'valpo'  || cd.includes('valparaíso') || cd.includes('valparaiso');
-    if (filtro === 'concon') return cy === 'concon' || cd.includes('concón') || cd.includes('concon');
-    return true;
-  };
-  const matchSearch = c => {
-    if (!q) return true;
-    const n = (c.nombre || c.name || '').toLowerCase();
-    const d = (c.descripcion || c.desc || '').toLowerCase();
-    const s = (c.subtitulo || c.type || '').toLowerCase();
-    const t = (c.tags || []).join(' ').toLowerCase();
-    return n.includes(q) || d.includes(q) || s.includes(q) || t.includes(q);
-  };
+  list.innerHTML = heroBanner + searchBar + destHtml + loadingHtml + geoHtml;
+}
 
-  /* ── 3 clínicas destacadas ── */
-  const destHtml = (CLINICAS_DESTACADAS || []).length > 0
-    ? `<div style="font-size:11px;font-weight:700;color:var(--purple);letter-spacing:0.07em;padding:0 2px 10px;">⭐ DESTACADAS</div>
-       ${(CLINICAS_DESTACADAS || []).map(_renderClinicaDestacada).join('')}`
-    : '';
-
-  /* ── Directorio verificado con distancia ── */
-  const loc = typeof userLocation !== 'undefined' ? userLocation : null;
-  const clinicasConDist = clinicas.map(c => {
-    const distKm = (loc && c.lat && c.lng)
-      ? haversine(loc.lat, loc.lng, c.lat, c.lng)
-      : null;
-    return { ...c, distKm };
-  });
-  if (loc) clinicasConDist.sort((a, b) => (a.distKm ?? 9999) - (b.distKm ?? 9999));
-  const clinicasFiltradas = clinicasConDist.filter(c => matchCity(c) && matchSearch(c));
-  const staticHtml = clinicasFiltradas.length > 0
-    ? `<div style="font-size:11px;font-weight:700;color:var(--text-muted);
-         letter-spacing:0.07em;padding:16px 0 10px;">
-         🏥 DIRECTORIO VERIFICADO${loc ? ' · ordenado por distancia' : ''}
-       </div>
-       ${clinicasFiltradas.map(_renderClinicaCard).join('')}`
-    : '';
-
-  /* ── Resultados geo extra (OpenStreetMap) ── */
-  const geoMixHtml = geoDisponible
-    ? `<div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;padding:16px 0 10px;">
-         📍 MÁS CLÍNICAS ENCONTRADAS CERCA
-       </div>
-       ${geoResults.clinicas.map(_renderClinicaGeo).join('')}`
-    : '';
-
-  list.innerHTML = heroBanner + loadingHtml + destHtml + staticHtml + geoMixHtml + geoBtnHtml;
+/* ── Búsqueda por texto ── */
+let _clinicaBusqueda = '';
+function onSearchClinicas() {
+  _clinicaBusqueda = (document.getElementById('searchClinicas')?.value || '').toLowerCase();
+  renderClinicas();
 }
 
 /* ── Card clínica destacada ── */
@@ -307,39 +144,6 @@ function _renderClinicaDestacada(c) {
     </div>`;
 }
 
-/* ── Card clínica del directorio estático ── */
-function _renderClinicaCard(c) {
-  const urgBadge = c.urgencia
-    ? `<span style="display:inline-block;background:rgba(220,38,38,0.1);color:#DC2626;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;margin-bottom:5px;">🚨 Urgencias 24h</span><br>`
-    : '';
-  const distBadge = c.distKm != null && c.distKm < 100
-    ? `<span style="background:var(--purple-light);color:var(--purple);font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;margin-bottom:5px;display:inline-block;">📍 ${fmtDist(c.distKm)}</span><br>`
-    : '';
-  const mapLink = c.lat && c.lng
-    ? `<a href="https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lng}"
-         target="_blank" rel="noopener" onclick="event.stopPropagation()"
-         style="display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:12px;color:var(--purple);font-weight:700;text-decoration:none;">
-         🗺 Cómo llegar</a>`
-    : '';
-  return `
-    <div class="place-card" onclick="openClinica('${c.id}')" style="cursor:pointer;">
-      <div class="place-card-inner">
-        <div class="place-icon" style="background:var(--purple-light);">${c.icon || '🏥'}</div>
-        <div class="place-info">
-          ${urgBadge}${distBadge}
-          <div class="place-name">${c.name}</div>
-          <div class="place-type">${c.type}</div>
-          <div class="place-desc">${c.desc}</div>
-          <div class="place-footer">
-            <span class="place-address">📍 ${c.address || '—'}</span>
-            ${c.tel ? `<a href="tel:${c.tel}" class="place-tel" onclick="event.stopPropagation()">${c.tel}</a>` : ''}
-          </div>
-          ${mapLink}
-        </div>
-      </div>
-    </div>`;
-}
-
 /* ── Card para resultados geo (OpenStreetMap) ── */
 function _renderClinicaGeo(c) {
   const distBadge = c.distKm != null && c.distKm < 100
@@ -354,16 +158,11 @@ function _renderClinicaGeo(c) {
            font-size:12px;color:var(--purple);font-weight:700;text-decoration:none;"
          onclick="event.stopPropagation()">🗺 Cómo llegar</a>`
     : '';
-
   return `
     <div class="place-card">
       <div class="place-card-inner">
         <div class="place-icon" style="background:var(--bg);">${c.icon || '🐾'}</div>
         <div class="place-info">
-          <span style="display:inline-flex;align-items:center;gap:3px;background:var(--bg);
-            color:var(--text-hint);font-size:10px;font-weight:700;padding:3px 9px;
-            border-radius:100px;border:1px solid var(--border);margin-bottom:6px;">
-            📍 Básico</span><br>
           ${distBadge}
           <div class="place-name">${c.name}</div>
           <div class="place-type">${c.type || ''}</div>
@@ -380,14 +179,10 @@ function _renderClinicaGeo(c) {
 
 /* ── Disparar búsqueda geo ── */
 function activarBusquedaGeo() {
-  // Mostrar estado de carga inmediatamente
-  const list = document.getElementById('clinicaList');
-  const btn = list?.querySelector('button');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Buscando…'; }
-
   if (typeof iniciarGeoBusqueda === 'function') {
     iniciarGeoBusqueda().then(() => renderClinicas());
   }
+  renderClinicas(); // mostrar spinner inmediatamente
 }
 
 /* ══ VISTA DE DETALLE — clínicas destacadas ══ */
@@ -399,12 +194,9 @@ function openClinicaDetalle(id) {
     ? `${'★'.repeat(Math.round(c.rating))}${'☆'.repeat(5 - Math.round(c.rating))}`
     : '';
 
-  /* ── Galería de fotos ── */
   const fotosHtml = c.fotos?.length > 0 ? `
-    <div style="background:white;border-radius:16px;padding:16px;
-      box-shadow:0 2px 10px rgba(0,0,0,0.06);">
-      <div style="font-size:11px;font-weight:700;color:var(--text-muted);
-        letter-spacing:0.07em;margin-bottom:10px;">FOTOS</div>
+    <div style="background:white;border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:10px;">FOTOS</div>
       <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;">
         ${c.fotos.map(url =>
           `<img src="${url}" alt="foto clínica"
@@ -413,21 +205,15 @@ function openClinicaDetalle(id) {
       </div>
     </div>` : '';
 
-  /* ── Equipo veterinario ── */
   const vetsHtml = c.veterinarios?.length > 0 ? `
-    <div style="background:white;border-radius:16px;padding:16px;
-      box-shadow:0 2px 10px rgba(0,0,0,0.06);">
-      <div style="font-size:11px;font-weight:700;color:var(--text-muted);
-        letter-spacing:0.07em;margin-bottom:12px;">EQUIPO VETERINARIO</div>
+    <div style="background:white;border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:12px;">EQUIPO VETERINARIO</div>
       <div style="display:flex;flex-direction:column;gap:10px;">
         ${c.veterinarios.map(v => `
           <div style="display:flex;align-items:center;gap:12px;">
             ${v.foto
-              ? `<img src="${v.foto}" alt="${v.nombre}"
-                  style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;">`
-              : `<div style="width:44px;height:44px;border-radius:50%;background:var(--purple-light);
-                  display:flex;align-items:center;justify-content:center;font-size:18px;
-                  flex-shrink:0;">🩺</div>`}
+              ? `<img src="${v.foto}" alt="${v.nombre}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;">`
+              : `<div style="width:44px;height:44px;border-radius:50%;background:var(--purple-light);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🩺</div>`}
             <div>
               <div style="font-size:14px;font-weight:700;color:var(--text);">${v.nombre}</div>
               <div style="font-size:12px;color:var(--text-muted);">${v.especialidad}</div>
@@ -436,39 +222,30 @@ function openClinicaDetalle(id) {
       </div>
     </div>` : '';
 
-  /* ── Botones CTA ── */
   const ctaHtml = [
     c.whatsapp
       ? `<a href="https://wa.me/${c.whatsapp}" target="_blank" rel="noopener"
            style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
              padding:13px 10px;background:#25D366;border-radius:12px;color:white;
-             font-size:13px;font-weight:700;text-decoration:none;">
-           💬 WhatsApp
-         </a>` : '',
+             font-size:13px;font-weight:700;text-decoration:none;">💬 WhatsApp</a>` : '',
     c.lat && c.lng
       ? `<a href="https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lng}"
            target="_blank" rel="noopener"
            style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
              padding:13px 10px;background:var(--purple-light);border-radius:12px;
-             color:var(--purple);font-size:13px;font-weight:700;text-decoration:none;">
-           🗺 Cómo llegar
-         </a>` : '',
+             color:var(--purple);font-size:13px;font-weight:700;text-decoration:none;">🗺 Cómo llegar</a>` : '',
     c.web
       ? `<a href="https://${c.web}" target="_blank" rel="noopener"
            style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
              padding:13px 10px;background:var(--bg);border-radius:12px;
              color:var(--text);font-size:13px;font-weight:700;text-decoration:none;
-             border:1.5px solid var(--border-md);">
-           🌐 Sitio web
-         </a>` : '',
+             border:1.5px solid var(--border-md);">🌐 Sitio web</a>` : '',
     c.telefono
       ? `<a href="tel:${c.telefono}"
            style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
              padding:13px 10px;background:var(--bg);border-radius:12px;
              color:var(--text);font-size:13px;font-weight:700;text-decoration:none;
-             border:1.5px solid var(--border-md);">
-           📞 Llamar
-         </a>` : '',
+             border:1.5px solid var(--border-md);">📞 Llamar</a>` : '',
   ].filter(Boolean).join('');
 
   const detailEl = document.getElementById('page-detail');
@@ -476,26 +253,19 @@ function openClinicaDetalle(id) {
 
   detailEl.innerHTML = `
     <div>
-      <!-- Header con gradiente -->
       <div style="background:${c.grad};padding:0 0 24px;position:relative;">
-        <!-- Back button -->
         <div style="padding:16px 16px 0;">
           <button onclick="switchTab('restaurantes')"
             style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.2);
               border:none;border-radius:100px;padding:8px 14px;color:white;font-size:13px;
               font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;
-              backdrop-filter:blur(4px);">
-            ← Volver a Vets
-          </button>
+              backdrop-filter:blur(4px);">← Volver a Vets</button>
         </div>
-        <!-- Info principal -->
         <div style="padding:20px 20px 0;text-align:center;">
           <div style="font-size:52px;margin-bottom:10px;line-height:1;">${c.icon}</div>
           ${c.urgencia ? `<div style="display:inline-flex;align-items:center;gap:4px;
             background:rgba(255,255,255,0.22);border-radius:100px;padding:4px 12px;
-            font-size:11px;font-weight:700;color:white;margin-bottom:10px;">
-            🚨 Urgencias 24h
-          </div><br>` : ''}
+            font-size:11px;font-weight:700;color:white;margin-bottom:10px;">🚨 Urgencias 24h</div><br>` : ''}
           <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:24px;
             color:white;margin-bottom:4px;line-height:1.2;">${c.nombre}</div>
           <div style="font-size:12px;color:rgba(255,255,255,0.78);font-weight:600;
@@ -505,27 +275,14 @@ function openClinicaDetalle(id) {
           </div>` : ''}
         </div>
       </div>
-
-      <!-- Contenido -->
-      <div style="padding:20px 16px 40px;display:flex;flex-direction:column;gap:14px;
-        background:var(--bg);">
-
-        <!-- CTA buttons -->
+      <div style="padding:20px 16px 40px;display:flex;flex-direction:column;gap:14px;background:var(--bg);">
         ${ctaHtml ? `<div style="display:flex;gap:8px;flex-wrap:wrap;">${ctaHtml}</div>` : ''}
-
-        <!-- Descripción -->
-        <div style="background:white;border-radius:16px;padding:16px;
-          box-shadow:0 2px 10px rgba(0,0,0,0.06);">
-          <div style="font-size:11px;font-weight:700;color:var(--text-muted);
-            letter-spacing:0.07em;margin-bottom:8px;">SOBRE NOSOTROS</div>
+        <div style="background:white;border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:8px;">SOBRE NOSOTROS</div>
           <div style="font-size:14px;color:var(--text);line-height:1.6;">${c.descripcion}</div>
         </div>
-
-        <!-- Información -->
-        <div style="background:white;border-radius:16px;padding:16px;
-          box-shadow:0 2px 10px rgba(0,0,0,0.06);">
-          <div style="font-size:11px;font-weight:700;color:var(--text-muted);
-            letter-spacing:0.07em;margin-bottom:12px;">INFORMACIÓN</div>
+        <div style="background:white;border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:12px;">INFORMACIÓN</div>
           <div style="display:flex;flex-direction:column;gap:10px;">
             ${c.direccion ? `<div style="display:flex;gap:10px;align-items:flex-start;">
               <span style="font-size:16px;">📍</span>
@@ -537,27 +294,19 @@ function openClinicaDetalle(id) {
             </div>` : ''}
             ${c.telefono ? `<div style="display:flex;gap:10px;align-items:flex-start;">
               <span style="font-size:16px;">📞</span>
-              <a href="tel:${c.telefono}"
-                style="font-size:13px;color:var(--purple);font-weight:600;text-decoration:none;">
-                ${c.telefono}</a>
+              <a href="tel:${c.telefono}" style="font-size:13px;color:var(--purple);font-weight:600;text-decoration:none;">${c.telefono}</a>
             </div>` : ''}
             ${c.web ? `<div style="display:flex;gap:10px;align-items:flex-start;">
               <span style="font-size:16px;">🌐</span>
               <a href="https://${c.web}" target="_blank" rel="noopener"
-                style="font-size:13px;color:var(--purple);font-weight:600;text-decoration:none;">
-                ${c.web}</a>
+                style="font-size:13px;color:var(--purple);font-weight:600;text-decoration:none;">${c.web}</a>
             </div>` : ''}
           </div>
         </div>
-
         ${fotosHtml}
         ${vetsHtml}
-
-        <!-- Servicios -->
-        <div style="background:white;border-radius:16px;padding:16px;
-          box-shadow:0 2px 10px rgba(0,0,0,0.06);">
-          <div style="font-size:11px;font-weight:700;color:var(--text-muted);
-            letter-spacing:0.07em;margin-bottom:10px;">SERVICIOS</div>
+        <div style="background:white;border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:10px;">SERVICIOS</div>
           <div style="display:flex;flex-wrap:wrap;gap:7px;">
             ${c.tags.map(t =>
               `<span style="font-size:12px;font-weight:600;padding:6px 13px;border-radius:100px;
@@ -565,23 +314,8 @@ function openClinicaDetalle(id) {
             ).join('')}
           </div>
         </div>
-
       </div>
     </div>`;
 
   switchTab('detail');
-}
-
-/* ── openClinica para resultados geo (link Maps / WhatsApp) ── */
-function openClinica(id) {
-  const c = clinicas.find(x => x.id === id)
-    || (CLINICAS_DESTACADAS || []).find(x => x.id === id)
-    || (typeof geoResults !== 'undefined' && geoResults.clinicas?.find(x => x.id === id));
-  if (!c) return;
-  if (typeof registrarClick === 'function' && !c.fromOSM) registrarClick(c.id, c.name || c.nombre, 'clinicas');
-  if (c.lat && c.lng) {
-    window.open(`https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lng}`, '_blank');
-  } else if (c.tel) {
-    window.open(`https://wa.me/${c.tel.replace(/\D/g, '')}`, '_blank');
-  }
 }
