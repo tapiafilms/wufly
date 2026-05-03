@@ -180,7 +180,7 @@ function renderClinicas() {
         style="width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;"
         onerror="this.style.display='none'">
     </div>
-    <div style="margin:-36px -20px 16px;background:var(--bg);border-radius:36px 36px 0 0;height:36px;position:relative;z-index:1;"></div>
+    <div class="hero-rounded-sep" style="margin:-36px -20px 16px;background:var(--bg);border-radius:36px 36px 0 0;height:36px;position:relative;z-index:1;"></div>
     <div class="hero-banner" style="margin-bottom:16px;">
       <h2>Clínicas Veterinarias</h2>
       <p>Veterinarias verificadas en Viña del Mar, Valparaíso y Concón</p>
