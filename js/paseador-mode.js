@@ -404,5 +404,10 @@ function _paseadorToast(msg, tipo = 'ok') {
 /* ══ INIT ══════════════════════════════════════════ */
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Renderizar cuando el DOM esté listo (cubre el caso sin sesión)
   renderSeccionPaseador();
+  // Re-renderizar cuando auth.js confirme el estado de sesión
+  if (typeof db !== 'undefined') {
+    db.auth.onAuthStateChange(() => renderSeccionPaseador());
+  }
 });
