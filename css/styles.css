@@ -900,8 +900,8 @@ body.app-ready { opacity:1; }
     border-right: 1px solid rgba(255,255,255,0.08);
   }
 
-  /* Topbar oculto en desktop — logo y nav están en el sidebar */
-  .app-column .app-topbar { display: none !important; }
+  /* Topbar visible en desktop — muestra logo */
+  .app-column .app-topbar { display: block; }
   #topColorBar { display: none !important; }
 
   /* 2. Área scrollable de las páginas — overflow-y: auto para habilitar scroll */
@@ -917,7 +917,7 @@ body.app-ready { opacity:1; }
   .app-column .app-pages::-webkit-scrollbar { width: 4px; }
   .app-column .app-pages::-webkit-scrollbar-thumb { background: rgba(78,107,74,0.3); border-radius: 4px; }
 
-  .app-column .page { padding: 0 20px 20px; }
+  .app-column .page { padding: 130px 20px 20px; }
   .app-column #page-home.page { padding: 0; }
   .app-column #page-alergias.page { padding: 0; }
 
