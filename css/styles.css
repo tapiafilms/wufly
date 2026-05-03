@@ -917,7 +917,9 @@ body.app-ready { opacity:1; }
   .app-column .app-pages::-webkit-scrollbar { width: 4px; }
   .app-column .app-pages::-webkit-scrollbar-thumb { background: rgba(78,107,74,0.3); border-radius: 4px; }
 
-  .app-column .page { padding: 0px; }
+  .app-column .page { padding: 0 20px 20px; }
+  .app-column #page-home.page { padding: 0; }
+  .app-column #page-alergias.page { padding: 0; }
 
   /* ── COLUMNA DERECHA: panel dinámico ── */
   .info-column {
