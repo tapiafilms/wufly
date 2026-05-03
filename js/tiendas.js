@@ -1,120 +1,7 @@
 /* ══════════════════════════════════════
    TIENDAS — Wufly
-   Pet shops y tiendas online verificadas
-   Viña del Mar · Valparaíso · Concón
+   3 tiendas destacadas fijas + resultados geo cercanos
    ══════════════════════════════════════ */
-
-const tiendas = [
-  {
-    id: 'petlandia',
-    nombre: 'Petlandia Chile',
-    tipo: 'fisica',
-    city: 'viña',
-    icon: '🦴',
-    desc: 'Pet shop completo en el centro de Viña del Mar. Alimentos de todas las marcas, accesorios, productos veterinarios de venta libre, ropa para mascotas y artículos de higiene.',
-    categorias: ['Alimentos', 'Accesorios', 'Veterinarios', 'Ropa mascotas'],
-    address: 'Av. Libertad 1002, Viña del Mar',
-    horario: 'Lun–Sáb 10–19:30h · Dom 10–17h',
-    rating: 4.5,
-    wsp: '+56934471222',
-    lat: -33.01663, lng: -71.55033,
-  },
-  {
-    id: 'mypets-vina',
-    nombre: 'My Pets Oquiz Viña',
-    tipo: 'fisica',
-    city: 'viña',
-    icon: '🐈',
-    desc: 'Tienda de mascotas con amplio surtido de alimentos, accesorios y productos de cuidado para perros y gatos. Asesoría personalizada en nutrición y bienestar animal.',
-    categorias: ['Alimentos', 'Accesorios', 'Cuidado', 'Nutrición'],
-    address: 'Álvarez 646 Local 101, Viña del Mar',
-    horario: 'Lun–Sáb 10–19h',
-    rating: 4.4,
-    wsp: '+56993496270',
-    lat: -33.02648, lng: -71.55385,
-  },
-  {
-    id: 'mypets-valpo',
-    nombre: 'My Pets Oquiz Valpo',
-    tipo: 'fisica',
-    city: 'valpo',
-    icon: '🐾',
-    desc: 'Sucursal de My Pets en Valparaíso. Completo stock de alimentos premium, accesorios, productos de higiene y artículos para el bienestar de tu mascota.',
-    categorias: ['Alimentos premium', 'Accesorios', 'Higiene', 'Bienestar'],
-    address: 'Francia 370 Local 8, Valparaíso',
-    horario: 'Lun–Sáb 10–19h',
-    rating: 4.3,
-    wsp: '+56974389737',
-    lat: -33.05419, lng: -71.61424,
-  },
-  {
-    id: 'mypets-concon',
-    nombre: 'My Pets Oquiz Concón',
-    tipo: 'fisica',
-    city: 'concon',
-    icon: '🐕',
-    desc: 'Sucursal My Pets en Concón. Alimentos, accesorios y productos especializados para el cuidado de perros y gatos. Atención personalizada por expertos en bienestar animal.',
-    categorias: ['Alimentos', 'Accesorios', 'Especializado', 'Expertos'],
-    address: 'Av. Concón-Reñaca 3400 Local 10, Concón',
-    horario: 'Lun–Sáb 10–19h',
-    rating: 4.5,
-    wsp: '+56987545004',
-    lat: -32.94445, lng: -71.54561,
-  },
-  {
-    id: 'camada',
-    nombre: 'Camada Pet Shop',
-    tipo: 'fisica',
-    city: 'concon',
-    icon: '🌿',
-    desc: 'Pet shop familiar en Concón con productos naturales y orgánicos para mascotas. Alimentos sin conservantes, snacks saludables, accesorios eco-friendly y asesoría en nutrición natural.',
-    categorias: ['Natural', 'Orgánico', 'Snacks saludables', 'Eco-friendly'],
-    address: 'Las Pelargonias 842, Concón',
-    horario: 'Lun–Sáb 10–18h',
-    rating: 4.4,
-    wsp: null,
-    lat: -32.94239, lng: -71.54588,
-  },
-  {
-    id: 'puppis-online',
-    nombre: 'Puppis',
-    tipo: 'online',
-    city: null,
-    icon: '🛒',
-    desc: 'Tienda online líder en Chile con despacho a todo el país. Más de 5.000 productos para perros, gatos y otras mascotas. Precios competitivos y envío rápido.',
-    categorias: ['Todo tipo de mascotas', 'Envío a domicilio', 'App móvil', '+5000 productos'],
-    address: null,
-    horario: 'Online 24/7',
-    rating: 4.5,
-    web: 'puppis.cl',
-  },
-  {
-    id: 'petco-online',
-    nombre: 'Petco Chile',
-    tipo: 'online',
-    city: null,
-    icon: '🌐',
-    desc: 'Tienda online con amplia variedad de productos premium. Alimentos veterinarios, accesorios de lujo, productos naturales y orgánicos para mascotas.',
-    categorias: ['Premium', 'Veterinario', 'Natural', 'Orgánico'],
-    address: null,
-    horario: 'Online 24/7',
-    rating: 4.3,
-    web: 'petco.cl',
-  },
-  {
-    id: 'laika-online',
-    nombre: 'Laika',
-    tipo: 'online',
-    city: null,
-    icon: '🚀',
-    desc: 'Startup chilena de productos para mascotas con entrega express en Santiago y regiones. Alimentos por suscripción mensual con descuento y nutrición personalizada.',
-    categorias: ['Suscripción mensual', 'Entrega express', 'Nutrición personalizada', 'Descuentos'],
-    address: null,
-    horario: 'Online 24/7',
-    rating: 4.6,
-    web: 'laika.cl',
-  },
-];
 
 /* ══ RENDER PRINCIPAL ══ */
 function renderTiendas() {
@@ -123,9 +10,89 @@ function renderTiendas() {
 
   const geoDisponible = typeof geoResults !== 'undefined' && geoResults.tiendas?.length > 0;
   const geoLoading    = typeof geoStatus  !== 'undefined' && geoStatus === 'loading';
+  const q = (document.getElementById('searchTiendas')?.value || '').toLowerCase();
 
-  /* ── Cards vitrina ── */
-  const vitrinaHtml = (TIENDAS_DESTACADAS || []).map(t => `
+  /* ── Buscador ── */
+  const searchBar = `
+    <div class="search-bar" style="margin-bottom:12px;">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" placeholder="Buscar tienda, producto..." id="searchTiendas"
+        oninput="onSearchTiendas()" aria-label="Buscar tienda de mascotas">
+    </div>`;
+
+  /* ── 3 tiendas destacadas (siempre fijas) ── */
+  const destacadasFiltradas = (TIENDAS_DESTACADAS || []).filter(t => {
+    if (!q) return true;
+    return (t.nombre + t.subtitulo + t.descripcion + (t.tags||[]).join(' ')).toLowerCase().includes(q);
+  });
+
+  const vitrinaHtml = destacadasFiltradas.length > 0
+    ? `<div style="font-size:11px;font-weight:700;color:var(--purple);letter-spacing:0.07em;padding:0 2px 10px;">⭐ VITRINA</div>
+       ${destacadasFiltradas.map(_renderTiendaDestacada).join('')}`
+    : '';
+
+  /* ── Loading spinner geo ── */
+  const loadingHtml = geoLoading ? `
+    <div style="display:flex;align-items:center;gap:12px;padding:18px;background:var(--purple-light);border-radius:14px;margin-bottom:16px;">
+      <div style="width:20px;height:20px;border:3px solid rgba(124,77,204,0.25);border-top-color:var(--purple);border-radius:50%;animation:geoSpin 0.8s linear infinite;flex-shrink:0;"></div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--purple);">Buscando tiendas cerca de ti…</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">Obteniendo tu ubicación</div>
+      </div>
+    </div>` : '';
+
+  /* ── Resultados geo o estado vacío ── */
+  let geoHtml = '';
+  if (!geoLoading) {
+    if (geoDisponible) {
+      const geoFiltradas = geoResults.tiendas.filter(t => {
+        if (!q) return true;
+        return ((t.nombre || t.name) + (t.desc||'')).toLowerCase().includes(q);
+      });
+      geoHtml = geoFiltradas.length > 0
+        ? `<div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;padding:16px 0 10px;">
+             📍 TIENDAS CERCANAS
+           </div>
+           ${geoFiltradas.map(_renderTiendaGeo).join('')}`
+        : `<div style="text-align:center;padding:28px 16px;background:var(--surface);border-radius:16px;margin-top:16px;border:1.5px solid var(--border-md);">
+             <div style="font-size:32px;margin-bottom:10px;">🔍</div>
+             <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:6px;">Sin resultados para tu búsqueda</div>
+             <div style="font-size:13px;color:var(--text-muted);">Prueba con otro término</div>
+           </div>`;
+    } else {
+      const yaIntento = typeof geoStatus !== 'undefined' && (geoStatus === 'ok' || geoStatus === 'error' || geoStatus === 'denied');
+      geoHtml = `
+        <div style="text-align:center;padding:28px 16px;background:var(--surface);border-radius:16px;margin-top:16px;border:1.5px solid var(--border-md);">
+          <div style="font-size:36px;margin-bottom:10px;">${yaIntento ? '😕' : '📍'}</div>
+          <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:6px;">
+            ${yaIntento ? 'No se encontraron tiendas cercanas' : 'Encuentra tiendas cerca de ti'}
+          </div>
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.5;">
+            ${yaIntento
+              ? 'No encontramos pet shops en tu zona. Puedes intentarlo nuevamente.'
+              : 'Activa tu ubicación para ver las tiendas más cercanas a donde estás.'}
+          </div>
+          <button onclick="activarBusquedaTiendas()"
+            style="padding:12px 24px;background:var(--purple);border:none;border-radius:12px;
+              font-size:14px;font-weight:700;color:white;cursor:pointer;
+              font-family:'Plus Jakarta Sans',sans-serif;box-shadow:0 4px 14px rgba(92,47,168,0.3);">
+            ${yaIntento ? '🔄 Intenta nuevamente' : '📍 Ver tiendas cercanas'}
+          </button>
+        </div>`;
+    }
+  }
+
+  list.innerHTML = searchBar + vitrinaHtml + loadingHtml + geoHtml;
+}
+
+/* ── Búsqueda por texto ── */
+function onSearchTiendas() {
+  renderTiendas();
+}
+
+/* ── Card tienda destacada (vitrina) ── */
+function _renderTiendaDestacada(t) {
+  return `
     <div onclick="openTiendaDetalle('${t.id}')"
       style="border-radius:20px;overflow:hidden;cursor:pointer;margin-bottom:14px;
              box-shadow:0 8px 28px rgba(0,0,0,0.22);position:relative;background:${t.grad};">
@@ -141,7 +108,7 @@ function renderTiendas() {
         <div style="font-size:13px;color:rgba(255,255,255,0.9);line-height:1.55;
           margin-bottom:16px;">${t.descripcion}</div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
-          ${t.tags.slice(0, 3).map(tag =>
+          ${t.tags.slice(0,3).map(tag =>
             `<span style="background:rgba(255,255,255,0.18);color:white;font-size:11px;
               font-weight:600;padding:4px 10px;border-radius:100px;">${tag}</span>`
           ).join('')}
@@ -149,147 +116,10 @@ function renderTiendas() {
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div style="font-size:11px;color:rgba(255,255,255,0.7);">📍 ${t.ciudad}</div>
           <div style="font-size:12px;font-weight:700;color:white;
-            background:rgba(255,255,255,0.22);padding:6px 14px;border-radius:100px;">
-            Ver tienda →
-          </div>
+            background:rgba(255,255,255,0.22);padding:6px 14px;border-radius:100px;">Ver tienda →</div>
         </div>
       </div>
-    </div>
-  `).join('');
-
-  /* ── Botón geo ── */
-  const geoStatus_  = typeof geoStatus !== 'undefined' ? geoStatus : 'idle';
-  const geoCompletado = geoStatus_ === 'ok';
-
-  let geoBtnHtml;
-  if (geoLoading) {
-    geoBtnHtml = `
-      <div style="display:flex;align-items:center;gap:12px;padding:18px;
-        background:var(--purple-light);border-radius:14px;">
-        <div style="width:20px;height:20px;border:3px solid rgba(124,77,204,0.25);
-          border-top-color:var(--purple);border-radius:50%;
-          animation:geoSpin 0.8s linear infinite;flex-shrink:0;"></div>
-        <div>
-          <div style="font-size:13px;font-weight:700;color:var(--purple);">Buscando tiendas cerca de ti…</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">Obteniendo tu ubicación</div>
-        </div>
-      </div>`;
-  } else if (geoDisponible) {
-    geoBtnHtml = `
-      <button onclick="activarBusquedaTiendas()"
-        style="width:100%;padding:14px;background:var(--purple-light);
-          border:2px dashed var(--purple);border-radius:14px;font-size:13px;
-          font-weight:700;color:var(--purple);cursor:pointer;
-          font-family:'Plus Jakarta Sans',sans-serif;">
-        🔄 Actualizar tiendas cercanas
-      </button>`;
-  } else if (geoCompletado && !geoDisponible) {
-    geoBtnHtml = `
-      <div style="padding:16px;background:var(--bg);border:1.5px solid var(--border-md);
-        border-radius:14px;text-align:center;">
-        <div style="font-size:22px;margin-bottom:6px;">🗺</div>
-        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">
-          Sin tiendas en el mapa cercano
-        </div>
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">
-          OpenStreetMap no registra pet shops en tu zona. Puedes buscar de todas formas.
-        </div>
-        <button onclick="activarBusquedaTiendas()"
-          style="padding:10px 20px;background:var(--purple-light);border:1.5px solid var(--purple);
-            border-radius:100px;font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;
-            font-family:'Plus Jakarta Sans',sans-serif;">
-          🔄 Reintentar búsqueda
-        </button>
-      </div>`;
-  } else {
-    geoBtnHtml = `
-      <button onclick="activarBusquedaTiendas()"
-        style="width:100%;padding:16px;
-          background:linear-gradient(135deg,#5C2FA8,#7C4DCC);border:none;
-          border-radius:14px;font-size:14px;font-weight:700;color:white;cursor:pointer;
-          font-family:'Plus Jakarta Sans',sans-serif;
-          box-shadow:0 4px 18px rgba(92,47,168,0.35);">
-        📍 Ver tiendas cerca de ti
-      </button>`;
-  }
-
-  /* ── Resultados geo ── */
-  let geoHtml = '';
-  if (geoDisponible) {
-    const cards = geoResults.tiendas.map(_renderTiendaGeo).join('');
-    geoHtml = `
-      <div style="font-size:11px;font-weight:700;color:var(--text-muted);
-        letter-spacing:0.07em;padding:20px 0 10px;">
-        📍 ${geoResults.tiendas.length} TIENDAS ENCONTRADAS CERCA DE TI
-      </div>
-      ${cards}`;
-  }
-
-  /* ── Lista estática (siempre visible, ordenada por distancia si hay ubicación) ── */
-  const loc = typeof userLocation !== 'undefined' ? userLocation : null;
-  const tiendasConDist = tiendas.map(t => {
-    const distKm = (loc && t.lat && t.lng)
-      ? haversine(loc.lat, loc.lng, t.lat, t.lng)
-      : null;
-    return { ...t, distKm };
-  });
-  if (loc) tiendasConDist.sort((a, b) => {
-    // físicas primero (con distancia), luego online
-    if (a.tipo === 'fisica' && b.tipo === 'online') return -1;
-    if (a.tipo === 'online' && b.tipo === 'fisica') return 1;
-    return (a.distKm ?? 9999) - (b.distKm ?? 9999);
-  });
-
-  const cards = tiendasConDist.map(t => {
-    const isOnline  = t.tipo === 'online';
-    const tipoBg    = isOnline ? '#E6F9F3' : '#F0EAFB';
-    const tipoClr   = isOnline ? '#3DAF87' : '#7C4DCC';
-    const tipoTxt   = isOnline ? '🌐 Online' : '📍 Física';
-    const stars     = t.rating ? '★'.repeat(Math.round(t.rating)) + '☆'.repeat(5 - Math.round(t.rating)) : '';
-    const distBadge = t.distKm != null && t.distKm < 100
-      ? `<span style="background:var(--purple-light);color:var(--purple);font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;margin-bottom:5px;display:inline-block;">📍 ${fmtDist(t.distKm)}</span><br>`
-      : '';
-    const accion    = t.web
-      ? `onclick="window.open('https://${t.web}','_blank')"`
-      : t.wsp ? `onclick="window.open('https://wa.me/${t.wsp.replace(/\\D/g,'')}','_blank')"` : '';
-    return `
-      <div class="place-card" ${accion} style="${accion ? 'cursor:pointer;' : ''}">
-        <div class="place-card-inner">
-          <div class="place-icon" style="background:#F0EAFB;">${t.icon}</div>
-          <div class="place-info">
-            ${distBadge}
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;">
-              <div class="place-name">${t.nombre}</div>
-              <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;
-                background:${tipoBg};color:${tipoClr};">${tipoTxt}</span>
-            </div>
-            ${stars ? `<div style="font-size:11px;color:var(--text-hint);margin-bottom:4px;">${stars} ${t.rating}</div>` : ''}
-            <div class="place-desc">${t.desc}</div>
-            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">
-              ${t.categorias.slice(0,3).map(c=>`<span class="place-tag">${c}</span>`).join('')}
-            </div>
-            ${t.address ? `<div style="font-size:11px;color:var(--text-muted);margin-top:5px;">📍 ${t.address}</div>` : ''}
-            ${t.horario  ? `<div style="font-size:11px;color:var(--text-muted);">🕐 ${t.horario}</div>`  : ''}
-            ${t.web      ? `<div style="font-size:11px;color:#059669;margin-top:2px;">🌐 ${t.web}</div>` : ''}
-          </div>
-        </div>
-      </div>`;
-  }).join('');
-
-  const staticHtml = `
-    <div style="font-size:11px;font-weight:700;color:var(--text-muted);
-      letter-spacing:0.07em;padding:16px 0 10px;">
-      🛒 DIRECTORIO VERIFICADO${loc ? ' · ordenado por distancia' : ''}
-    </div>
-    ${cards}`;
-
-  list.innerHTML =
-    `<div style="font-size:11px;font-weight:700;color:var(--purple);
-      letter-spacing:0.07em;padding:0 2px 10px;">⭐ VITRINA</div>` +
-    vitrinaHtml +
-    `<div style="margin:4px 0 16px;">${geoBtnHtml}</div>` +
-    geoHtml +
-    staticHtml;
+    </div>`;
 }
 
 /* ── Card para resultados geo (OpenStreetMap) ── */
@@ -306,21 +136,17 @@ function _renderTiendaGeo(t) {
            font-size:12px;color:var(--purple);font-weight:700;text-decoration:none;"
          onclick="event.stopPropagation()">🗺 Cómo llegar</a>`
     : '';
-
   return `
     <div class="place-card">
       <div class="place-card-inner">
         <div class="place-icon" style="background:var(--bg);">${t.icon || '🛒'}</div>
         <div class="place-info">
-          <span style="display:inline-flex;align-items:center;gap:3px;background:var(--bg);
-            color:var(--text-hint);font-size:10px;font-weight:700;padding:3px 9px;
-            border-radius:100px;border:1px solid var(--border);margin-bottom:6px;">
-            📍 Básico</span><br>
           ${distBadge}
           <div class="place-name">${t.nombre || t.name}</div>
           <div class="place-desc">${t.desc || ''}</div>
           <div class="place-footer">
             <span class="place-address">📍 ${t.address || '—'}</span>
+            ${t.tel ? `<a href="tel:${t.tel}" class="place-tel" onclick="event.stopPropagation()">${t.tel}</a>` : ''}
           </div>
           ${mapLink}
         </div>
@@ -328,13 +154,12 @@ function _renderTiendaGeo(t) {
     </div>`;
 }
 
-/* ── Disparar búsqueda geo para tiendas ── */
+/* ── Disparar búsqueda geo ── */
 function activarBusquedaTiendas() {
-  if (typeof iniciarGeoBusqueda !== 'function') return;
-  // iniciarGeoBusqueda() setea geoStatus='loading' de forma sincrónica,
-  // así que llamar renderTiendas() justo después muestra el spinner.
-  iniciarGeoBusqueda(true).then(() => renderTiendas()); // garantiza re-render en error también
-  renderTiendas(); // mostrar spinner de inmediato
+  if (typeof iniciarGeoBusqueda === 'function') {
+    iniciarGeoBusqueda(true).then(() => renderTiendas());
+  }
+  renderTiendas();
 }
 
 /* ══ VISTA DE DETALLE — tiendas vitrina ══ */
@@ -346,35 +171,25 @@ function openTiendaDetalle(id) {
     ? `${'★'.repeat(Math.round(t.rating))}${'☆'.repeat(5 - Math.round(t.rating))}`
     : '';
 
-  /* ── Galería de fotos ── */
   const fotosHtml = t.fotos?.length > 0 ? `
-    <div style="background:white;border-radius:16px;padding:16px;
-      box-shadow:0 2px 10px rgba(0,0,0,0.06);">
-      <div style="font-size:11px;font-weight:700;color:var(--text-muted);
-        letter-spacing:0.07em;margin-bottom:10px;">FOTOS</div>
+    <div style="background:white;border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:10px;">FOTOS</div>
       <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;">
         ${t.fotos.map(url =>
-          `<img src="${url}" alt="foto tienda"
-            style="height:120px;width:160px;object-fit:cover;border-radius:10px;flex-shrink:0;">`
+          `<img src="${url}" alt="foto tienda" style="height:120px;width:160px;object-fit:cover;border-radius:10px;flex-shrink:0;">`
         ).join('')}
       </div>
     </div>` : '';
 
-  /* ── Equipo / Staff ── */
   const equipoHtml = t.equipo?.length > 0 ? `
-    <div style="background:white;border-radius:16px;padding:16px;
-      box-shadow:0 2px 10px rgba(0,0,0,0.06);">
-      <div style="font-size:11px;font-weight:700;color:var(--text-muted);
-        letter-spacing:0.07em;margin-bottom:12px;">EQUIPO</div>
+    <div style="background:white;border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:12px;">EQUIPO</div>
       <div style="display:flex;flex-direction:column;gap:10px;">
         ${t.equipo.map(m => `
           <div style="display:flex;align-items:center;gap:12px;">
             ${m.foto
-              ? `<img src="${m.foto}" alt="${m.nombre}"
-                  style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;">`
-              : `<div style="width:44px;height:44px;border-radius:50%;background:var(--purple-light);
-                  display:flex;align-items:center;justify-content:center;font-size:18px;
-                  flex-shrink:0;">🏪</div>`}
+              ? `<img src="${m.foto}" alt="${m.nombre}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;">`
+              : `<div style="width:44px;height:44px;border-radius:50%;background:var(--purple-light);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🏪</div>`}
             <div>
               <div style="font-size:14px;font-weight:700;color:var(--text);">${m.nombre}</div>
               <div style="font-size:12px;color:var(--text-muted);">${m.rol}</div>
@@ -383,39 +198,30 @@ function openTiendaDetalle(id) {
       </div>
     </div>` : '';
 
-  /* ── Botones CTA ── */
   const ctaHtml = [
     t.whatsapp
       ? `<a href="https://wa.me/${t.whatsapp}" target="_blank" rel="noopener"
            style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
              padding:13px 10px;background:#25D366;border-radius:12px;color:white;
-             font-size:13px;font-weight:700;text-decoration:none;">
-           💬 WhatsApp
-         </a>` : '',
+             font-size:13px;font-weight:700;text-decoration:none;">💬 WhatsApp</a>` : '',
     t.lat && t.lng
       ? `<a href="https://www.google.com/maps/dir/?api=1&destination=${t.lat},${t.lng}"
            target="_blank" rel="noopener"
            style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
              padding:13px 10px;background:var(--purple-light);border-radius:12px;
-             color:var(--purple);font-size:13px;font-weight:700;text-decoration:none;">
-           🗺 Cómo llegar
-         </a>` : '',
+             color:var(--purple);font-size:13px;font-weight:700;text-decoration:none;">🗺 Cómo llegar</a>` : '',
     t.web
       ? `<a href="https://${t.web}" target="_blank" rel="noopener"
            style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
              padding:13px 10px;background:var(--bg);border-radius:12px;
              color:var(--text);font-size:13px;font-weight:700;text-decoration:none;
-             border:1.5px solid var(--border-md);">
-           🌐 Sitio web
-         </a>` : '',
+             border:1.5px solid var(--border-md);">🌐 Sitio web</a>` : '',
     t.telefono
       ? `<a href="tel:${t.telefono}"
            style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
              padding:13px 10px;background:var(--bg);border-radius:12px;
              color:var(--text);font-size:13px;font-weight:700;text-decoration:none;
-             border:1.5px solid var(--border-md);">
-           📞 Llamar
-         </a>` : '',
+             border:1.5px solid var(--border-md);">📞 Llamar</a>` : '',
   ].filter(Boolean).join('');
 
   const detailEl = document.getElementById('page-detail');
@@ -423,26 +229,19 @@ function openTiendaDetalle(id) {
 
   detailEl.innerHTML = `
     <div>
-      <!-- Header con gradiente -->
       <div style="background:${t.grad};padding:0 0 24px;position:relative;">
-        <!-- Back button -->
         <div style="padding:16px 16px 0;">
           <button onclick="switchTab('servicios');switchServiciosTab('tiendas')"
             style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.2);
               border:none;border-radius:100px;padding:8px 14px;color:white;font-size:13px;
               font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;
-              backdrop-filter:blur(4px);">
-            ← Volver a Tiendas
-          </button>
+              backdrop-filter:blur(4px);">← Volver a Tiendas</button>
         </div>
-        <!-- Info principal -->
         <div style="padding:20px 20px 0;text-align:center;">
           <div style="font-size:52px;margin-bottom:10px;line-height:1;">${t.icon}</div>
           <div style="display:inline-flex;align-items:center;gap:4px;
             background:rgba(255,255,255,0.22);border-radius:100px;padding:4px 12px;
-            font-size:11px;font-weight:700;color:white;margin-bottom:10px;">
-            ⭐ Vitrina Wufly
-          </div><br>
+            font-size:11px;font-weight:700;color:white;margin-bottom:10px;">⭐ Vitrina Wufly</div><br>
           <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:24px;
             color:white;margin-bottom:4px;line-height:1.2;">${t.nombre}</div>
           <div style="font-size:12px;color:rgba(255,255,255,0.78);font-weight:600;
@@ -452,27 +251,14 @@ function openTiendaDetalle(id) {
           </div>` : ''}
         </div>
       </div>
-
-      <!-- Contenido -->
-      <div style="padding:20px 16px 40px;display:flex;flex-direction:column;gap:14px;
-        background:var(--bg);">
-
-        <!-- CTA buttons -->
+      <div style="padding:20px 16px 40px;display:flex;flex-direction:column;gap:14px;background:var(--bg);">
         ${ctaHtml ? `<div style="display:flex;gap:8px;flex-wrap:wrap;">${ctaHtml}</div>` : ''}
-
-        <!-- Descripción -->
-        <div style="background:white;border-radius:16px;padding:16px;
-          box-shadow:0 2px 10px rgba(0,0,0,0.06);">
-          <div style="font-size:11px;font-weight:700;color:var(--text-muted);
-            letter-spacing:0.07em;margin-bottom:8px;">SOBRE LA TIENDA</div>
+        <div style="background:white;border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:8px;">SOBRE LA TIENDA</div>
           <div style="font-size:14px;color:var(--text);line-height:1.6;">${t.descripcion}</div>
         </div>
-
-        <!-- Información -->
-        <div style="background:white;border-radius:16px;padding:16px;
-          box-shadow:0 2px 10px rgba(0,0,0,0.06);">
-          <div style="font-size:11px;font-weight:700;color:var(--text-muted);
-            letter-spacing:0.07em;margin-bottom:12px;">INFORMACIÓN</div>
+        <div style="background:white;border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:12px;">INFORMACIÓN</div>
           <div style="display:flex;flex-direction:column;gap:10px;">
             ${t.direccion ? `<div style="display:flex;gap:10px;align-items:flex-start;">
               <span style="font-size:16px;">📍</span>
@@ -484,27 +270,19 @@ function openTiendaDetalle(id) {
             </div>` : ''}
             ${t.telefono ? `<div style="display:flex;gap:10px;align-items:flex-start;">
               <span style="font-size:16px;">📞</span>
-              <a href="tel:${t.telefono}"
-                style="font-size:13px;color:var(--purple);font-weight:600;text-decoration:none;">
-                ${t.telefono}</a>
+              <a href="tel:${t.telefono}" style="font-size:13px;color:var(--purple);font-weight:600;text-decoration:none;">${t.telefono}</a>
             </div>` : ''}
             ${t.web ? `<div style="display:flex;gap:10px;align-items:flex-start;">
               <span style="font-size:16px;">🌐</span>
               <a href="https://${t.web}" target="_blank" rel="noopener"
-                style="font-size:13px;color:var(--purple);font-weight:600;text-decoration:none;">
-                ${t.web}</a>
+                style="font-size:13px;color:var(--purple);font-weight:600;text-decoration:none;">${t.web}</a>
             </div>` : ''}
           </div>
         </div>
-
         ${fotosHtml}
         ${equipoHtml}
-
-        <!-- Productos / Categorías -->
-        <div style="background:white;border-radius:16px;padding:16px;
-          box-shadow:0 2px 10px rgba(0,0,0,0.06);">
-          <div style="font-size:11px;font-weight:700;color:var(--text-muted);
-            letter-spacing:0.07em;margin-bottom:10px;">PRODUCTOS Y CATEGORÍAS</div>
+        <div style="background:white;border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:10px;">PRODUCTOS Y CATEGORÍAS</div>
           <div style="display:flex;flex-wrap:wrap;gap:7px;">
             ${t.tags.map(tag =>
               `<span style="font-size:12px;font-weight:600;padding:6px 13px;border-radius:100px;
@@ -512,25 +290,10 @@ function openTiendaDetalle(id) {
             ).join('')}
           </div>
         </div>
-
       </div>
     </div>`;
 
   switchTab('detail');
-}
-
-/* ── openTienda para resultados geo (link Maps / WhatsApp) ── */
-function openTienda(id) {
-  const t = tiendas.find(x => x.id === id)
-    || (TIENDAS_DESTACADAS || []).find(x => x.id === id)
-    || (typeof geoResults !== 'undefined' && geoResults.tiendas?.find(x => x.id === id));
-  if (!t) return;
-  if (t.web) {
-    window.open('https://' + t.web, '_blank');
-  } else if (t.wsp || t.whatsapp) {
-    const num = (t.wsp || t.whatsapp).replace(/\D/g, '');
-    window.open('https://wa.me/' + num, '_blank');
-  }
 }
 
 /* ── Init ── */
