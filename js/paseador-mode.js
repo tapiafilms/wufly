@@ -134,8 +134,8 @@ async function enviarSolicitudPaseador() {
   btn.textContent = 'Enviando...';
 
   try {
-    // Guardar solicitud en Supabase
-    if (typeof db !== 'undefined') {
+    // Guardar solicitud en Supabase (sin .select() para evitar problemas de RLS)
+    if (typeof db !== 'undefined' && currentUser) {
       const { error } = await db.from('solicitudes_paseador').insert({
         user_id:     currentUser.id,
         email:       currentUser.email,
@@ -145,7 +145,7 @@ async function enviarSolicitudPaseador() {
         tarifa:      tarifa || null,
         estado:      'pendiente',
         created_at:  new Date().toISOString(),
-      }).select();
+      });
       if (error) throw error;
     }
 
@@ -160,9 +160,10 @@ async function enviarSolicitudPaseador() {
     renderSeccionPaseador();
     _paseadorToast('¡Solicitud enviada! Te avisaremos pronto. 🐾', 'ok');
   } catch(e) {
+    console.error('Error solicitud paseador:', e);
     _paseadorToast('Error al enviar. Intenta de nuevo.', 'err');
     btn.disabled = false;
-    btn.textContent = 'Enviar solicitud';
+    btn.textContent = 'Enviar solicitud →';
   }
 }
 
