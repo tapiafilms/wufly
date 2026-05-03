@@ -75,6 +75,13 @@ function renderHome() {
           <source src="/img/wufly-home.mp4" type="video/mp4">
         </video>
 
+        <!-- Spinner de carga del video -->
+        <div id="hero-video-spinner" style="position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:4;display:flex;align-items:center;gap:6px;transition:opacity 0.5s ease;">
+          <div style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.85);animation:wufly-bounce 1.1s ease-in-out infinite;"></div>
+          <div style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.85);animation:wufly-bounce 1.1s ease-in-out 0.2s infinite;"></div>
+          <div style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.85);animation:wufly-bounce 1.1s ease-in-out 0.4s infinite;"></div>
+        </div>
+
         <!-- Overlay de color -->
         <div style="position:absolute;inset:0;background:linear-gradient(to bottom, rgba(30,10,70,0.25) 0%, rgba(76,29,149,0.65) 60%, rgba(50,10,100,0.85) 100%);z-index:2;border-radius:0 0 28px 28px;"></div>
 
@@ -178,8 +185,12 @@ function renderHome() {
   // Forzar play del video hero (iOS ignora autoplay en elementos creados con innerHTML)
   setTimeout(() => {
     const v = el.querySelector('#hero-video');
+    const spinner = el.querySelector('#hero-video-spinner');
     if (!v) return;
-    const fadeIn = () => { v.style.opacity = '1'; };
+    const fadeIn = () => {
+      v.style.opacity = '1';
+      if (spinner) { spinner.style.opacity = '0'; setTimeout(() => { spinner.style.display = 'none'; }, 500); }
+    };
     if (v.readyState >= 3) {
       fadeIn();
     } else {
