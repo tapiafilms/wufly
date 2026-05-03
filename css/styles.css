@@ -920,6 +920,7 @@ body.app-ready { opacity:1; }
   .app-column .page { padding: 130px 20px 20px; }
   .app-column #page-home.page { padding: 0; }
   .app-column #page-alergias.page { padding: 0; }
+  .hero-rounded-sep { display: none; }
 
   /* ── COLUMNA DERECHA: panel dinámico ── */
   .info-column {
