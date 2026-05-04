@@ -26,7 +26,7 @@ function renderClinicas() {
       <div class="stat-row">
         <div class="stat"><div class="stat-num">${(CLINICAS_DESTACADAS||[]).length}</div><div class="stat-label">Destacadas</div></div>
         <div class="stat"><div class="stat-num">3</div><div class="stat-label">Ciudades</div></div>
-        <div class="stat"><div class="stat-num">${totalUrgencias}</div><div class="stat-label">Urgencias 24h</div></div>
+        <div class="stat"><div class="stat-num">${totalUrgencias}</div></div>
       </div>
     </div>`;
 
