@@ -97,17 +97,14 @@ function _renderTiendaDestacada(t) {
     <div onclick="openTiendaDetalle('${t.id}')"
       style="border-radius:20px;overflow:hidden;cursor:pointer;margin-bottom:14px;
              box-shadow:0 8px 28px rgba(0,0,0,0.22);position:relative;">
-      <div style="position:absolute;top:14px;right:14px;z-index:2;background:rgba(0,0,0,0.45);
-        border-radius:100px;padding:4px 11px;font-size:10px;font-weight:700;color:white;
-        letter-spacing:0.04em;backdrop-filter:blur(4px);">⭐ Vitrina</div>
+
       ${imgSrc
-        ? `<div style="position:relative;height:130px;overflow:hidden;background:${t.grad};">
+        ? `<div style="position:relative;height:130px;overflow:hidden;background:transparent;">
              <img src="${imgSrc}" alt="${t.nombre}"
                style="width:100%;height:100%;object-fit:cover;display:block;"
                onerror="this.style.display='none'">
-             <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1),rgba(0,0,0,0.5));"></div>
            </div>`
-        : `<div style="height:130px;background:${t.grad};display:flex;align-items:center;justify-content:center;">
+        : `<div style="height:130px;background:transparent;display:flex;align-items:center;justify-content:center;">
              <div style="font-size:48px;opacity:0.9;">${t.icon}</div>
            </div>`
       }
