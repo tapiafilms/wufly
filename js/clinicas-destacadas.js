@@ -45,6 +45,7 @@ const CLINICAS_DESTACADAS = [
     fotos: [],
     veterinarios: [],
     tags: ['Urgencias 24h', 'Laboratorio propio', 'Hospitalización', 'Cirugía', 'Fear Free'],
+    bannerImg: '/img/banner-mevetlab.jpg', // reemplazar con tu imagen
     lat: -33.02587,
     lng: -71.55578,
   },
@@ -67,6 +68,7 @@ const CLINICAS_DESTACADAS = [
     fotos: [],
     veterinarios: [],
     tags: ['Urgencias 24h', 'Animales exóticos', 'Peluquería canina', 'Farmacia'],
+    bannerImg: '/img/banner-artemisa.jpg', // reemplazar con tu imagen
     lat: -33.01618,
     lng: -71.54760,
   },
@@ -89,6 +91,7 @@ const CLINICAS_DESTACADAS = [
     fotos: [],
     veterinarios: [],
     tags: ['Emergencias', 'Cirugía', 'Vacunación', 'Medicina preventiva'],
+    bannerImg: '/img/banner-recreo.jpg', // reemplazar con tu imagen
     lat: -33.02869,
     lng: -71.57712,
   },

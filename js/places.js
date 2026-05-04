@@ -113,33 +113,41 @@ function onSearchClinicas() {
 
 /* ── Card clínica destacada ── */
 function _renderClinicaDestacada(c) {
+  const imgSrc = c.bannerImg || null;
   return `
     <div onclick="openClinicaDetalle('${c.id}')"
       style="border-radius:20px;overflow:hidden;cursor:pointer;margin-bottom:14px;
-             box-shadow:0 8px 28px rgba(0,0,0,0.22);position:relative;background:${c.grad};">
+             box-shadow:0 8px 28px rgba(0,0,0,0.22);position:relative;">
       ${c.urgencia ? `
-        <div style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.22);
+        <div style="position:absolute;top:14px;right:14px;z-index:2;background:rgba(0,0,0,0.45);
           border-radius:100px;padding:4px 11px;font-size:10px;font-weight:700;color:white;
           letter-spacing:0.04em;backdrop-filter:blur(4px);">🚨 Urgencias 24h</div>` : ''}
-      <div style="padding:22px 20px 20px;">
-        <div style="font-size:34px;margin-bottom:10px;line-height:1;">${c.icon}</div>
-        <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:21px;
-          color:white;margin-bottom:4px;line-height:1.2;">${c.nombre}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.78);font-weight:600;
-          letter-spacing:0.04em;margin-bottom:10px;text-transform:uppercase;">${c.subtitulo}</div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.9);line-height:1.55;
-          margin-bottom:16px;">${c.descripcion}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+      ${imgSrc
+        ? `<div style="position:relative;height:130px;overflow:hidden;background:${c.grad};">
+             <img src="${imgSrc}" alt="${c.nombre}"
+               style="width:100%;height:100%;object-fit:cover;display:block;"
+               onerror="this.style.display='none'">
+             <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1),rgba(0,0,0,0.5));"></div>
+           </div>`
+        : `<div style="height:130px;background:${c.grad};display:flex;align-items:center;justify-content:center;">
+             <div style="font-size:48px;opacity:0.9;">${c.icon}</div>
+           </div>`
+      }
+      <div style="background:white;padding:14px 16px 16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:17px;
+            color:var(--text);line-height:1.2;">${c.nombre}</div>
+          <div style="font-size:11px;font-weight:700;color:white;background:${c.grad};
+            padding:4px 10px;border-radius:100px;white-space:nowrap;">Ver →</div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">${c.subtitulo}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">
           ${c.tags.slice(0,3).map(t =>
-            `<span style="background:rgba(255,255,255,0.18);color:white;font-size:11px;
-              font-weight:600;padding:4px 10px;border-radius:100px;">${t}</span>`
+            `<span style="background:var(--purple-light);color:var(--purple);font-size:10px;
+              font-weight:600;padding:3px 9px;border-radius:100px;">${t}</span>`
           ).join('')}
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <div style="font-size:11px;color:rgba(255,255,255,0.7);">📍 ${c.ciudad}</div>
-          <div style="font-size:12px;font-weight:700;color:white;
-            background:rgba(255,255,255,0.22);padding:6px 14px;border-radius:100px;">Ver clínica →</div>
-        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">📍 ${c.ciudad}</div>
       </div>
     </div>`;
 }

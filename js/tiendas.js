@@ -92,32 +92,40 @@ function onSearchTiendas() {
 
 /* ── Card tienda destacada (vitrina) ── */
 function _renderTiendaDestacada(t) {
+  const imgSrc = t.bannerImg || null;
   return `
     <div onclick="openTiendaDetalle('${t.id}')"
       style="border-radius:20px;overflow:hidden;cursor:pointer;margin-bottom:14px;
-             box-shadow:0 8px 28px rgba(0,0,0,0.22);position:relative;background:${t.grad};">
-      <div style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.22);
+             box-shadow:0 8px 28px rgba(0,0,0,0.22);position:relative;">
+      <div style="position:absolute;top:14px;right:14px;z-index:2;background:rgba(0,0,0,0.45);
         border-radius:100px;padding:4px 11px;font-size:10px;font-weight:700;color:white;
         letter-spacing:0.04em;backdrop-filter:blur(4px);">⭐ Vitrina</div>
-      <div style="padding:22px 20px 20px;">
-        <div style="font-size:34px;margin-bottom:10px;line-height:1;">${t.icon}</div>
-        <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:21px;
-          color:white;margin-bottom:4px;line-height:1.2;">${t.nombre}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.78);font-weight:600;
-          letter-spacing:0.04em;margin-bottom:10px;text-transform:uppercase;">${t.subtitulo}</div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.9);line-height:1.55;
-          margin-bottom:16px;">${t.descripcion}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+      ${imgSrc
+        ? `<div style="position:relative;height:130px;overflow:hidden;background:${t.grad};">
+             <img src="${imgSrc}" alt="${t.nombre}"
+               style="width:100%;height:100%;object-fit:cover;display:block;"
+               onerror="this.style.display='none'">
+             <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1),rgba(0,0,0,0.5));"></div>
+           </div>`
+        : `<div style="height:130px;background:${t.grad};display:flex;align-items:center;justify-content:center;">
+             <div style="font-size:48px;opacity:0.9;">${t.icon}</div>
+           </div>`
+      }
+      <div style="background:white;padding:14px 16px 16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:17px;
+            color:var(--text);line-height:1.2;">${t.nombre}</div>
+          <div style="font-size:11px;font-weight:700;color:white;background:${t.grad};
+            padding:4px 10px;border-radius:100px;white-space:nowrap;">Ver →</div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">${t.subtitulo}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">
           ${t.tags.slice(0,3).map(tag =>
-            `<span style="background:rgba(255,255,255,0.18);color:white;font-size:11px;
-              font-weight:600;padding:4px 10px;border-radius:100px;">${tag}</span>`
+            `<span style="background:var(--purple-light);color:var(--purple);font-size:10px;
+              font-weight:600;padding:3px 9px;border-radius:100px;">${tag}</span>`
           ).join('')}
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <div style="font-size:11px;color:rgba(255,255,255,0.7);">📍 ${t.ciudad}</div>
-          <div style="font-size:12px;font-weight:700;color:white;
-            background:rgba(255,255,255,0.22);padding:6px 14px;border-radius:100px;">Ver tienda →</div>
-        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">📍 ${t.ciudad}</div>
       </div>
     </div>`;
 }
