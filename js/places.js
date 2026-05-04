@@ -26,7 +26,7 @@ function renderClinicas() {
       <div class="stat-row">
         <div class="stat"><div class="stat-num">${(CLINICAS_DESTACADAS||[]).length}</div><div class="stat-label">Destacadas</div></div>
         <div class="stat"><div class="stat-num">3</div><div class="stat-label">Ciudades</div></div>
-        <div class="stat"><div class="stat-num">${totalUrgencias}</div></div>
+        <div class="stat"><div class="stat-num">${totalUrgencias}</div><div class="stat-label">Urgencias 24h</div></div>
       </div>
     </div>`;
 
@@ -119,9 +119,7 @@ function _renderClinicaDestacada(c) {
       style="border-radius:20px;overflow:hidden;cursor:pointer;margin-bottom:14px;
              box-shadow:0 8px 28px rgba(0,0,0,0.22);position:relative;">
       ${c.urgencia ? `
-        <div style="position:absolute;top:14px;right:14px;z-index:2;background:rgba(0,0,0,0.45);
-          border-radius:100px;padding:4px 11px;font-size:10px;font-weight:700;color:white;
-          letter-spacing:0.04em;backdrop-filter:blur(4px);">🚨 Urgencias 24h</div>` : ''}
+        <div></div>` : ''}
       ${imgSrc
         ? `<div class="fto-tienda" style="position:relative;overflow:hidden;background:transparent;">
              <img src="${imgSrc}" alt="${c.nombre}"
