@@ -198,7 +198,9 @@ body.app-ready { opacity:1; }
 .tab:hover:not(.active) {
   color:rgba(255,255,255,0.9);
 }
-
+.fto-tienda{
+    height:155px;
+}
 /* ── PAGES ── */
 .page { display:none; padding:130px 20px 20px; }
 #page-home.page { padding:0px; }
@@ -1173,6 +1175,10 @@ body.app-ready { opacity:1; }
 #rescateFeed img[onclick]:active {
   transform: scale(0.97);
   filter: brightness(0.88);
+}
+
+@media (min-width: 50px) and (max-width: 400px) {
+    .fto-tienda{height:130px;} 
 }
 
 /* ── Spinner dots hero video ── */
