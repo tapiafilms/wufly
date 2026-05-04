@@ -155,25 +155,18 @@ function renderHome() {
         </div>
       </div>
 
-      <!-- ARTISTA DESTACADO -->
-      <div style="margin:0 16px 20px;background:linear-gradient(150deg,#FAF5FF,#F3E8FF);border-radius:16px;border-left:4px solid #7C3AED;padding:16px 18px;box-shadow:0 2px 10px rgba(124,58,237,0.1);">
-        <div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:0.07em;margin-bottom:6px;">🎨 ARTE · RETRATOS DE MASCOTAS</div>
-        <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:16px;color:#2D1B6B;margin-bottom:4px;">Valeria Muñoz</div>
-        <div style="font-size:12px;color:#6B7280;margin-bottom:14px;">¿Quieres inmortalizar a tu mascota? Óleo, acuarela, lápiz y arte digital.</div>
-        <button onclick="switchServiciosTab('arte'); switchTab('servicios')"
-          style="background:linear-gradient(135deg,#7C3AED,#C026D3);border:none;border-radius:100px;padding:8px 18px;color:white;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
-          Ver artistas →
-        </button>
+      <!-- BANNER ARTE — imagen: img/banner-arte.jpg | link: onclick abajo -->
+      <div style="margin:0 16px 20px;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(124,58,237,0.15);cursor:pointer;"
+        onclick="switchServiciosTab('arte'); switchTab('servicios')">
+        <img src="img/banner-arte.jpg" alt="Arte · Retratos de mascotas"
+          style="width:100%;display:block;object-fit:cover;">
       </div>
 
-      <!-- TIP DEL DR. WUFLY -->
-      <div style="margin:0 16px 24px;background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border-radius:16px;border-left:4px solid #3B82F6;padding:16px 18px;box-shadow:0 2px 10px rgba(59,130,246,0.1);">
-        <div style="font-size:10px;font-weight:700;color:#3B82F6;letter-spacing:0.07em;margin-bottom:6px;">💡 TIP DEL DÍA</div>
-        <div style="font-size:13px;color:#1E3A5F;line-height:1.6;margin-bottom:14px;">${tipHoy}</div>
-        <button onclick="switchTab('drwufly')"
-          style="background:linear-gradient(135deg,#2563EB,#3B82F6);border:none;border-radius:100px;padding:8px 18px;color:white;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
-          Preguntar al Dr. Wufly →
-        </button>
+      <!-- BANNER TIP DEL DÍA — imagen: img/banner-tip.jpg | link: onclick abajo -->
+      <div style="margin:0 16px 24px;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(59,130,246,0.15);cursor:pointer;"
+        onclick="switchTab('drwufly')">
+        <img src="img/banner-tip.jpg" alt="Tip del día · Dra. Wufly"
+          style="width:100%;display:block;object-fit:cover;">
       </div>
 
     </div>
