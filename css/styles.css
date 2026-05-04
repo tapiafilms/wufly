@@ -116,7 +116,9 @@ body.app-ready { opacity:1; }
   overflow:hidden;
   box-shadow:0 4px 20px rgba(124,77,204,0.35);
 }
-
+.oculto{
+    display:none;
+}
 /* Sutil patrón de puntos sobre el gradiente */
 .topbar::before {
   content:'';
@@ -1178,7 +1180,7 @@ body.app-ready { opacity:1; }
 }
 
 @media (min-width: 50px) and (max-width: 400px) {
-    .fto-tienda{height:130px;} 
+    .fto-tienda { height:130px; } 
 }
 
 /* ── Spinner dots hero video ── */
