@@ -21,7 +21,7 @@ function renderTiendas() {
   });
 
   const vitrinaHtml = destacadasFiltradas.length > 0
-    ? `<div style="font-size:11px;font-weight:700;color:var(--purple);letter-spacing:0.07em;padding:0 2px 10px;">TIENDAS DESTACADAS</div>
+    ? `<div style="font-size:11px;font-weight:700;color:var(--purple);letter-spacing:0.07em;padding:0 2px 10px;">TIENDAS</div>
        ${destacadasFiltradas.map(_renderTiendaDestacada).join('')}`
     : '';
 
@@ -93,7 +93,7 @@ function _renderTiendaDestacada(t) {
              box-shadow:0 8px 28px rgba(0,0,0,0.22);position:relative;">
 
       ${imgSrc
-        ? `<div style="position:relative;overflow:hidden;background:transparent;">
+        ? `<div style="position:relative;height:130px;overflow:hidden;background:transparent;">
              <img src="${imgSrc}" alt="${t.nombre}"
                style="width:100%;height:100%;object-fit:cover;display:block;"
                onerror="this.style.display='none'">
