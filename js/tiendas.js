@@ -14,7 +14,7 @@ function renderTiendas() {
 
   /* ── Buscador ── */
   const searchBar = `
-    <div class="search-bar" style="margin-bottom:12px;">
+    <div class="search-bar oculto" style="margin-bottom:12px;">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
       <input type="text" placeholder="Buscar tienda, producto..." id="searchTiendas"
         oninput="onSearchTiendas()" aria-label="Buscar tienda de mascotas">
@@ -27,7 +27,7 @@ function renderTiendas() {
   });
 
   const vitrinaHtml = destacadasFiltradas.length > 0
-    ? `<div style="font-size:11px;font-weight:700;color:var(--purple);letter-spacing:0.07em;padding:0 2px 10px;">TIENDAS DESTACADAS/div>
+    ? `<div style="font-size:11px;font-weight:700;color:var(--purple);letter-spacing:0.07em;padding:0 2px 10px;">TIENDAS DESTACADAS</div>
        ${destacadasFiltradas.map(_renderTiendaDestacada).join('')}`
     : '';
 
