@@ -117,7 +117,7 @@ body.app-ready { opacity:1; }
   box-shadow:0 4px 20px rgba(124,77,204,0.35);
 }
 .oculto{
-    display:none;
+    display:none!important;
 }
 /* Sutil patrón de puntos sobre el gradiente */
 .topbar::before {
