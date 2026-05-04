@@ -113,7 +113,7 @@ function _renderTiendaDestacada(t) {
           <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:17px;
             color:var(--text);line-height:1.2;">${t.nombre}</div>
           <div style="font-size:11px;font-weight:700;color:white;background:${t.grad};
-            padding:4px 10px;border-radius:100px;white-space:nowrap;">Ver →</div>
+            padding:4px 10px;border-radius:100px;white-space:nowrap;">Entrar</div>
         </div>
         <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">${t.subtitulo}</div>
         <div style="display:flex;flex-wrap:wrap;gap:5px;">
