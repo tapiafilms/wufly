@@ -12,13 +12,7 @@ function renderTiendas() {
   const geoLoading    = typeof geoStatus  !== 'undefined' && geoStatus === 'loading';
   const q = (document.getElementById('searchTiendas')?.value || '').toLowerCase();
 
-  /* ── Buscador ── */
-  const searchBar = `
-    <div class="search-bar" style="margin-bottom:12px;">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <input type="text" placeholder="Buscar tienda, producto..." id="searchTiendas"
-        oninput="onSearchTiendas()" aria-label="Buscar tienda de mascotas">
-    </div>`;
+
 
   /* ── 3 tiendas destacadas (siempre fijas) ── */
   const destacadasFiltradas = (TIENDAS_DESTACADAS || []).filter(t => {
@@ -27,7 +21,7 @@ function renderTiendas() {
   });
 
   const vitrinaHtml = destacadasFiltradas.length > 0
-    ? `<div style="font-size:11px;font-weight:700;color:var(--purple);letter-spacing:0.07em;padding:0 2px 10px;">⭐ VITRINA</div>
+    ? `<div style="font-size:11px;font-weight:700;color:var(--purple);letter-spacing:0.07em;padding:0 2px 10px;">TIENDAS DESTACADAS</div>
        ${destacadasFiltradas.map(_renderTiendaDestacada).join('')}`
     : '';
 
@@ -99,7 +93,7 @@ function _renderTiendaDestacada(t) {
              box-shadow:0 8px 28px rgba(0,0,0,0.22);position:relative;">
 
       ${imgSrc
-        ? `<div style="position:relative;height:130px;overflow:hidden;background:transparent;">
+        ? `<div class="fto-tienda" style="position:relative;overflow:hidden;background:transparent;">
              <img src="${imgSrc}" alt="${t.nombre}"
                style="width:100%;height:100%;object-fit:cover;display:block;"
                onerror="this.style.display='none'">
