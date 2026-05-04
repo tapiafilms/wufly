@@ -93,7 +93,7 @@ function _renderTiendaDestacada(t) {
              box-shadow:0 8px 28px rgba(0,0,0,0.22);position:relative;">
 
       ${imgSrc
-        ? `<div class="fto-tienda" style="position:relative;overflow:hidden;background:transparent;">
+        ? `<div style="position:relative;overflow:hidden;background:transparent;">
              <img src="${imgSrc}" alt="${t.nombre}"
                style="width:100%;height:100%;object-fit:cover;display:block;"
                onerror="this.style.display='none'">
