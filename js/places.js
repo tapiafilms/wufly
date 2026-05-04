@@ -25,7 +25,7 @@ function renderClinicas() {
         style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;">
         <source src="img/clinicas.mp4" type="video/mp4">
       </video>
-      <div style="position:absolute;inset:0;background:rgba(103,58,183,0.5);z-index:1;pointer-events:none;"></div>
+      <div style="position:absolute;inset:0;background:rgba(103,58,183,0.72);z-index:1;pointer-events:none;"></div>
       <div style="position:relative;z-index:2;">
         <h2>Clínicas Veterinarias</h2>
         <p>Veterinarias verificadas en Viña del Mar, Valparaíso y Concón</p>
