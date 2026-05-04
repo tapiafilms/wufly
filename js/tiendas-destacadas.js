@@ -43,7 +43,7 @@ const TIENDAS_DESTACADAS = [
     fotos: [],
     equipo: [],
     tags: ['Alimentos premium', 'Accesorios', 'Peluquería canina', 'Higiene', 'Nutrición'],
-    bannerImg: '/img/banner-petslife.jpg', // reemplazar con tu imagen
+    bannerImg: '/img/banner-petslife.png', // reemplazar con tu imagen
     lat: null,
     lng: null,
   },
@@ -65,7 +65,7 @@ const TIENDAS_DESTACADAS = [
     fotos: [],
     equipo: [],
     tags: ['Alimentos premium', 'Grooming', 'Juguetes', 'Higiene', 'Marcas premium'],
-    bannerImg: '/img/banner-infopet.jpg', // reemplazar con tu imagen
+    bannerImg: '/img/banner-infopet.png', // reemplazar con tu imagen
     lat: null,
     lng: null,
   },
@@ -87,7 +87,7 @@ const TIENDAS_DESTACADAS = [
     fotos: [],
     equipo: [],
     tags: ['Alimentos', 'Grooming', 'Accesorios', 'Higiene', 'Primeras marcas'],
-    bannerImg: '/img/banner-petzonas.jpg', // reemplazar con tu imagen
+    bannerImg: '/img/banner-petzonas.png', // reemplazar con tu imagen
     lat: null,
     lng: null,
   },
