@@ -139,53 +139,32 @@ function renderArte() {
 
 /* ══ CLOUDINARY ══ */
 const CLOUDINARY_CLOUD = 'dpkqqsjwk';
-const CLOUDINARY_FOLDER = 'tapiah';
 
-async function cargarGaleriaCloudinary() {
+const CLOUDINARY_OBRAS = [
+  'tapiah/212866991-a-colorful-pencil-drawing-of-a-dog-on-a-white-piece-of-paper-the-drawing-showcases-realistic-color_uyfebi',
+  'tapiah/il_fullxfull.3360614972_95de_onimxi',
+  'tapiah/a5780957d32e061471e714c98fcc5d16_cc11ny',
+  'tapiah/il_570xN.5519544592_ee4b_jkdaxu',
+];
+
+function cargarGaleriaCloudinary() {
   const grid = document.getElementById('cloudinary-gallery');
   if (!grid) return;
 
-  try {
-    const url = `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/list/${CLOUDINARY_FOLDER}.json`;
-    const res = await fetch(url);
-
-    if (!res.ok) throw new Error('No se pudo cargar la galería');
-
-    const data = await res.json();
-    const recursos = data.resources || [];
-
-    if (recursos.length === 0) {
-      grid.innerHTML = `
-        <div style="grid-column:1/-1;text-align:center;padding:24px;color:#9CA3AF;font-size:13px;">
-          <div style="font-size:28px;margin-bottom:8px;">🖼️</div>
-          Próximamente obras disponibles
-        </div>`;
-      return;
-    }
-
-    grid.innerHTML = recursos.map((r, i) => {
-      const thumb = `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/w_300,h_300,c_fill,q_auto,f_auto/${r.public_id}`;
-      const full  = `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/w_1200,q_auto,f_auto/${r.public_id}`;
-      return `
-        <div onclick="abrirLightbox('${full}', ${i}, ${recursos.length})"
-          style="aspect-ratio:1;border-radius:10px;overflow:hidden;cursor:pointer;background:#EDE9FE;position:relative;">
-          <img src="${thumb}" alt="Obra ${i + 1}"
-            loading="lazy"
-            style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.2s;"
-            onmouseover="this.style.transform='scale(1.05)'"
-            onmouseout="this.style.transform='scale(1)'"
-            onerror="this.parentElement.style.display='none'">
-        </div>`;
-    }).join('');
-
-  } catch (err) {
-    grid.innerHTML = `
-      <div style="grid-column:1/-1;text-align:center;padding:24px;color:#9CA3AF;font-size:13px;">
-        <div style="font-size:28px;margin-bottom:8px;">⚠️</div>
-        No se pudo cargar la galería
+  grid.innerHTML = CLOUDINARY_OBRAS.map((id, i) => {
+    const thumb = `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/w_300,h_300,c_fill,q_auto,f_auto/${id}`;
+    const full  = `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/w_1200,q_auto,f_auto/${id}`;
+    return `
+      <div onclick="abrirLightbox('${full}', ${i}, ${CLOUDINARY_OBRAS.length})"
+        style="aspect-ratio:1;border-radius:10px;overflow:hidden;cursor:pointer;background:#EDE9FE;">
+        <img src="${thumb}" alt="Obra ${i + 1}"
+          loading="lazy"
+          style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.2s;"
+          onmouseover="this.style.transform='scale(1.05)'"
+          onmouseout="this.style.transform='scale(1)'"
+          onerror="this.parentElement.style.display='none'">
       </div>`;
-    console.warn('Cloudinary gallery error:', err);
-  }
+  }).join('');
 }
 
 /* ══ LIGHTBOX ══ */
