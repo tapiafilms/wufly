@@ -108,6 +108,17 @@ function renderArte() {
         </div>
       </div>
 
+      <!-- Galería Cloudinary -->
+      <div>
+        <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:10px;">GALERÍA DE OBRAS</div>
+        <div id="cloudinary-gallery" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+          <div style="grid-column:1/-1;text-align:center;padding:24px;color:#9CA3AF;font-size:13px;">
+            <div style="font-size:28px;margin-bottom:8px;">🎨</div>
+            Cargando galería…
+          </div>
+        </div>
+      </div>
+
       <!-- CTA encargo -->
       <a href="https://wa.me/${wspNum}?text=${encodeURIComponent(`Hola ${a.nombre}! Vi tu trabajo en Wufly y me gustaría encargar un retrato de mi mascota 🎨`)}"
         target="_blank" rel="noopener"
@@ -121,6 +132,87 @@ function renderArte() {
       </div>
     </div>
   `;
+
+  // Cargar galería desde Cloudinary
+  cargarGaleriaCloudinary();
+}
+
+/* ══ CLOUDINARY ══ */
+const CLOUDINARY_CLOUD = 'dpkqqsjwk';
+const CLOUDINARY_FOLDER = 'tapiah';
+
+async function cargarGaleriaCloudinary() {
+  const grid = document.getElementById('cloudinary-gallery');
+  if (!grid) return;
+
+  try {
+    const url = `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/list/${CLOUDINARY_FOLDER}.json`;
+    const res = await fetch(url);
+
+    if (!res.ok) throw new Error('No se pudo cargar la galería');
+
+    const data = await res.json();
+    const recursos = data.resources || [];
+
+    if (recursos.length === 0) {
+      grid.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:24px;color:#9CA3AF;font-size:13px;">
+          <div style="font-size:28px;margin-bottom:8px;">🖼️</div>
+          Próximamente obras disponibles
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = recursos.map((r, i) => {
+      const thumb = `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/w_300,h_300,c_fill,q_auto,f_auto/${r.public_id}`;
+      const full  = `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/w_1200,q_auto,f_auto/${r.public_id}`;
+      return `
+        <div onclick="abrirLightbox('${full}', ${i}, ${recursos.length})"
+          style="aspect-ratio:1;border-radius:10px;overflow:hidden;cursor:pointer;background:#EDE9FE;position:relative;">
+          <img src="${thumb}" alt="Obra ${i + 1}"
+            loading="lazy"
+            style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.2s;"
+            onmouseover="this.style.transform='scale(1.05)'"
+            onmouseout="this.style.transform='scale(1)'"
+            onerror="this.parentElement.style.display='none'">
+        </div>`;
+    }).join('');
+
+  } catch (err) {
+    grid.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:24px;color:#9CA3AF;font-size:13px;">
+        <div style="font-size:28px;margin-bottom:8px;">⚠️</div>
+        No se pudo cargar la galería
+      </div>`;
+    console.warn('Cloudinary gallery error:', err);
+  }
+}
+
+/* ══ LIGHTBOX ══ */
+function abrirLightbox(src, idx, total) {
+  const existing = document.getElementById('arte-lightbox');
+  if (existing) existing.remove();
+
+  const lb = document.createElement('div');
+  lb.id = 'arte-lightbox';
+  lb.style.cssText = `
+    position:fixed;inset:0;z-index:99999;
+    background:rgba(0,0,0,0.95);
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    font-family:'Plus Jakarta Sans',sans-serif;
+  `;
+
+  lb.innerHTML = `
+    <button onclick="document.getElementById('arte-lightbox').remove()"
+      style="position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;color:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+    <div style="position:absolute;top:20px;left:50%;transform:translateX(-50%);font-size:12px;color:rgba(255,255,255,0.5);">${idx + 1} / ${total}</div>
+    <img src="${src}" alt="Obra"
+      style="max-width:92vw;max-height:80vh;object-fit:contain;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+  `;
+
+  lb.addEventListener('click', e => { if (e.target === lb) lb.remove(); });
+  document.body.appendChild(lb);
 }
 
 /* ══ MODAL DE DETALLE DEL ARTISTA ══ */
