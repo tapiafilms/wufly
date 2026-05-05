@@ -247,9 +247,111 @@ function updateInfoColumn(tabName) {
   const content = INFO_COLUMN_CONTENT[tabName] || INFO_COLUMN_CONTENT.home;
   col.style.opacity = '0';
   setTimeout(() => {
-    col.innerHTML = content;
+    const esAdmin = (typeof currentUser !== 'undefined' && currentUser?.email === 'genifychile@gmail.com');
+    col.innerHTML = (esAdmin ? _adminPaseadoresWidget() : '') + content;
     col.style.opacity = '1';
+    if (esAdmin) _cargarSolicitudesPaseadores();
   }, 180);
+}
+
+/* ══ ADMIN WIDGET — Solicitudes de paseadores ══ */
+function _adminPaseadoresWidget() {
+  return `
+  <div id="admin-paseadores-widget" style="background:linear-gradient(135deg,#1a0a3c,#2d1060);border-radius:16px;padding:18px;margin-bottom:16px;border:1.5px solid rgba(124,77,204,0.4);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:0.1em;">WUFLY ADMIN</div>
+        <div style="font-size:15px;font-weight:700;color:white;margin-top:2px;">🐾 Solicitudes de Paseadores</div>
+      </div>
+      <button onclick="_cargarSolicitudesPaseadores()" title="Actualizar"
+        style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;font-size:13px;cursor:pointer;">↻</button>
+    </div>
+    <div id="admin-solicitudes-list" style="display:flex;flex-direction:column;gap:8px;">
+      <div style="text-align:center;padding:20px;color:rgba(255,255,255,0.4);font-size:13px;">Cargando…</div>
+    </div>
+  </div>`;
+}
+
+async function _cargarSolicitudesPaseadores() {
+  const list = document.getElementById('admin-solicitudes-list');
+  if (!list) return;
+
+  try {
+    const { data, error } = await db
+      .from('solicitudes_paseador')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      list.innerHTML = '<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);font-size:13px;">Sin solicitudes aún</div>';
+      return;
+    }
+
+    list.innerHTML = data.map(s => {
+      const esPendiente = s.estado === 'pendiente';
+      const esAprobado  = s.estado === 'aprobado';
+      const fecha = s.created_at ? new Date(s.created_at).toLocaleDateString('es-CL', { day:'2-digit', month:'short' }) : '';
+
+      return `
+      <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.1);">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.nombre || 'Sin nombre'}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">${s.email || ''} · ${fecha}</div>
+            ${s.zona ? `<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:1px;">📍 ${s.zona}</div>` : ''}
+          </div>
+          <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;flex-shrink:0;
+            background:${esPendiente ? 'rgba(245,158,11,0.2)' : esAprobado ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'};
+            color:${esPendiente ? '#FCD34D' : esAprobado ? '#6EE7B7' : '#FCA5A5'};">
+            ${esPendiente ? '⏳ Pendiente' : esAprobado ? '✅ Aprobado' : '❌ Rechazado'}
+          </span>
+        </div>
+        ${esPendiente ? `
+        <div style="display:flex;gap:6px;margin-top:10px;">
+          <button onclick="_aprobarPaseador('${s.id}')"
+            style="flex:1;padding:7px;border-radius:8px;border:none;background:#10B981;color:white;font-size:12px;font-weight:700;cursor:pointer;">
+            ✓ Aprobar
+          </button>
+          <button onclick="_rechazarPaseador('${s.id}')"
+            style="flex:1;padding:7px;border-radius:8px;border:none;background:rgba(239,68,68,0.3);color:#FCA5A5;font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(239,68,68,0.4);">
+            ✕ Rechazar
+          </button>
+        </div>` : ''}
+      </div>`;
+    }).join('');
+
+  } catch (e) {
+    list.innerHTML = `<div style="text-align:center;padding:16px;color:#FCA5A5;font-size:12px;">Error al cargar: ${e.message}</div>`;
+  }
+}
+
+async function _aprobarPaseador(id) {
+  try {
+    const { error } = await db
+      .from('solicitudes_paseador')
+      .update({ estado: 'aprobado' })
+      .eq('id', id);
+    if (error) throw error;
+    await _cargarSolicitudesPaseadores();
+  } catch (e) {
+    alert('Error al aprobar: ' + e.message);
+  }
+}
+
+async function _rechazarPaseador(id) {
+  if (!confirm('¿Seguro que quieres rechazar esta solicitud?')) return;
+  try {
+    const { error } = await db
+      .from('solicitudes_paseador')
+      .update({ estado: 'rechazado' })
+      .eq('id', id);
+    if (error) throw error;
+    await _cargarSolicitudesPaseadores();
+  } catch (e) {
+    alert('Error al rechazar: ' + e.message);
+  }
 }
 
 /* ══ NAVEGACIÓN ══ */
