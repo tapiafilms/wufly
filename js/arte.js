@@ -141,10 +141,10 @@ function renderArte() {
 const CLOUDINARY_CLOUD = 'dpkqqsjwk';
 
 const CLOUDINARY_OBRAS = [
-  'tapiah/212866991-a-colorful-pencil-drawing-of-a-dog-on-a-white-piece-of-paper-the-drawing-showcases-realistic-color_uyfebi',
-  'tapiah/il_fullxfull.3360614972_95de_onimxi',
-  'tapiah/a5780957d32e061471e714c98fcc5d16_cc11ny',
-  'tapiah/il_570xN.5519544592_ee4b_jkdaxu',
+  '212866991-a-colorful-pencil-drawing-of-a-dog-on-a-white-piece-of-paper-the-drawing-showcases-realistic-color_uyfebi',
+  'il_fullxfull.3360614972_95de_onimxi',
+  'a5780957d32e061471e714c98fcc5d16_cc11ny',
+  'il_570xN.5519544592_ee4b_jkdaxu',
 ];
 
 function cargarGaleriaCloudinary() {
