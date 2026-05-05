@@ -134,7 +134,9 @@ function renderArte() {
 
     '</div>';
 
-  setTimeout(cargarGaleriaCloudinary, 50);
+  requestAnimationFrame(function() {
+    requestAnimationFrame(cargarGaleriaCloudinary);
+  });
 }
 
 /* ── Init ── */
