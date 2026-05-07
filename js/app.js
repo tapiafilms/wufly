@@ -418,7 +418,7 @@ function switchServiciosTab(tab) {
   });
   if (tab === 'tiendas')    renderTiendas?.();
   if (tab === 'grooming')   renderGrooming?.();
-  if (tab === 'paseadores') renderPaseadores?.();
+  if (tab === 'paseadores') { if (typeof initPaseadores === 'function') initPaseadores(); }
   if (tab === 'arte')       renderArte?.();
 }
 

@@ -124,10 +124,11 @@ async function enviarSolicitudPaseador() {
   const zona        = document.getElementById('fpZona')?.value;
   const descripcion = document.getElementById('fpDescripcion')?.value.trim();
   const tarifa      = document.getElementById('fpTarifa')?.value.trim();
+  const whatsapp    = document.getElementById('fpWhatsapp')?.value.trim();
   const btn         = document.getElementById('fpBtnEnviar');
 
-  if (!nombre || !zona || !descripcion) {
-    _paseadorToast('Completa todos los campos obligatorios.', 'err'); return;
+  if (!nombre || !zona || !descripcion || !whatsapp) {
+    _paseadorToast('Completa todos los campos obligatorios, incluyendo WhatsApp.', 'err'); return;
   }
 
   btn.disabled = true;
@@ -143,6 +144,7 @@ async function enviarSolicitudPaseador() {
         zona,
         descripcion,
         tarifa:      tarifa || null,
+        whatsapp:    whatsapp || null,
         estado:      'pendiente',
         created_at:  new Date().toISOString(),
       });
