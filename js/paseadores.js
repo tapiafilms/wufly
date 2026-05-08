@@ -23,13 +23,13 @@ async function cargarPaseadoresDB() {
   try {
     const { data, error } = await db
       .from('solicitudes_paseador')
-      .select('user_id, nombre, zona, descripcion, tarifa, whatsapp')
+      .select('user_id, nombre, zona, descripcion, tarifa')
       .eq('estado', 'aprobado')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
 
-    paseadoresData   = data || [];
+    paseadoresData   = (data || []).map(p => ({...p, whatsapp: p.whatsapp || null}));
     paseadoresLoaded = true;
     renderPaseadores();
   } catch (e) {
