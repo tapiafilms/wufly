@@ -6,7 +6,7 @@
    - Imágenes                           → Cache First
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'wufly-v51';
+const CACHE_NAME = 'wufly-v52';
 const API_HOST = 'divine-waterfall-d1dfsin-gluten-life.pablo77tapia.workers.dev';
 
 const STATIC_ASSETS = [
@@ -103,13 +103,19 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Archivos JS → Network First (siempre frescos, cache como fallback offline)
-  if (url.pathname.endsWith('.js')) {
+  // Archivos JS y CSS → Network First (siempre frescos, cache como fallback offline)
+  if (url.pathname.endsWith('.js') || url.pathname.endsWith('.css')) {
     event.respondWith(networkFirst(request));
     return;
   }
 
-  // Todo lo demás (assets locales) → Cache First
+  // index.html → Network First (para recibir siempre la versión más reciente)
+  if (url.pathname === '/' || url.pathname.endsWith('.html')) {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+
+  // Todo lo demás (imágenes, fuentes locales) → Cache First
   event.respondWith(cacheFirst(request));
 });
 
