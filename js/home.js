@@ -220,9 +220,18 @@ function renderHome() {
     v.play().catch(() => {});
   }, 100);
 
-  // Cargar galería de mascotas de la comunidad
+// Cargar galería cuando la sesión esté lista
   if (typeof cargarFotosMascotas === 'function') {
-    cargarFotosMascotas();
+    db.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        cargarFotosMascotas();
+      } else {
+        // Escuchar cuando el usuario se loguee
+        db.auth.onAuthStateChange((event, session) => {
+          if (session) cargarFotosMascotas();
+        });
+      }
+    });
   }
 }
 
