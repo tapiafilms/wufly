@@ -103,6 +103,20 @@ function _htmlPaseadorVerificado(p) {
     </div>`;
 }
 
+/* ══ PREVISUALIZAR FOTO ══════════════════════════ */
+
+function previsualizarFotoPaseador(input) {
+  const f = input.files[0];
+  if (!f) return;
+  const preview = document.getElementById('fpFotoPreview');
+  if (!preview) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    preview.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+  };
+  reader.readAsDataURL(f);
+}
+
 /* ══ FORMULARIO DE SOLICITUD ══════════════════════ */
 
 function abrirFormPaseador() {
@@ -121,30 +135,52 @@ function cerrarFormPaseador() {
 
 async function enviarSolicitudPaseador() {
   const nombre      = document.getElementById('fpNombre')?.value.trim();
+  const rut         = document.getElementById('fpRut')?.value.trim();
+  const telefono    = document.getElementById('fpTelefono')?.value.trim();
+  const email       = document.getElementById('fpEmail')?.value.trim();
   const zona        = document.getElementById('fpZona')?.value;
   const descripcion = document.getElementById('fpDescripcion')?.value.trim();
   const tarifa      = document.getElementById('fpTarifa')?.value.trim();
   const whatsapp    = document.getElementById('fpWhatsapp')?.value.trim();
+  const fotoInput   = document.getElementById('fpFotoInput');
   const btn         = document.getElementById('fpBtnEnviar');
 
-  if (!nombre || !zona || !descripcion || !whatsapp) {
-    _paseadorToast('Completa todos los campos obligatorios, incluyendo WhatsApp.', 'err'); return;
+  if (!nombre || !rut || !telefono || !email || !zona || !descripcion || !whatsapp) {
+    _paseadorToast('Completa todos los campos obligatorios.', 'err'); return;
   }
 
   btn.disabled = true;
   btn.textContent = 'Enviando...';
 
   try {
-    // Guardar solicitud en Supabase (sin .select() para evitar problemas de RLS)
+    let fotoUrl = null;
+
+    // Subir foto a Supabase Storage si la eligió
+    if (fotoInput?.files?.length && typeof db !== 'undefined' && currentUser) {
+      const file = fotoInput.files[0];
+      const ext  = file.name.split('.').pop();
+      const path = 'paseadores/' + currentUser.id + '.' + ext;
+      const { error: upErr } = await db.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (!upErr) {
+        const { data: urlData } = db.storage.from('avatars').getPublicUrl(path);
+        fotoUrl = urlData?.publicUrl || null;
+      }
+    }
+
     if (typeof db !== 'undefined' && currentUser) {
       const { error } = await db.from('solicitudes_paseador').insert({
         user_id:     currentUser.id,
-        email:       currentUser.email,
+        email:       email || currentUser.email,
         nombre,
+        rut,
+        telefono,
         zona,
         descripcion,
         tarifa:      tarifa || null,
         whatsapp:    whatsapp || null,
+        foto:        fotoUrl || null,
         estado:      'pendiente',
         created_at:  new Date().toISOString(),
       });
@@ -155,7 +191,7 @@ async function enviarSolicitudPaseador() {
     const p = (() => { try { return JSON.parse(localStorage.getItem('wufly_profile_v1') || '{}'); } catch { return {}; } })();
     p.solicitudPaseador = 'pendiente';
     p.nombrePaseador = nombre;
-    p.zonaPaseador = zona;
+    p.zonaPaseador   = zona;
     localStorage.setItem('wufly_profile_v1', JSON.stringify(p));
 
     cerrarFormPaseador();
