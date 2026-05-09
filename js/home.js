@@ -162,6 +162,34 @@ function renderHome() {
           style="width:100%;display:block;object-fit:cover;">
       </div>
 
+
+      <!-- GALERÍA DE MASCOTAS DE LA COMUNIDAD -->
+      <div id="pet-gallery-section" style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:12px;">
+          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">🐾 MASCOTAS DE LA COMUNIDAD</div>
+          <div style="font-size:11px;font-weight:600;color:var(--purple);">Últimas registradas</div>
+        </div>
+        <div
+          id="pet-gallery-grid"
+          style="
+            display:grid;
+            grid-template-columns:repeat(4, 1fr);
+            gap:8px;
+            padding:0 16px;
+          "
+        >
+          <!-- Skeletons iniciales -->
+          <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s infinite;"></div>
+          <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.1s infinite;"></div>
+          <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.2s infinite;"></div>
+          <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.3s infinite;"></div>
+          <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.4s infinite;"></div>
+          <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.5s infinite;"></div>
+          <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.6s infinite;"></div>
+          <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.7s infinite;"></div>
+        </div>
+      </div>
+
       <!-- BANNER TIP DEL DÍA — imagen: img/banner-tip.jpg | link: onclick abajo -->
       <div style="margin:0 16px 24px;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(59,130,246,0.15);cursor:pointer;"
         onclick="switchTab('drwufly')">
@@ -191,6 +219,11 @@ function renderHome() {
     }
     v.play().catch(() => {});
   }, 100);
+
+  // Cargar galería de mascotas de la comunidad
+  if (typeof cargarFotosMascotas === 'function') {
+    cargarFotosMascotas();
+  }
 }
 
 /* ── Videos Wufly — reemplaza youtubeId y preview cuando tengas el canal ── */
