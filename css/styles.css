@@ -1188,3 +1188,8 @@ body.app-ready { opacity:1; }
   0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
   40%           { transform: translateY(-7px); opacity: 1; }
 }
+/* ── Pet Gallery — shimmer skeleton ── */
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
