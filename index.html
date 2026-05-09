@@ -817,6 +817,7 @@
 <script defer src="js/recordatorios.js"></script>
 <script defer src="js/perfil.js"></script>
 <script defer src="js/chat.js"></script>
+<script defer src="js/pet-gallery.js"></script>
 <script defer src="js/home.js"></script>
 <script defer src="js/companion.js"></script>
 
@@ -896,7 +897,7 @@
 
 <!-- MODAL: FORMULARIO PASEADOR -->
 <div id="formPaseadorModal" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.6);align-items:flex-end;justify-content:center;">
-  <div style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;max-height:92vh;overflow-y:auto;">
+  <div style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;max-height:90vh;overflow-y:auto;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
       <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:20px;color:var(--text);">Quiero ser paseador 🐕</div>
       <button onclick="cerrarFormPaseador()" style="width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border-md);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;">
@@ -904,38 +905,10 @@
       </button>
     </div>
     <div style="display:flex;flex-direction:column;gap:14px;">
-
-      <!-- Foto de perfil -->
-      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px;background:var(--bg);border-radius:12px;border:1.5px solid var(--border);">
-        <div id="fpFotoPreview" style="width:72px;height:72px;border-radius:50%;background:var(--purple-light);display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden;border:2px solid var(--border);">🐕</div>
-        <label style="font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;display:flex;align-items:center;gap:6px;">
-          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--purple);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          Subir foto de perfil
-          <input type="file" id="fpFotoInput" accept="image/*" style="display:none;" onchange="previsualizarFotoPaseador(this)">
-        </label>
-        <div style="font-size:11px;color:var(--text-hint);">JPG o PNG · máx 5 MB</div>
-      </div>
-
       <div>
         <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">NOMBRE COMPLETO *</label>
-        <input type="text" id="fpNombre" placeholder="Tu nombre completo..." style="width:100%;margin-top:6px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:11px 14px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
+        <input type="text" id="fpNombre" placeholder="Tu nombre..." style="width:100%;margin-top:6px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:11px 14px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
       </div>
-
-      <div>
-        <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">RUT *</label>
-        <input type="text" id="fpRut" placeholder="Ej: 12.345.678-9" style="width:100%;margin-top:6px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:11px 14px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
-      </div>
-
-      <div>
-        <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">TELÉFONO *</label>
-        <input type="tel" id="fpTelefono" placeholder="Ej: +56 9 1234 5678" style="width:100%;margin-top:6px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:11px 14px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
-      </div>
-
-      <div>
-        <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">CORREO *</label>
-        <input type="email" id="fpEmail" placeholder="tucorreo@email.com" style="width:100%;margin-top:6px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:11px 14px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
-      </div>
-
       <div>
         <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">ZONA DE TRABAJO *</label>
         <select id="fpZona" style="width:100%;margin-top:6px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:11px 14px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
@@ -947,41 +920,26 @@
           <option value="Toda la region">Toda la región</option>
         </select>
       </div>
-
       <div>
         <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">CUÉNTANOS DE TI *</label>
         <textarea id="fpDescripcion" placeholder="Experiencia con mascotas, zonas donde paseás, qué ofreces..." rows="3" style="width:100%;margin-top:6px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:11px 14px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;resize:vertical;"></textarea>
       </div>
-
       <div>
         <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">TARIFA POR PASEO (opcional)</label>
         <input type="text" id="fpTarifa" placeholder="Ej: $5.000 por 45 min" style="width:100%;margin-top:6px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:11px 14px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
       </div>
-
       <div>
         <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">WHATSAPP DE CONTACTO *</label>
         <input type="tel" id="fpWhatsapp" placeholder="Ej: +56912345678" style="width:100%;margin-top:6px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:11px 14px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
         <div style="font-size:11px;color:var(--text-hint);margin-top:4px;">Solo se mostrará a usuarios interesados en contactarte.</div>
       </div>
-
       <div style="background:var(--purple-light);border-radius:10px;padding:12px 14px;border:1.5px solid rgba(124,77,204,0.2);">
         <div style="font-size:12px;color:var(--purple);line-height:1.6;">📋 El equipo Wufly revisará tu solicitud y te contactará por correo. Una vez aprobado, aparecerás en el directorio verificado.</div>
       </div>
-
       <button id="fpBtnEnviar" onclick="enviarSolicitudPaseador()" style="width:100%;padding:14px;border-radius:var(--r-xs);border:none;background:var(--purple);color:white;font-family:'Funnel Display',sans-serif;font-weight:700;font-size:15px;cursor:pointer;margin-top:4px;">
         Enviar solicitud →
       </button>
     </div>
-  </div>
-</div>
-
-<!-- MODAL: DETALLE PASEADOR -->
-<div id="detallePaseadorModal" onclick="if(event.target===this)cerrarDetallePaseador()" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.6);align-items:flex-end;justify-content:center;">
-  <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;position:relative;">
-    <button onclick="cerrarDetallePaseador()" style="position:absolute;top:14px;right:14px;z-index:2;width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,0.2);cursor:pointer;display:flex;align-items:center;justify-content:center;">
-      <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-    <div id="detallePaseadorBody"></div>
   </div>
 </div>
 
