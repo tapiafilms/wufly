@@ -220,18 +220,11 @@ function renderHome() {
     v.play().catch(() => {});
   }, 100);
 
-// Cargar galería cuando la sesión esté lista
+// Cargar galería — usa la sesión ya almacenada en localStorage
   if (typeof cargarFotosMascotas === 'function') {
-    db.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        cargarFotosMascotas();
-      } else {
-        // Escuchar cuando el usuario se loguee
-        db.auth.onAuthStateChange((event, session) => {
-          if (session) cargarFotosMascotas();
-        });
-      }
-    });
+    setTimeout(() => {
+      cargarFotosMascotas();
+    }, 800); // espera a que auth.js inicialice la sesión
   }
 }
 

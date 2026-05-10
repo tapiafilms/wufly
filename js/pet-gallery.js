@@ -12,14 +12,32 @@ async function cargarFotosMascotas() {
   if (!container) return;
 
   try {
-    const { data, error } = await db
-      .from('profiles')
-      .select('id, nombre_mascota, tipo_mascota, foto_mascota_url, updated_at')
-      .not('foto_mascota_url', 'is', null)
-      .order('updated_at', { ascending: false })
-      .limit(PET_GALLERY_LIMIT);
+    // Recuperar token de sesión del localStorage (igual que hace auth.js)
+    const SUPABASE_REF = 'ybnacudfqerbzpvqcjzc';
+    const stored = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF}-auth-token`) || 'null');
+    const token = stored?.access_token;
 
-    if (error) throw error;
+    if (!token) {
+      console.warn('PetGallery: sin sesión activa');
+      _ocultarGaleriaSection();
+      return;
+    }
+
+    // Llamada REST directa con el token JWT del usuario
+    const url = `https://${SUPABASE_REF}.supabase.co/rest/v1/profiles?select=id,nombre_mascota,tipo_mascota,foto_mascota_url,updated_at&foto_mascota_url=not.is.null&order=updated_at.desc&limit=${PET_GALLERY_LIMIT}`;
+    const res = await fetch(url, {
+      headers: {
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibmFjdWRmcWVyYnpwdnFjanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzYzNjksImV4cCI6MjA5MTk1MjM2OX0.pQ4PVNS1wqHvnvEPO0TYwlMS6ooDpsP7DaYXqdTbFxE',
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    console.log('PetGallery: fotos cargadas:', data?.length);
+
     if (!data || data.length === 0) {
       _ocultarGaleriaSection();
       return;
