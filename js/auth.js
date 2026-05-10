@@ -284,22 +284,9 @@ function _authErr(msg, tipo = 'error') {
 async function cerrarSesion() {
   try { await db.auth.signOut(); } catch { /* ignorar error de red */ }
   currentUser = null;
-
-  // Limpiar todas las claves de Wufly
   localStorage.removeItem('wufly_session_email');
   localStorage.removeItem('wufly_avatar');
   localStorage.removeItem('wufly_profile_v1');
-
-  // Limpiar token de sesión de Supabase (clave dinámica por proyecto)
-  const ref = SUPABASE_URL.replace('https://', '').split('.')[0];
-  localStorage.removeItem('sb-' + ref + '-auth-token');
-  localStorage.removeItem('supabase.auth.token');
-
-  // Limpiar cualquier otra clave de supabase que pueda quedar
-  Object.keys(localStorage)
-    .filter(k => k.startsWith('sb-') || k.includes('supabase'))
-    .forEach(k => localStorage.removeItem(k));
-
   renderAuthBanner();
   abrirAuthModal('login');
 }
@@ -316,7 +303,7 @@ async function subirFotoStorage(file, carpeta) {
     try { blob = await _comprimirImagen(file, 600, 0.70); } catch { /* subir sin comprimir */ }
   }
   const res = await fetch(`${SUPABASE_URL}/storage/v1/object/mascotas/${path}`, {
-    method: 'POST',
+    method: 'PUT',
     headers: { 'Authorization': `Bearer ${token}`, 'apikey': SUPABASE_ANON, 'Content-Type': 'image/jpeg', 'x-upsert': 'true' },
     body: blob,
   });
