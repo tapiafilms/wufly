@@ -226,7 +226,9 @@ async function submitAuth() {
       }
       return;
     } else {
-      const { error } = await db.auth.signInWithPassword({ email, password: pass });
+      const { error } = await db.from('profiles').upsert(payload);
+        console.log('guardarPerfilEnDB payload:', JSON.stringify(payload));
+        console.log('guardarPerfilEnDB error:', error);
       if (error) throw error;
       // onAuthStateChange maneja el cierre del modal
     }
