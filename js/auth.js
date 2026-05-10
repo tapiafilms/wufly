@@ -376,6 +376,7 @@ async function sincronizarPerfil() {
 /* ══ GUARDAR PERFIL EN DB ══ */
 async function guardarPerfilEnDB(p) {
   if (!currentUser) return;
+
   const payload = {
     id:               currentUser.id,
     nombre:           p.nombre         || null,
@@ -387,12 +388,32 @@ async function guardarPerfilEnDB(p) {
     foto_dueno_url:   p.fotoDueno?.startsWith('http')   ? p.fotoDueno   : null,
     updated_at:       new Date().toISOString(),
   };
-  const { error } = await db.from('profiles').upsert(payload);
-  if (error) {
-    // Mostrar toast si hay función disponible
-    if (typeof _fotoToast === 'function') {
-      _fotoToast('Error al guardar en nube: ' + error.message, 'err');
+
+  // Usar fetch directo para evitar que el service worker bloquee la llamada
+  const ref = SUPABASE_URL.replace('https://', '').split('.')[0];
+  const stored = (() => { try { return JSON.parse(localStorage.getItem(`sb-${ref}-auth-token`) || 'null'); } catch { return null; } })();
+  const token = stored?.access_token || SUPABASE_ANON;
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/profiles`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates',
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const txt = await res.text();
+      console.error('guardarPerfilEnDB error:', res.status, txt);
+      if (typeof _fotoToast === 'function') _fotoToast('Error al guardar en nube: ' + res.status, 'err');
+    } else {
+      console.log('guardarPerfilEnDB OK, foto_mascota_url:', payload.foto_mascota_url);
     }
+  } catch(e) {
+    console.error('guardarPerfilEnDB excepción:', e.message);
   }
 }
 
