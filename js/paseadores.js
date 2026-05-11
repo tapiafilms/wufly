@@ -98,8 +98,7 @@ async function cargarPaseadoresDB() {
     const stored = (() => { try { return JSON.parse(localStorage.getItem('sb-' + ref + '-auth-token') || 'null'); } catch { return null; } })();
     const token  = stored?.access_token || SUPABASE_ANON;
 
-    // Incluye foto_dueno_url desde profiles via join
-    const url = SUPABASE_URL + '/rest/v1/solicitudes_paseador?select=user_id,nombre,rut,telefono,email,foto,zona,descripcion,tarifa,whatsapp,profiles!inner(foto_dueno_url)&estado=eq.aprobado&order=created_at.desc';
+    const url = SUPABASE_URL + '/rest/v1/solicitudes_paseador?select=user_id,nombre,rut,telefono,email,foto,zona,descripcion,tarifa,whatsapp&estado=eq.aprobado&order=created_at.desc';
     const res = await fetch(url, {
       headers: {
         'apikey': SUPABASE_ANON,
@@ -110,12 +109,7 @@ async function cargarPaseadoresDB() {
       const dbData = await res.json();
       console.log('Paseadores DB:', dbData.length);
       if (dbData.length > 0) {
-        // Usar foto_dueno_url de profiles si no hay foto propia
-        const enriched = dbData.map(p => ({
-          ...p,
-          foto: p.foto || p.profiles?.foto_dueno_url || null,
-        }));
-        paseadoresData = [...enriched, ...PASEADORES_DEMO];
+        paseadoresData = [...dbData, ...PASEADORES_DEMO];
         renderPaseadores();
       }
     }
@@ -233,13 +227,71 @@ function abrirDetallePaseador(userId) {
     + '<div style="margin-top:4px;margin-bottom:8px;">' + ctaBtn + '</div>'
     + '</div>';
 
+  // Inyectar CSS de animación una sola vez
+  if (!document.getElementById('paseador-modal-css')) {
+    const s = document.createElement('style');
+    s.id = 'paseador-modal-css';
+    s.textContent = `
+      @keyframes paseadorSlideUp {
+        0%   { transform: translateY(100%); opacity: 0; }
+        60%  { transform: translateY(-8px); opacity: 1; }
+        80%  { transform: translateY(4px); }
+        100% { transform: translateY(0); opacity: 1; }
+      }
+      @keyframes paseadorSlideDown {
+        0%   { transform: translateY(0); opacity: 1; }
+        100% { transform: translateY(110%); opacity: 0; }
+      }
+      @keyframes paseadorFadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+      @keyframes paseadorFadeOut {
+        from { opacity: 1; }
+        to   { opacity: 0; }
+      }
+      #detallePaseadorModal .modal-sheet {
+        animation: paseadorSlideUp 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      }
+      #detallePaseadorModal .modal-sheet.closing {
+        animation: paseadorSlideDown 0.28s ease-in forwards;
+      }
+      #detallePaseadorModal.closing {
+        animation: paseadorFadeOut 0.28s ease forwards;
+      }
+    `;
+    document.head.appendChild(s);
+  }
+
   modal.style.display = 'flex';
+  modal.style.animation = 'paseadorFadeIn 0.25s ease forwards';
+
+  // Aplicar clase de animación al sheet
+  const sheet = modal.querySelector('.modal-sheet');
+  if (sheet) {
+    sheet.classList.remove('closing');
+    sheet.style.animation = '';
+    void sheet.offsetWidth; // reflow para reiniciar animación
+    sheet.style.animation = null;
+  }
+
   document.body.style.overflow = 'hidden';
 }
 
 function cerrarDetallePaseador() {
   const modal = document.getElementById('detallePaseadorModal');
-  if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
+  if (!modal) return;
+
+  const sheet = modal.querySelector('.modal-sheet');
+  if (sheet) sheet.classList.add('closing');
+  modal.classList.add('closing');
+
+  setTimeout(() => {
+    modal.style.display = 'none';
+    modal.classList.remove('closing');
+    if (sheet) sheet.classList.remove('closing');
+    document.body.style.overflow = '';
+  }, 280);
 }
 
 /* ══ FILTROS ══ */
