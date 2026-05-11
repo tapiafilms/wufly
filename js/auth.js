@@ -226,11 +226,34 @@ async function submitAuth() {
       }
       return;
     } else {
-      const { error } = await db.from('profiles').upsert(payload);
-        console.log('guardarPerfilEnDB payload:', JSON.stringify(payload));
-        console.log('guardarPerfilEnDB error:', error);
-      if (error) throw error;
-      // onAuthStateChange maneja el cierre del modal
+      // Login via REST directo para evitar bloqueo del SW
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password: pass }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error_description || data.msg || 'Error al iniciar sesión');
+
+      // Guardar token en localStorage igual que lo hace el cliente de Supabase
+      const ref = SUPABASE_URL.replace('https://', '').split('.')[0];
+      const tokenData = {
+        access_token:  data.access_token,
+        refresh_token: data.refresh_token,
+        expires_at:    Math.floor(Date.now() / 1000) + data.expires_in,
+        token_type:    data.token_type,
+        user:          data.user,
+      };
+      localStorage.setItem(`sb-${ref}-auth-token`, JSON.stringify(tokenData));
+
+      // Cargar perfil y cerrar modal
+      currentUser = data.user;
+      await cargarPerfil();
+      cerrarAuthModal();
+      renderAuthBanner();
     }
   } catch (e) {
     const mapa = {
