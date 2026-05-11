@@ -87,13 +87,26 @@ async function cargarPaseadoresDB() {
 
   try {
     let dbData = [];
-    if (typeof db !== 'undefined') {
-      const { data, error } = await db
-        .from('solicitudes_paseador')
-        .select('user_id, nombre, rut, telefono, email, foto, zona, descripcion, tarifa, whatsapp')
-        .eq('estado', 'aprobado')
-        .order('created_at', { ascending: false });
-      if (!error) dbData = data || [];
+    // Usar fetch directo para evitar bloqueo del service worker
+    const SUPABASE_URL  = 'https://ybnacudfqerbzpvqcjzc.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibmFjdWRmcWVyYnpwdnFjanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzYzNjksImV4cCI6MjA5MTk1MjM2OX0.pQ4PVNS1wqHvnvEPO0TYwlMS6ooDpsP7DaYXqdTbFxE';
+    const ref    = 'ybnacudfqerbzpvqcjzc';
+    const stored = (() => { try { return JSON.parse(localStorage.getItem('sb-' + ref + '-auth-token') || 'null'); } catch { return null; } })();
+    const token  = stored?.access_token || SUPABASE_ANON;
+
+    const url = SUPABASE_URL + '/rest/v1/solicitudes_paseador?select=user_id,nombre,rut,telefono,email,foto,zona,descripcion,tarifa,whatsapp&estado=eq.aprobado&order=created_at.desc';
+    const res = await fetch(url, {
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+      }
+    });
+    if (res.ok) {
+      dbData = await res.json();
+      console.log('Paseadores DB:', dbData.length);
+    } else {
+      console.warn('Paseadores fetch error:', res.status);
     }
     paseadoresData   = [...dbData, ...PASEADORES_DEMO];
     paseadoresLoaded = true;
