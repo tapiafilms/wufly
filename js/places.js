@@ -22,7 +22,8 @@ function renderClinicas() {
     <div class="hero-rounded-sep" style="margin:-36px -20px 16px;background:var(--bg);border-radius:36px 36px 0 0;height:36px;position:relative;z-index:1;"></div>
     <div class="hero-banner" style="margin-bottom:16px;position:relative;overflow:hidden;">
       <video autoplay muted loop playsinline
-        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;">
+        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transition:opacity 0.8s ease;"
+        oncanplay="this.style.opacity='1'">
         <source src="img/clinicas.mp4" type="video/mp4">
       </video>
       <div style="position:absolute;inset:0;background:rgba(103,58,183,0.72);z-index:1;pointer-events:none;"></div>
