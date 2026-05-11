@@ -98,7 +98,8 @@ async function cargarPaseadoresDB() {
     const stored = (() => { try { return JSON.parse(localStorage.getItem('sb-' + ref + '-auth-token') || 'null'); } catch { return null; } })();
     const token  = stored?.access_token || SUPABASE_ANON;
 
-    const url = SUPABASE_URL + '/rest/v1/solicitudes_paseador?select=user_id,nombre,rut,telefono,email,foto,zona,descripcion,tarifa,whatsapp&estado=eq.aprobado&order=created_at.desc';
+    // Incluye foto_dueno_url desde profiles via join
+    const url = SUPABASE_URL + '/rest/v1/solicitudes_paseador?select=user_id,nombre,rut,telefono,email,foto,zona,descripcion,tarifa,whatsapp,profiles!inner(foto_dueno_url)&estado=eq.aprobado&order=created_at.desc';
     const res = await fetch(url, {
       headers: {
         'apikey': SUPABASE_ANON,
@@ -109,7 +110,12 @@ async function cargarPaseadoresDB() {
       const dbData = await res.json();
       console.log('Paseadores DB:', dbData.length);
       if (dbData.length > 0) {
-        paseadoresData = [...dbData, ...PASEADORES_DEMO];
+        // Usar foto_dueno_url de profiles si no hay foto propia
+        const enriched = dbData.map(p => ({
+          ...p,
+          foto: p.foto || p.profiles?.foto_dueno_url || null,
+        }));
+        paseadoresData = [...enriched, ...PASEADORES_DEMO];
         renderPaseadores();
       }
     }
