@@ -85,24 +85,36 @@ async function cargarPaseadoresDB() {
 
   list.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:12px;color:var(--text-muted);"><div style="width:28px;height:28px;border:3px solid var(--purple-light);border-top-color:var(--purple);border-radius:50%;animation:spin 0.7s linear infinite;"></div><span style="font-size:13px;">Cargando paseadores...</span></div>';
 
+  // Mostrar demos inmediatamente mientras carga la DB
+  paseadoresData   = [...PASEADORES_DEMO];
+  paseadoresLoaded = true;
+  renderPaseadores();
+
+  // Luego intentar cargar desde DB en background
   try {
-    let dbData = [];
-    if (typeof db !== 'undefined') {
-      const { data, error } = await db
-        .from('solicitudes_paseador')
-        .select('user_id, nombre, rut, telefono, email, foto, zona, descripcion, tarifa, whatsapp')
-        .eq('estado', 'aprobado')
-        .order('created_at', { ascending: false });
-      if (!error) dbData = data || [];
+    const SUPABASE_URL  = 'https://ybnacudfqerbzpvqcjzc.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibmFjdWRmcWVyYnpwdnFjanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzYzNjksImV4cCI6MjA5MTk1MjM2OX0.pQ4PVNS1wqHvnvEPO0TYwlMS6ooDpsP7DaYXqdTbFxE';
+    const ref    = 'ybnacudfqerbzpvqcjzc';
+    const stored = (() => { try { return JSON.parse(localStorage.getItem('sb-' + ref + '-auth-token') || 'null'); } catch { return null; } })();
+    const token  = stored?.access_token || SUPABASE_ANON;
+
+    const url = SUPABASE_URL + '/rest/v1/solicitudes_paseador?select=user_id,nombre,rut,telefono,email,foto,zona,descripcion,tarifa,whatsapp&estado=eq.aprobado&order=created_at.desc';
+    const res = await fetch(url, {
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + token,
+      }
+    });
+    if (res.ok) {
+      const dbData = await res.json();
+      console.log('Paseadores DB:', dbData.length);
+      if (dbData.length > 0) {
+        paseadoresData = [...dbData, ...PASEADORES_DEMO];
+        renderPaseadores();
+      }
     }
-    paseadoresData   = [...dbData, ...PASEADORES_DEMO];
-    paseadoresLoaded = true;
-    renderPaseadores();
   } catch (e) {
-    console.error('Error cargando paseadores:', e);
-    paseadoresData   = [...PASEADORES_DEMO];
-    paseadoresLoaded = true;
-    renderPaseadores();
+    console.warn('Paseadores DB no disponible:', e.message);
   }
 }
 
