@@ -420,6 +420,21 @@ function switchServiciosTab(tab) {
   if (tab === 'grooming')   renderGrooming?.();
   if (tab === 'paseadores') { if (typeof initPaseadores === 'function') initPaseadores(); }
   if (tab === 'arte')       renderArte?.();
+
+  if (tab === 'grooming' || tab === 'paseadores') {
+    const sub = document.getElementById('ssub-' + tab);
+    const vid = sub?.querySelector('video');
+    if (vid) {
+      vid.style.transition = 'none';
+      vid.style.opacity = '0';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          vid.style.transition = 'opacity 0.8s ease';
+          vid.style.opacity = '1';
+        });
+      });
+    }
+  }
 }
 
 /* ══ SUB-TABS DE COMUNIDAD ══ */
