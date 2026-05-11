@@ -244,12 +244,12 @@ function cerrarDetallePaseador() {
 
 /* ══ FILTROS ══ */
 
-/*function setFilterPaseadores(el, val) {
+function setFilterPaseadores(el, val) {
   paseadoresFilter = val;
   document.querySelectorAll('#page-servicios .sub-filter-paseadores .filter-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
   renderPaseadores();
-}*/
+}
 
 // onSearchPaseador se declara en app.js (con debounce)
 
