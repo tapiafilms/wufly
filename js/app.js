@@ -424,7 +424,7 @@ function switchServiciosTab(tab) {
 
 /* ══ SUB-TABS DE COMUNIDAD ══ */
 function switchComunidadTab(tab) {
-  const subs = ['adoptar', 'perdidos', 'rescate', 'recetas'];
+  const subs = ['adoptar', 'perdidos', 'rescate', 'fundaciones'];
   subs.forEach(s => {
     const el = document.getElementById('csub-' + s);
     if (el) el.style.display = s === tab ? 'block' : 'none';
@@ -434,10 +434,10 @@ function switchComunidadTab(tab) {
       btn.style.color      = s === tab ? 'white' : 'var(--text-muted)';
     }
   });
-  if (tab === 'perdidos') renderPerdidos?.();
-  if (tab === 'rescate')  renderRescate?.();
-  if (tab === 'adoptar')  renderAdoptar?.();
-  if (tab === 'recetas')  renderRecetas?.();
+  if (tab === 'perdidos')     renderPerdidos?.();
+  if (tab === 'rescate')      renderRescate?.();
+  if (tab === 'adoptar')      renderAdoptar?.();
+  if (tab === 'fundaciones')  renderFundaciones?.();
 }
 
 /* ══ CONSULTA RÁPIDA EN DR. WUFLY ══ */
