@@ -250,7 +250,7 @@ function abrirDetallePaseador(userId) {
         from { opacity: 1; }
         to   { opacity: 0; }
       }
-      #detallePaseadorModal .modal-sheet {
+      #detallePaseadorModal .modal-sheet.entering {
         animation: paseadorSlideUp 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
       }
       #detallePaseadorModal .modal-sheet.closing {
@@ -266,13 +266,12 @@ function abrirDetallePaseador(userId) {
   modal.style.display = 'flex';
   modal.style.animation = 'paseadorFadeIn 0.25s ease forwards';
 
-  // Aplicar clase de animación al sheet
+  // Reiniciar animación de entrada quitando y volviendo a poner la clase
   const sheet = modal.querySelector('.modal-sheet');
   if (sheet) {
-    sheet.classList.remove('closing');
-    sheet.style.animation = '';
-    void sheet.offsetWidth; // reflow para reiniciar animación
-    sheet.style.animation = null;
+    sheet.classList.remove('entering', 'closing');
+    void sheet.offsetWidth; // forzar reflow
+    sheet.classList.add('entering');
   }
 
   document.body.style.overflow = 'hidden';
