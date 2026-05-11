@@ -284,11 +284,31 @@ function _authErr(msg, tipo = 'error') {
 }
 
 async function cerrarSesion() {
-  try { await db.auth.signOut(); } catch { /* ignorar error de red */ }
-  currentUser = null;
+  // Limpiar token de Supabase del localStorage directamente
+  const ref = SUPABASE_URL.replace('https://', '').split('.')[0];
+  const stored = (() => { try { return JSON.parse(localStorage.getItem(`sb-${ref}-auth-token`) || 'null'); } catch { return null; } })();
+  const token = stored?.access_token;
+
+  // Intentar signOut via REST (sin pasar por el SW)
+  if (token) {
+    try {
+      await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+      });
+    } catch { /* ignorar error de red */ }
+  }
+
+  // Limpiar todo localmente independiente de si el fetch funcionó
+  localStorage.removeItem(`sb-${ref}-auth-token`);
   localStorage.removeItem('wufly_session_email');
   localStorage.removeItem('wufly_avatar');
   localStorage.removeItem('wufly_profile_v1');
+  currentUser = null;
   renderAuthBanner();
   abrirAuthModal('login');
 }
