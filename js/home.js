@@ -155,13 +155,6 @@ function renderHome() {
         </div>
       </div>
 
-      <!-- BANNER ARTE — imagen: img/banner-arte.jpg | link: onclick abajo -->
-      <div style="margin:0 16px 20px;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(124,58,237,0.15);cursor:pointer;"
-        onclick="switchServiciosTab('arte'); switchTab('servicios')">
-        <img src="img/banner-arte.jpg" alt="Arte · Retratos de mascotas"
-          style="width:100%;display:block;object-fit:cover;">
-      </div>
-
 
       <!-- GALERÍA DE MASCOTAS DE LA COMUNIDAD -->
       <div id="pet-gallery-section" style="margin-bottom:24px;">
@@ -188,6 +181,13 @@ function renderHome() {
           <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.6s infinite;"></div>
           <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.7s infinite;"></div>
         </div>
+      </div>
+
+      <!-- BANNER ARTE — imagen: img/banner-arte.jpg | link: onclick abajo -->
+      <div style="margin:0 16px 20px;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(124,58,237,0.15);cursor:pointer;"
+        onclick="switchServiciosTab('arte'); switchTab('servicios')">
+        <img src="img/banner-arte.jpg" alt="Arte · Retratos de mascotas"
+          style="width:100%;display:block;object-fit:cover;">
       </div>
 
       <!-- BANNER TIP DEL DÍA — imagen: img/banner-tip.jpg | link: onclick abajo -->

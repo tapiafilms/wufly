@@ -29,22 +29,12 @@ const artistas = [
 
 /* ══ GALERÍA DE OBRAS ══ */
 const GALERIA_OBRAS = [
-  {
-    thumb: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop&q=80',
-    full:  'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=1200&q=90',
-  },
-  {
-    thumb: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400&h=400&fit=crop&q=80',
-    full:  'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=1200&q=90',
-  },
-  {
-    thumb: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=400&h=400&fit=crop&q=80',
-    full:  'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=1200&q=90',
-  },
-  {
-    thumb: 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=400&fit=crop&q=80',
-    full:  'https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=1200&q=90',
-  },
+  { thumb: 'img/dibujo1.jpg', full: 'img/dibujo1.jpg' },
+  { thumb: 'img/dibujo2.jpg', full: 'img/dibujo2.jpg' },
+  { thumb: 'img/dibujo3.jpg', full: 'img/dibujo3.jpg' },
+  { thumb: 'img/dibujo4.jpg', full: 'img/dibujo4.jpg' },
+  { thumb: 'img/dibujo5.jpg', full: 'img/dibujo5.jpg' },
+  { thumb: 'img/dibujo6.jpg', full: 'img/dibujo6.jpg' },
 ];
 
 function cargarGaleriaCloudinary() {
