@@ -192,7 +192,7 @@ function renderHome() {
 
       <!-- BANNER TIP DEL DÍA — imagen: img/banner-tip.jpg | link: onclick abajo -->
       <div style="margin:0 16px 24px;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(59,130,246,0.15);cursor:pointer;"
-        onclick="('https://www.superzoo.cl/tiendas?showMap=true&horizontalView=true&isForm=true')">
+        onclick="window.open('https://www.superzoo.cl/tiendas?showMap=true&horizontalView=true&isForm=true', '_blank')">
         <img src="img/banner-tip.jpg" alt="Tip del día · Dra. Wufly"
           style="width:100%;display:block;object-fit:cover;">
       </div>
