@@ -39,6 +39,19 @@ db.auth.onAuthStateChange(async (event, session) => {
       document.body.style.overflow = '';
       _limpiarModal();
     }
+    // Cerrar onboarding si está abierto (vuelta de Google OAuth)
+    const obOverlay = document.getElementById('onboarding-overlay');
+    if (obOverlay) {
+      obOverlay.style.animation = 'obFadeOut 0.3s ease forwards';
+      setTimeout(() => obOverlay.remove(), 300);
+    }
+    // Si hay datos del onboarding en localStorage, subirlos a la DB
+    try {
+      const localProfile = JSON.parse(localStorage.getItem('wufly_profile_v1') || 'null');
+      if (localProfile && localProfile.tipomascota) {
+        await guardarPerfilEnDB(localProfile);
+      }
+    } catch { /* ignorar */ }
     await sincronizarPerfil();
     await sincronizarRecordatorios();
     _actualizarBotonesPublicar();
