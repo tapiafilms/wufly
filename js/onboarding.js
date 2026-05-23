@@ -230,13 +230,15 @@ function obFinish() {
 }
 
 function obClose() {
-  // Marcar welcome como visto para que el modal de login no aparezca encima
   localStorage.setItem('wufly_welcome_shown', '1');
   const overlay = document.getElementById('onboarding-overlay');
   overlay.style.animation = 'obFadeOut 0.3s ease forwards';
   setTimeout(() => {
     overlay.remove();
-    switchTab('restaurantes', document.querySelectorAll('.tab')[0]);
+    // Ir al home sin abrir login
+    if (typeof switchTab === 'function') switchTab('home');
+    // Actualizar botones de publicar según si hay sesión o no
+    if (typeof _actualizarBotonesPublicar === 'function') _actualizarBotonesPublicar();
   }, 300);
 }
 
@@ -352,18 +354,10 @@ function injectOnboardingStyles() {
 // antes de decidir si mostrar el onboarding.
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
-    // Si ya hay perfil en localStorage (puesto por onboarding o por sincronizarPerfil), no mostrar
     const profile = loadProfile();
     if (profile && profile.nombre) return;
-
-    // Si hay un usuario logueado, sincronizarPerfil() habrá corrido — no mostrar onboarding
     if (typeof currentUser !== 'undefined' && currentUser) return;
-
-    // Si el modal de login está abierto (obligatorio), no mostrar onboarding encima
-    const authModal = document.getElementById('authModal');
-    if (authModal && authModal.style.display === 'flex') return;
-
     injectOnboardingStyles();
     showOnboarding();
-  }, 800); // 800ms da tiempo a auth.js para getSession() y sincronizarPerfil()
+  }, 800);
 });
