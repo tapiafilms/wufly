@@ -89,7 +89,7 @@ function renderTopbarAuth() {
       </button>`;
   } else {
     el.innerHTML = `
-      <button onclick="abrirAuthModal('login')"
+      <button onclick="abrirPerfil()"
         style="display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;">
         <div style="width:34px;height:34px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -97,7 +97,7 @@ function renderTopbarAuth() {
             <circle cx="12" cy="7" r="4"/>
           </svg>
         </div>
-        <span style="font-size:9px;color:rgba(255,255,255,0.85);font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">Entrar</span>
+        <span style="font-size:9px;color:rgba(255,255,255,0.85);font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">Perfil</span>
       </button>`;
   }
 }
