@@ -340,7 +340,8 @@ async function cerrarSesion() {
   _actualizarBotonesPublicar();
 }
 
-/* Botones publicar: solo activos con sesion iniciada */
+
+/* Botones publicar: visibles siempre, pero sin sesion abren registro */
 function _actualizarBotonesPublicar() {
   const logueado = !!currentUser;
   const ids = ['btnPublicar', 'btnPublicarPerdido', 'btnPublicarRescate'];
@@ -362,7 +363,7 @@ function _actualizarBotonesPublicar() {
   });
 }
 
-/* Muestra el modal de registro al tocar un boton de publicar sin sesion */
+/* Modal de registro con aviso cuando intentan publicar sin sesion */
 function _mostrarPromptLogin() {
   abrirAuthModal('register');
   setTimeout(() => {
@@ -377,7 +378,7 @@ function _mostrarPromptLogin() {
   }, 80);
 }
 
-/* LOGIN CON GOOGLE */
+/* ══ LOGIN CON GOOGLE ══ */
 async function loginConGoogle() {
   try {
     const { error } = await db.auth.signInWithOAuth({
@@ -574,6 +575,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const overlay = document.getElementById('onboarding-overlay');
     if (overlay) overlay.remove();
   }
-  // Sin sesión: app abre sin login
+  // App abre sin login obligatorio
   _actualizarBotonesPublicar();
 });
