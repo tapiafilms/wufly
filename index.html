@@ -749,13 +749,16 @@
 
 <!-- AUTH MODAL (obligatorio — no se puede cerrar sin sesión) -->
 <div id="authModal" data-modo="login" role="dialog" aria-modal="true" aria-labelledby="authTitulo"
-  style="display:flex;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.72);align-items:center;justify-content:center;padding:20px;">
+  style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.72);align-items:center;justify-content:center;padding:20px;">
   <div style="background:white;border-radius:var(--r);width:100%;max-width:380px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.3);">
     <!-- Header (sin botón de cierre) -->
-    <div style="background:linear-gradient(135deg,#5C2FA8,#7C4DCC);padding:26px 24px 22px;">
+    <div style="background:linear-gradient(135deg,#5C2FA8,#7C4DCC);padding:26px 24px 22px;position:relative;">
       <div style="font-size:32px;margin-bottom:6px;">🐾</div>
       <div id="authTitulo" style="font-family:'Funnel Display',sans-serif;font-size:23px;font-weight:700;color:white;">Iniciar sesión</div>
       <div style="font-size:12px;color:rgba(255,255,255,0.72);margin-top:3px;">Accede para cuidar mejor a tu mascota</div>
+      <button onclick="cerrarAuthModal()" style="position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,0.15);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
     <!-- Body -->
     <div style="padding:24px 22px;display:flex;flex-direction:column;gap:14px;">

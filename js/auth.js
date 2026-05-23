@@ -41,6 +41,7 @@ db.auth.onAuthStateChange(async (event, session) => {
     }
     await sincronizarPerfil();
     await sincronizarRecordatorios();
+    _actualizarBotonesPublicar();
   }
 });
 
@@ -153,8 +154,8 @@ function abrirAuthModal(modo = 'login') {
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
   setTimeout(() => document.getElementById('authEmail')?.focus(), 120);
-  // Escape bloqueado — login obligatorio
-  modal._escHandler = (e) => { if (e.key === 'Escape') e.preventDefault(); };
+  // Escape cierra el modal (login opcional)
+  modal._escHandler = (e) => { if (e.key === 'Escape') cerrarAuthModal(); };
   document.addEventListener('keydown', modal._escHandler);
 }
 
@@ -336,10 +337,47 @@ async function cerrarSesion() {
   localStorage.removeItem('wufly_profile_v1');
   currentUser = null;
   renderAuthBanner();
-  abrirAuthModal('login');
+  _actualizarBotonesPublicar();
 }
 
-/* ══ LOGIN CON GOOGLE ══ */
+/* Botones publicar: solo activos con sesion iniciada */
+function _actualizarBotonesPublicar() {
+  const logueado = !!currentUser;
+  const ids = ['btnPublicar', 'btnPublicarPerdido', 'btnPublicarRescate'];
+  ids.forEach(id => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    if (logueado) {
+      btn.removeEventListener('click', btn._loginPrompt, { capture: true });
+      delete btn._loginPrompt;
+    } else {
+      if (btn._loginPrompt) return;
+      btn._loginPrompt = (e) => {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        _mostrarPromptLogin();
+      };
+      btn.addEventListener('click', btn._loginPrompt, { capture: true });
+    }
+  });
+}
+
+/* Muestra el modal de registro al tocar un boton de publicar sin sesion */
+function _mostrarPromptLogin() {
+  abrirAuthModal('register');
+  setTimeout(() => {
+    if (document.getElementById('authPromptAviso')) return;
+    const body = document.querySelector('#authModal > div > div:last-child');
+    if (!body) return;
+    const aviso = document.createElement('div');
+    aviso.id = 'authPromptAviso';
+    aviso.style.cssText = 'background:#F3EEFF;border-radius:10px;padding:11px 14px;border:1.5px solid rgba(124,77,204,0.25);font-size:13px;color:#5C2FA8;line-height:1.5;margin-bottom:2px;';
+    aviso.innerHTML = '🐾 <strong>Crea una cuenta gratis</strong> para publicar en adopción, mascotas perdidas y rescate.';
+    body.insertBefore(aviso, body.firstChild);
+  }, 80);
+}
+
+/* LOGIN CON GOOGLE */
 async function loginConGoogle() {
   try {
     const { error } = await db.auth.signInWithOAuth({
@@ -535,7 +573,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await sincronizarRecordatorios();
     const overlay = document.getElementById('onboarding-overlay');
     if (overlay) overlay.remove();
-  } else {
-    abrirAuthModal('login');
   }
+  // Sin sesión: app abre sin login
+  _actualizarBotonesPublicar();
 });
