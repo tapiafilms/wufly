@@ -1,5 +1,8 @@
 /* ══════════════════════════════════════
-   ONBOARDING WUFLY — 3 pasos rápidos
+   ONBOARDING WUFLY
+   Se activa solo cuando el usuario
+   pincha el ícono de Perfil.
+   Flujo: bienvenida → mascota → salud → registro
    ══════════════════════════════════════ */
 
 const ONBOARDING_KEY = 'wufly_profile_v1';
@@ -40,133 +43,177 @@ function buildAIContext() {
   return lines.join(' ');
 }
 
-/* ── HTML DEL ONBOARDING ── */
-function showOnboarding() {
+/* ══════════════════════════════════════
+   PUNTO DE ENTRADA — llamado desde el
+   ícono de Perfil en la navegación
+   ══════════════════════════════════════ */
+function abrirPerfil() {
+  // Si ya hay sesión activa, ir directo a la sección de perfil
+  if (typeof currentUser !== 'undefined' && currentUser) {
+    if (typeof switchTab === 'function') switchTab('alergias');
+    return;
+  }
+  // Si ya completó el onboarding pero no está logueado (caso raro), ir al perfil igual
+  const profile = loadProfile();
+  if (profile && profile.nombre) {
+    if (typeof switchTab === 'function') switchTab('alergias');
+    return;
+  }
+  // Usuario nuevo: mostrar pantalla de bienvenida al perfil
+  injectOnboardingStyles();
+  showOnboardingWelcome();
+}
+
+/* ── PANTALLA DE BIENVENIDA AL PERFIL ── */
+function showOnboardingWelcome() {
   const overlay = document.createElement('div');
   overlay.id = 'onboarding-overlay';
   overlay.innerHTML = `
     <div class="ob-container">
-
-      <!-- PASO 1: Bienvenida + nombre -->
-      <div class="ob-step active" id="ob-step-1">
+      <div class="ob-step active" id="ob-step-welcome" style="align-items:center;text-align:center;gap:18px;">
         <div class="ob-logo">
           <img src="img/logo.png" alt="Wufly" style="height:48px;width:auto;object-fit:contain;filter:brightness(0) invert(1);">
         </div>
-        <h1 class="ob-title">BIENVENIDOS A WUFLY</h1>
-        <p class="ob-desc">Tu guía de mascotas personalizada en Valparaíso. Cuéntanos sobre ti para darte una mejor experiencia.</p>
-        <div class="ob-field">
-          <input type="text" id="ob-nombre" placeholder="Tu nombre...">
-        </div>
-        <button class="ob-btn-primary" onclick="obNext(1)">EMPEZAR</button>
-      </div>
-
-      <!-- PASO 2: Tipo y edad de mascota -->
-      <div class="ob-step" id="ob-step-2">
-        <div class="ob-progress"><div class="ob-bar" style="width:50%"></div></div>
-        <h2 class="ob-title">Cuéntanos sobre tu mascota</h2>
-        <p class="ob-desc">La IA personalizará cada consulta según tu compañero.</p>
-
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <div class="ob-label">¿Qué tipo de mascota tienes?</div>
-          <div class="ob-options" id="ob-tipomascota">
-            <div class="ob-option" onclick="obSelect('tipomascota','perro',this)">
-              <span class="ob-opt-icon">🐕</span>
-              <div>
-                <div class="ob-opt-title">Perro</div>
-                <div class="ob-opt-sub">Mi mejor amigo peludo</div>
-              </div>
-            </div>
-            <div class="ob-option" onclick="obSelect('tipomascota','gato',this)">
-              <span class="ob-opt-icon">🐈</span>
-              <div>
-                <div class="ob-opt-title">Gato</div>
-                <div class="ob-opt-sub">Independiente y adorable</div>
-              </div>
-            </div>
-            <div class="ob-option" onclick="obSelect('tipomascota','otro',this)">
-              <span class="ob-opt-icon">🐾</span>
-              <div>
-                <div class="ob-opt-title">Otra mascota</div>
-                <div class="ob-opt-sub">Conejo, ave, reptil u otro</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
-          <div class="ob-label">¿Cuántos años tiene?</div>
-          <div class="ob-options" id="ob-edadmascota">
-            <div class="ob-option ob-option-sm" onclick="obSelect('edadmascota','cachorro',this)">
-              <span class="ob-opt-icon">🍼</span>
-              <div>
-                <div class="ob-opt-title">Cachorro</div>
-                <div class="ob-opt-sub">Menos de 1 año</div>
-              </div>
-            </div>
-            <div class="ob-option ob-option-sm" onclick="obSelect('edadmascota','joven',this)">
-              <span class="ob-opt-icon">⚡</span>
-              <div>
-                <div class="ob-opt-title">Joven</div>
-                <div class="ob-opt-sub">1 – 3 años</div>
-              </div>
-            </div>
-            <div class="ob-option ob-option-sm" onclick="obSelect('edadmascota','adulto',this)">
-              <span class="ob-opt-icon">🌟</span>
-              <div>
-                <div class="ob-opt-title">Adulto</div>
-                <div class="ob-opt-sub">3 – 8 años</div>
-              </div>
-            </div>
-            <div class="ob-option ob-option-sm" onclick="obSelect('edadmascota','senior',this)">
-              <span class="ob-opt-icon">🏅</span>
-              <div>
-                <div class="ob-opt-title">Senior</div>
-                <div class="ob-opt-sub">Más de 8 años</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="ob-nav">
-          <button class="ob-btn-ghost" onclick="obBack(2)">← Atrás</button>
-          <button class="ob-btn-primary" onclick="obNext(2)">Continuar →</button>
+        <div style="font-size:52px;">🐾</div>
+        <h1 class="ob-title">Sé parte de la comunidad Wufly</h1>
+        <p class="ob-desc">Crea tu perfil para publicar en adopción, reportar mascotas perdidas, guardar recordatorios y acceder a todo personalizado para tu mascota.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;width:100%;margin-top:8px;">
+          <button class="ob-btn-primary" onclick="iniciarOnboarding()">Crear mi perfil 🐾</button>
+          <button class="ob-btn-ghost" onclick="cerrarOnboarding()">Seguir navegando</button>
         </div>
       </div>
-
-      <!-- PASO 3: Condición de salud -->
-      <div class="ob-step" id="ob-step-3">
-        <div class="ob-progress"><div class="ob-bar" style="width:85%"></div></div>
-        <h2 class="ob-title">¿Tiene alguna condición de salud?</h2>
-        <p class="ob-desc">Selecciona las que apliquen. La IA las considerará en cada consulta.</p>
-        <div class="ob-grid" id="ob-salud">
-          <div class="ob-chip" onclick="obToggleChip(this)" data-val="Alergia alimentaria">🥣 Alergia alimentaria</div>
-          <div class="ob-chip" onclick="obToggleChip(this)" data-val="Problemas digestivos">🫁 Problemas digestivos</div>
-          <div class="ob-chip" onclick="obToggleChip(this)" data-val="Diabetes">💉 Diabetes</div>
-          <div class="ob-chip" onclick="obToggleChip(this)" data-val="Enfermedad renal">🫘 Enfermedad renal</div>
-          <div class="ob-chip" onclick="obToggleChip(this)" data-val="Problemas articulares">🦴 Problemas articulares</div>
-          <div class="ob-chip" onclick="obToggleChip(this)" data-val="Problemas de piel">🐾 Problemas de piel</div>
-          <div class="ob-chip" onclick="obToggleChip(this)" data-val="Sobrepeso">⚖️ Sobrepeso</div>
-          <div class="ob-chip" onclick="obToggleChip(this)" data-val="Sin condiciones especiales">✅ Saludable</div>
-        </div>
-        <div class="ob-nav">
-          <button class="ob-btn-ghost" onclick="obBack(3)">← Atrás</button>
-          <button class="ob-btn-primary" onclick="obFinish()">Guardar perfil ✓</button>
-        </div>
-      </div>
-
-      <!-- PASO 4: Confirmación -->
-      <div class="ob-step" id="ob-step-4">
-        <div class="ob-progress"><div class="ob-bar" style="width:100%"></div></div>
-        <div class="ob-icon">🐾</div>
-        <h2 class="ob-title" id="ob-welcome-name">¡Todo listo!</h2>
-        <p class="ob-desc">Tu perfil está guardado. Wufly AI usará esta información en cada consulta y recomendación.</p>
-        <div class="ob-summary" id="ob-summary"></div>
-        <button class="ob-btn-primary" onclick="obClose()" style="margin-top:24px;">¡Empezar! 🐾</button>
-      </div>
-
     </div>
   `;
   document.body.appendChild(overlay);
+}
+
+/* ── INICIA EL FLUJO DE PREGUNTAS ── */
+function iniciarOnboarding() {
+  const overlay = document.getElementById('onboarding-overlay');
+  if (!overlay) return;
+  overlay.querySelector('.ob-container').innerHTML = `
+
+    <!-- PASO 1: Nombre -->
+    <div class="ob-step active" id="ob-step-1">
+      <div class="ob-progress"><div class="ob-bar" style="width:25%"></div></div>
+      <h2 class="ob-title">¿Cómo te llamamos?</h2>
+      <p class="ob-desc">Tu nombre para personalizar la experiencia.</p>
+      <div class="ob-field">
+        <input type="text" id="ob-nombre" placeholder="Tu nombre..." autocomplete="given-name">
+      </div>
+      <button class="ob-btn-primary" onclick="obNext(1)">Continuar →</button>
+      <button class="ob-btn-ghost" style="margin-top:-4px;" onclick="cerrarOnboarding()">Cancelar</button>
+    </div>
+
+    <!-- PASO 2: Tipo y edad de mascota -->
+    <div class="ob-step" id="ob-step-2">
+      <div class="ob-progress"><div class="ob-bar" style="width:50%"></div></div>
+      <h2 class="ob-title">Cuéntanos sobre tu mascota</h2>
+      <p class="ob-desc">La IA personalizará cada consulta según tu compañero.</p>
+
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div class="ob-label">¿Qué tipo de mascota tienes?</div>
+        <div class="ob-options" id="ob-tipomascota">
+          <div class="ob-option" onclick="obSelect('tipomascota','perro',this)">
+            <span class="ob-opt-icon">🐕</span>
+            <div>
+              <div class="ob-opt-title">Perro</div>
+              <div class="ob-opt-sub">Mi mejor amigo peludo</div>
+            </div>
+          </div>
+          <div class="ob-option" onclick="obSelect('tipomascota','gato',this)">
+            <span class="ob-opt-icon">🐈</span>
+            <div>
+              <div class="ob-opt-title">Gato</div>
+              <div class="ob-opt-sub">Independiente y adorable</div>
+            </div>
+          </div>
+          <div class="ob-option" onclick="obSelect('tipomascota','otro',this)">
+            <span class="ob-opt-icon">🐾</span>
+            <div>
+              <div class="ob-opt-title">Otra mascota</div>
+              <div class="ob-opt-sub">Conejo, ave, reptil u otro</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+        <div class="ob-label">¿Cuántos años tiene?</div>
+        <div class="ob-options" id="ob-edadmascota">
+          <div class="ob-option ob-option-sm" onclick="obSelect('edadmascota','cachorro',this)">
+            <span class="ob-opt-icon">🍼</span>
+            <div><div class="ob-opt-title">Cachorro</div><div class="ob-opt-sub">Menos de 1 año</div></div>
+          </div>
+          <div class="ob-option ob-option-sm" onclick="obSelect('edadmascota','joven',this)">
+            <span class="ob-opt-icon">⚡</span>
+            <div><div class="ob-opt-title">Joven</div><div class="ob-opt-sub">1 – 3 años</div></div>
+          </div>
+          <div class="ob-option ob-option-sm" onclick="obSelect('edadmascota','adulto',this)">
+            <span class="ob-opt-icon">🌟</span>
+            <div><div class="ob-opt-title">Adulto</div><div class="ob-opt-sub">3 – 8 años</div></div>
+          </div>
+          <div class="ob-option ob-option-sm" onclick="obSelect('edadmascota','senior',this)">
+            <span class="ob-opt-icon">🏅</span>
+            <div><div class="ob-opt-title">Senior</div><div class="ob-opt-sub">Más de 8 años</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ob-nav">
+        <button class="ob-btn-ghost" onclick="obBack(2)">← Atrás</button>
+        <button class="ob-btn-primary" onclick="obNext(2)">Continuar →</button>
+      </div>
+    </div>
+
+    <!-- PASO 3: Condición de salud -->
+    <div class="ob-step" id="ob-step-3">
+      <div class="ob-progress"><div class="ob-bar" style="width:75%"></div></div>
+      <h2 class="ob-title">¿Tiene alguna condición de salud?</h2>
+      <p class="ob-desc">Selecciona las que apliquen. La IA las considerará en cada consulta.</p>
+      <div class="ob-grid" id="ob-salud">
+        <div class="ob-chip" onclick="obToggleChip(this)" data-val="Alergia alimentaria">🥣 Alergia alimentaria</div>
+        <div class="ob-chip" onclick="obToggleChip(this)" data-val="Problemas digestivos">🫁 Problemas digestivos</div>
+        <div class="ob-chip" onclick="obToggleChip(this)" data-val="Diabetes">💉 Diabetes</div>
+        <div class="ob-chip" onclick="obToggleChip(this)" data-val="Enfermedad renal">🫘 Enfermedad renal</div>
+        <div class="ob-chip" onclick="obToggleChip(this)" data-val="Problemas articulares">🦴 Problemas articulares</div>
+        <div class="ob-chip" onclick="obToggleChip(this)" data-val="Problemas de piel">🐾 Problemas de piel</div>
+        <div class="ob-chip" onclick="obToggleChip(this)" data-val="Sobrepeso">⚖️ Sobrepeso</div>
+        <div class="ob-chip" onclick="obToggleChip(this)" data-val="Sin condiciones especiales">✅ Saludable</div>
+      </div>
+      <div class="ob-nav">
+        <button class="ob-btn-ghost" onclick="obBack(3)">← Atrás</button>
+        <button class="ob-btn-primary" onclick="obFinish()">Continuar →</button>
+      </div>
+    </div>
+
+    <!-- PASO 4: Crear cuenta -->
+    <div class="ob-step" id="ob-step-4">
+      <div class="ob-progress"><div class="ob-bar" style="width:100%"></div></div>
+      <h2 class="ob-title">¡Casi listo! Crea tu cuenta</h2>
+      <p class="ob-desc">Tu perfil se guardará en la nube. Accede desde cualquier dispositivo.</p>
+
+      <div class="ob-field">
+        <label class="ob-label">Correo electrónico</label>
+        <input type="email" id="ob-email" placeholder="tu@correo.com" autocomplete="email">
+      </div>
+      <div class="ob-field">
+        <label class="ob-label">Contraseña</label>
+        <input type="password" id="ob-password" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+      </div>
+
+      <div id="ob-register-error" style="display:none;background:#fee2e2;color:#dc2626;border-radius:8px;padding:10px 14px;font-size:13px;"></div>
+
+      <button class="ob-btn-primary" id="ob-register-btn" onclick="obRegistrar()">Crear cuenta y entrar 🐾</button>
+      <div style="text-align:center;font-size:12px;color:rgba(255,255,255,0.5);margin-top:-4px;">
+        ¿Ya tienes cuenta? <button onclick="obIrALogin()" style="background:none;border:none;color:#5DD6A8;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit;">Inicia sesión</button>
+      </div>
+      <div class="ob-nav" style="margin-top:0;">
+        <button class="ob-btn-ghost" onclick="obBack(4)">← Atrás</button>
+      </div>
+    </div>
+
+  `;
 }
 
 /* ── ESTADO TEMPORAL ── */
@@ -186,6 +233,7 @@ function obNext(step) {
 
 function obBack(step) {
   document.getElementById('ob-step-' + step).classList.remove('active');
+  // Paso 2 retrocede a paso 1 (dentro del flujo dinámico)
   document.getElementById('ob-step-' + (step - 1)).classList.add('active');
 }
 
@@ -207,53 +255,122 @@ function obShake(id) {
 
 function obFinish() {
   obData.salud = [...document.querySelectorAll('#ob-salud .ob-chip.selected')].map(c => c.dataset.val);
-  saveProfileData(obData);
-
-  if (obData.nombre) {
-    document.getElementById('ob-welcome-name').textContent = `¡Listo, ${obData.nombre}!`;
-  }
-
-  const tipoMap = { perro:'🐕 Perro', gato:'🐈 Gato', otro:'🐾 Otra mascota' };
-  const edadMap = { cachorro:'🍼 Cachorro', joven:'⚡ Joven', adulto:'🌟 Adulto', senior:'🏅 Senior' };
-  const items = [
-    tipoMap[obData.tipomascota],
-    edadMap[obData.edadmascota],
-    ...obData.salud,
-  ].filter(Boolean);
-
-  document.getElementById('ob-summary').innerHTML = items.map(i =>
-    `<span class="ob-summary-tag">${i}</span>`
-  ).join('');
-
+  // Avanzar al paso de registro
   document.getElementById('ob-step-3').classList.remove('active');
   document.getElementById('ob-step-4').classList.add('active');
+  setTimeout(() => document.getElementById('ob-email')?.focus(), 120);
 }
 
-function obClose() {
-  localStorage.setItem('wufly_welcome_shown', '1');
+/* ── REGISTRO FINAL ── */
+async function obRegistrar() {
+  const email    = document.getElementById('ob-email')?.value.trim();
+  const password = document.getElementById('ob-password')?.value;
+  const btn      = document.getElementById('ob-register-btn');
+  const errEl    = document.getElementById('ob-register-error');
+
+  if (!email || !password) { obRegError('Completa tu correo y contraseña.'); return; }
+  if (password.length < 6) { obRegError('La contraseña debe tener al menos 6 caracteres.'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Creando cuenta...';
+  errEl.style.display = 'none';
+
+  try {
+    // 1. Crear usuario en Supabase Auth
+    const { data, error } = await db.auth.signUp({
+      email,
+      password,
+      options: { data: { nombre: obData.nombre } }
+    });
+    if (error) throw error;
+
+    // 2. Guardar perfil en localStorage
+    saveProfileData(obData);
+
+    // 3. Si ya hay sesión (confirmación desactivada en Supabase), guardar en DB
+    if (data.session) {
+      currentUser = data.user;
+      await guardarPerfilEnDB({
+        nombre:        obData.nombre,
+        nombreMascota: '',
+        tipomascota:   obData.tipomascota,
+        edadmascota:   obData.edadmascota,
+        salud:         obData.salud,
+        fotoMascota:   null,
+        fotoDueno:     null,
+      });
+      localStorage.setItem('wufly_session_email', email);
+    }
+
+    // 4. Mostrar pantalla de éxito
+    obMostrarExito(obData.nombre, !!data.session);
+
+  } catch(e) {
+    const mapa = {
+      'User already registered':  'Este correo ya tiene una cuenta. Inicia sesión.',
+      'Password should be at least 6 characters': 'La contraseña debe tener al menos 6 caracteres.',
+      'Invalid email': 'El correo no es válido.',
+    };
+    obRegError(mapa[e.message] || 'Ocurrió un error. Intenta de nuevo.');
+    btn.disabled = false;
+    btn.textContent = 'Crear cuenta y entrar 🐾';
+  }
+}
+
+function obRegError(msg) {
+  const el = document.getElementById('ob-register-error');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+/* ── PANTALLA DE ÉXITO ── */
+function obMostrarExito(nombre, sesionActiva) {
+  const container = document.querySelector('#onboarding-overlay .ob-container');
+  if (!container) return;
+  container.innerHTML = `
+    <div class="ob-step active" style="align-items:center;text-align:center;gap:16px;">
+      <div style="font-size:64px;">🎉</div>
+      <h2 class="ob-title">¡Bienvenido${nombre ? ', ' + nombre : ''}!</h2>
+      <p class="ob-desc">${sesionActiva
+        ? 'Tu perfil está listo. Ya puedes publicar, guardar recordatorios y consultar a la Dra. Wufly.'
+        : 'Te enviamos un correo de confirmación. Revísalo y luego inicia sesión para acceder a todo.'
+      }</p>
+      <button class="ob-btn-primary" onclick="cerrarOnboarding()" style="margin-top:8px;">¡Explorar Wufly! 🐾</button>
+    </div>
+  `;
+}
+
+/* ── IR A LOGIN DESDE EL ONBOARDING ── */
+function obIrALogin() {
+  cerrarOnboarding();
+  if (typeof abrirAuthModal === 'function') abrirAuthModal('login');
+}
+
+/* ── CERRAR ONBOARDING ── */
+function cerrarOnboarding() {
   const overlay = document.getElementById('onboarding-overlay');
+  if (!overlay) return;
   overlay.style.animation = 'obFadeOut 0.3s ease forwards';
   setTimeout(() => {
     overlay.remove();
-    // Ir al home sin abrir login
-    if (typeof switchTab === 'function') switchTab('home');
-    // Actualizar botones de publicar según si hay sesión o no
+    if (typeof renderAuthBanner === 'function') renderAuthBanner();
     if (typeof _actualizarBotonesPublicar === 'function') _actualizarBotonesPublicar();
   }, 300);
 }
 
 function resetOnboarding() {
   localStorage.removeItem(ONBOARDING_KEY);
-  if (typeof injectOnboardingStyles === 'function') injectOnboardingStyles();
-  if (typeof showOnboarding === 'function') showOnboarding();
 }
 
 /* ── CSS DEL ONBOARDING ── */
 function injectOnboardingStyles() {
+  if (document.getElementById('ob-styles')) return;
   const style = document.createElement('style');
+  style.id = 'ob-styles';
   style.textContent = `
     #onboarding-overlay {
-      position:fixed; inset:0; z-index:1000;
+      position:fixed; inset:0; z-index:2000;
       background: linear-gradient(160deg, #3B1A8C 0%, #5C2FA8 50%, #7C4DCC 100%);
       display:flex; align-items:center; justify-content:center;
       padding:24px;
@@ -279,15 +396,9 @@ function injectOnboardingStyles() {
       border:1px solid rgba(255,255,255,0.15);
     }
     .ob-step.active { display:flex; animation:obFadeIn 0.3s ease; }
-    #ob-step-1 { align-items:center; text-align:center; gap:14px; }
     .ob-logo { text-align:center; }
     .ob-icon { font-size:52px; text-align:center; }
     .ob-label { font-size:11px; font-weight:700; color:rgba(255,255,255,0.7); letter-spacing:0.06em; text-transform:uppercase; }
-    #ob-step-1 .ob-title {
-      font-family:'Funnel Display', sans-serif;
-      font-weight:700; font-size:14px; letter-spacing:0.15em;
-      color:#fff; text-transform:uppercase; text-align:center;
-    }
     .ob-title {
       font-family:'Funnel Display', sans-serif;
       font-weight:700; font-size:19px; line-height:1.25; color:#fff; text-align:center;
@@ -299,7 +410,7 @@ function injectOnboardingStyles() {
     .ob-field input {
       border:1.5px solid rgba(255,255,255,0.25); border-radius:10px; padding:13px 16px;
       font-family:'Plus Jakarta Sans', sans-serif; font-size:14px; color:#fff;
-      outline:none; background:rgba(255,255,255,0.1); width:100%;
+      outline:none; background:rgba(255,255,255,0.1); width:100%; box-sizing:border-box;
     }
     .ob-field input::placeholder { color:rgba(255,255,255,0.4); }
     .ob-field input:focus { border-color:#5DD6A8; background:rgba(255,255,255,0.14); }
@@ -332,6 +443,7 @@ function injectOnboardingStyles() {
       box-shadow:0 4px 20px rgba(124,77,204,0.4);
     }
     .ob-btn-primary:hover { background:#5C2FA8; transform:translateY(-1px); }
+    .ob-btn-primary:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
     .ob-btn-ghost {
       background:transparent; border:1.5px solid rgba(255,255,255,0.2);
       border-radius:10px; padding:14px 20px;
@@ -349,15 +461,6 @@ function injectOnboardingStyles() {
   document.head.appendChild(style);
 }
 
-/* ── INIT ── */
-// Espera a que auth.js haya tenido tiempo de restaurar sesión y perfil
-// antes de decidir si mostrar el onboarding.
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    const profile = loadProfile();
-    if (profile && profile.nombre) return;
-    if (typeof currentUser !== 'undefined' && currentUser) return;
-    injectOnboardingStyles();
-    showOnboarding();
-  }, 800);
-});
+/* ── INIT: NO hacer nada al cargar ── */
+// El onboarding ya NO se activa automáticamente.
+// Se activa solo cuando el usuario pincha el ícono de Perfil → abrirPerfil()
