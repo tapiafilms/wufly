@@ -12,22 +12,17 @@ async function cargarFotosMascotas() {
   if (!container) return;
 
   try {
-    // Recuperar token de sesión del localStorage (igual que hace auth.js)
+    // Token de sesión si existe, si no usar clave anónima (galería pública para todos)
     const SUPABASE_REF = 'ybnacudfqerbzpvqcjzc';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibmFjdWRmcWVyYnpwdnFjanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzYzNjksImV4cCI6MjA5MTk1MjM2OX0.pQ4PVNS1wqHvnvEPO0TYwlMS6ooDpsP7DaYXqdTbFxE';
     const stored = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF}-auth-token`) || 'null');
-    const token = stored?.access_token;
+    const token = stored?.access_token || SUPABASE_ANON;
 
-    if (!token) {
-      console.warn('PetGallery: sin sesión activa');
-      _ocultarGaleriaSection();
-      return;
-    }
-
-    // Llamada REST directa con el token JWT del usuario
+    // Llamada REST directa — funciona con y sin sesión
     const url = `https://${SUPABASE_REF}.supabase.co/rest/v1/profiles?select=id,nombre_mascota,tipo_mascota,foto_mascota_url,updated_at&foto_mascota_url=not.is.null&order=updated_at.desc&limit=${PET_GALLERY_LIMIT}`;
     const res = await fetch(url, {
       headers: {
-        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibmFjdWRmcWVyYnpwdnFjanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzYzNjksImV4cCI6MjA5MTk1MjM2OX0.pQ4PVNS1wqHvnvEPO0TYwlMS6ooDpsP7DaYXqdTbFxE',
+        'apikey': SUPABASE_ANON,
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       }
