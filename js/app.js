@@ -356,10 +356,6 @@ async function _rechazarPaseador(id) {
 
 /* ══ NAVEGACIÓN ══ */
 function switchTab(name, el, fromNav = false) {
-  if (typeof currentUser !== 'undefined' && !currentUser) {
-    abrirAuthModal('login');
-    return;
-  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
