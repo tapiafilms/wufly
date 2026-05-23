@@ -187,6 +187,9 @@ function _actualizarModalModo(modo) {
     ? `¿Ya tienes una cuenta? <button onclick="setAuthModo('login')" style="background:none;border:none;color:var(--purple);font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;">Iniciar sesión</button>`
     : `¿No estás registrado? <button onclick="setAuthModo('register')" style="background:none;border:none;color:var(--purple);font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;">Crear cuenta aquí</button>`;
   document.getElementById('authError').style.display = 'none';
+  // Mostrar botón de Google solo en registro
+  const googleBtn = document.getElementById('authGoogleBtn');
+  if (googleBtn) googleBtn.style.display = esRegistro ? 'block' : 'none';
 }
 
 function _limpiarModal() {
@@ -334,6 +337,19 @@ async function cerrarSesion() {
   currentUser = null;
   renderAuthBanner();
   abrirAuthModal('login');
+}
+
+/* ══ LOGIN CON GOOGLE ══ */
+async function loginConGoogle() {
+  try {
+    const { error } = await db.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin }
+    });
+    if (error) throw error;
+  } catch (e) {
+    _authErr('Error al conectar con Google. Intenta de nuevo.');
+  }
 }
 
 /* ══ STORAGE: subir foto ══ */
