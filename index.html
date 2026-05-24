@@ -24,7 +24,7 @@
 <link rel="icon" type="image/png" href="img/icono.png">
 
 <!-- SEO / Open Graph -->
-<meta name="description" content="Encuentra veterinarias, adopta mascotas, reporta perdidos y consulta a un asistente veterinario con IA. Para Viña del Mar, Valparaíso y Concón.">
+<meta name="description" content="Encuentra veterinarias, adopta mascotas, reporta perdidos y consulta a un asistente veterinario con IA.">
 
 <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
@@ -154,11 +154,8 @@
       <input type="text" placeholder="Buscar peluquería o servicio..." id="searchGrooming" oninput="onSearchGrooming()" aria-label="Buscar peluquería o servicio de grooming">
     </div>
     <div class="filter-row sub-filter-grooming">
-      <button class="filter-btn active" onclick="setFilterGrooming(this,'todos')">Todas</button>
+      
       <button id="groomingGeoBtn" class="filter-btn" onclick="setFilterGrooming(this,'geo')" style="display:none;">📍 Cerca</button>
-      <button class="filter-btn" onclick="setFilterGrooming(this,'viña')">Viña del Mar</button>
-      <button class="filter-btn" onclick="setFilterGrooming(this,'valpo')">Valparaíso</button>
-      <button class="filter-btn" onclick="setFilterGrooming(this,'concon')">Concón</button>
     </div>
     <div id="groomingList"></div>
   </div>
@@ -173,7 +170,7 @@
       <div style="position:absolute;inset:0;background:rgba(103,58,183,0.72);z-index:1;pointer-events:none;"></div>
       <div style="position:relative;z-index:2;">
         <h2>Paseadores de perros</h2>
-        <p>Profesionales verificados en Viña del Mar, Valparaíso y Concón</p>
+        <p>Profesionales verificados.</p>
         <div class="stat-row">
           <div class="stat"><div class="stat-num">3</div><div class="stat-label">Servicios</div></div>
           <div class="stat"><div class="stat-num">2</div><div class="stat-label">Verificados</div></div>
@@ -237,7 +234,7 @@
     <!-- Nombre dueño -->
     <div style="padding:20px 20px 14px;display:flex;align-items:center;justify-content:space-between;">
       <div>
-        <div id="perfilNombreDueno" style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:20px;color:var(--text);">Hola 👋</div>
+        <div id="perfilNombreDueno" style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:20px;color:var(--text);">Hola</div>
         <div id="perfilSubtitulo" style="font-size:12px;color:var(--text-muted);margin-top:2px;">Tu mascota y tú</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
@@ -256,23 +253,6 @@
     <!-- Contenido dinámico (lectura o edición) -->
     <div id="perfilCardContenido" style="padding:0 20px 16px;"></div>
 
-    <!-- Accesos rápidos -->
-    <div style="padding:0 20px 28px;display:flex;gap:10px;">
-      <button onclick="switchTab('recetas')"
-        style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:var(--peach-light);border:1.5px solid rgba(249,185,92,0.4);border-radius:var(--r);cursor:pointer;transition:all 0.2s;"
-        onmouseover="this.style.background='#fde9c4'" onmouseout="this.style.background='var(--peach-light)'">
-        <span style="font-size:26px;">🍲</span>
-        <span style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:13px;color:var(--text);">Recetas</span>
-        <span style="font-size:11px;color:var(--text-muted);">Para perros y gatos</span>
-      </button>
-      <button onclick="switchTab('recordatorios')"
-        style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:var(--purple-light);border:1.5px solid rgba(124,77,204,0.2);border-radius:var(--r);cursor:pointer;transition:all 0.2s;"
-        onmouseover="this.style.background='#e4d8f8'" onmouseout="this.style.background='var(--purple-light)'">
-        <span style="font-size:26px;">📅</span>
-        <span style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:13px;color:var(--text);">Recordatorios</span>
-        <span style="font-size:11px;color:var(--text-muted);">Vacunas y controles</span>
-      </button>
-    </div>
 
     <!-- Sección paseador -->
     <div id="paseadorSection"></div>
@@ -453,9 +433,9 @@
     </div>
     <div class="filter-row">
       <button class="filter-btn active" onclick="setFilterAdopcion(this,'todos')">Todos</button>
-      <button class="filter-btn" onclick="setFilterAdopcion(this,'perro')">🐕 Perros</button>
-      <button class="filter-btn" onclick="setFilterAdopcion(this,'gato')">🐈 Gatos</button>
-      <button class="filter-btn" onclick="setFilterAdopcion(this,'otro')">🐾 Otros</button>
+      <button class="filter-btn" onclick="setFilterAdopcion(this,'perro')">Perros</button>
+      <button class="filter-btn" onclick="setFilterAdopcion(this,'gato')">Gatos</button>
+      <button class="filter-btn" onclick="setFilterAdopcion(this,'otro')">Otros</button>
     </div>
     <div id="adoptFeed" style="display:flex;flex-direction:column;gap:12px;margin-top:8px;"></div>
   </div>
