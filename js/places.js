@@ -29,7 +29,7 @@ function renderClinicas() {
       <div style="position:absolute;inset:0;background:rgba(103,58,183,0.72);z-index:1;pointer-events:none;"></div>
       <div style="position:relative;z-index:2;">
         <h2>Clínicas Veterinarias</h2>
-        <p>Veterinarias verificadas en Viña del Mar, Valparaíso y Concón</p>
+        <p>Veterinarias verificadas en tu ciudad</p>
         <div class="stat-row">
           <div class="stat"><div class="stat-num">${(CLINICAS_DESTACADAS||[]).length}</div><div class="stat-label">Destacadas</div></div>
           <div class="stat"><div class="stat-num">3</div><div class="stat-label">Ciudades</div></div>
