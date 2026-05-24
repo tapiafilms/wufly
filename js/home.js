@@ -226,6 +226,16 @@ function renderHome() {
       cargarFotosMascotas();
     }, 800); // espera a que auth.js inicialice la sesión
   }
+
+  // Detectar región y recargar clínicas/tiendas si corresponde
+  Promise.all([
+    typeof _detectarRegionYCargarClinicas === 'function' ? _detectarRegionYCargarClinicas() : Promise.resolve(null),
+    typeof _detectarRegionYCargarTiendas  === 'function' ? _detectarRegionYCargarTiendas()  : Promise.resolve(null),
+  ]).then(([clinicas, tiendas]) => {
+    // Solo renderizar si hay datos (null = permiso negado, el banner ya se mostró)
+    if (clinicas !== null && typeof renderClinicas === 'function') renderClinicas();
+    if (tiendas  !== null && typeof renderTiendas  === 'function') renderTiendas();
+  });
 }
 
 /* ── Videos Wufly — reemplaza youtubeId y preview cuando tengas el canal ── */
