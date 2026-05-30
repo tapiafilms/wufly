@@ -283,13 +283,11 @@ async function juntosGenerar() {
 
     resultado.style.display = 'block';
     resultado.innerHTML = `
-      <!-- Imagen con skeleton mientras carga -->
-      <div style="border-radius:18px;overflow:hidden;box-shadow:0 6px 24px rgba(92,47,168,0.2);background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s infinite;min-height:260px;position:relative;">
+      <!-- Imagen generada -->
+      <div style="border-radius:18px;overflow:hidden;box-shadow:0 6px 24px rgba(92,47,168,0.2);">
         <img src="${imagenUrl}"
-          alt=""
-          style="width:100%;display:block;opacity:0;transition:opacity 0.4s ease;"
-          onload="this.style.opacity='1';this.parentElement.style.animation='none';this.parentElement.style.background='none';"
-          onerror="this.style.display='none'">
+          alt="Foto Juntos IA"
+          style="width:100%;display:block;">
       </div>
       <div style="display:flex;gap:10px;margin-top:12px;">
         <button id="juntos-btn-publicar" data-url="${imagenUrl.replace(/"/g,'&quot;')}"
@@ -383,18 +381,23 @@ async function _juntosGuardarComunidad(imagenUrl) {
     }
 
     // Usar el cliente db de Supabase directamente (ya autenticado)
-    const { error } = await db
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Timeout: sin respuesta de Supabase')), 8000)
+    );
+    const insert = db
       .from('fotos_juntos')
       .insert({ imagen_url: imagenUrl, user_id: currentUser.id });
 
+    const { error } = await Promise.race([insert, timeout]);
+
     if (error) {
       console.error('fotos_juntos insert error:', error.message, error.code, error.details);
-      throw new Error(error.message || 'Error al insertar en fotos_juntos');
+      throw new Error(error.message);
     }
     return true;
   } catch (err) {
     console.error('_juntosGuardarComunidad catch:', err);
-    return false;
+    throw err;
   }
 }
 
