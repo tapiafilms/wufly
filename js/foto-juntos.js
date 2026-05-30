@@ -14,11 +14,11 @@ let _jSelfie      = null;
 let _jLugar       = 'beautiful beach in Patagonia';
 
 const JUNTOS_LUGARES = [
-  { label: '🏖️ Playa Patagonia',  prompt: 'beautiful beach in Patagonia' },
-  { label: '🏔️ Andes nevados',    prompt: 'snowy Andes mountains at sunset' },
-  { label: '🌌 Espacio estelar',   prompt: 'outer space surrounded by stars and galaxies' },
-  { label: '🌿 Bosque mágico',     prompt: 'magical enchanted forest with glowing lights' },
-  { label: '🏙️ Ciudad futurista', prompt: 'futuristic neon city skyline at night' },
+  { label: '🏖️ Playa',     prompt: 'beautiful beach in Patagonia' },
+  { label: '🏔️ Andes',     prompt: 'snowy Andes mountains at sunset' },
+  { label: '🌌 Espacio',    prompt: 'outer space surrounded by stars and galaxies' },
+  { label: '🌿 Bosque',     prompt: 'magical enchanted forest with glowing lights' },
+  { label: '🏙️ Ciudad',    prompt: 'futuristic neon city skyline at night' },
 ];
 
 /* ── Abrir modal ── */
@@ -29,63 +29,69 @@ function abrirJuntos() {
   _jSelfie      = null;
   _jLugar       = JUNTOS_LUGARES[0].prompt;
 
+  // Bloquear scroll del home mientras el modal está abierto
+  document.body.style.overflow = 'hidden';
+
   const modal = document.createElement('div');
   modal.id = 'juntos-modal';
   modal.style.cssText = 'position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,0.6);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s ease;';
+
   modal.innerHTML = `
-    <div style="background:white;border-radius:28px 28px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding:24px 20px 44px;">
+    <div style="background:white;border-radius:28px 28px 0 0;width:100%;max-width:480px;padding:20px 20px 36px;">
 
       <!-- Handle -->
-      <div style="width:40px;height:4px;border-radius:100px;background:#E5E7EB;margin:0 auto 20px;"></div>
+      <div style="width:40px;height:4px;border-radius:100px;background:#E5E7EB;margin:0 auto 16px;"></div>
 
       <!-- Header -->
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
         <div>
-          <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:22px;color:#1F0A4A;">✨ Juntos</div>
-          <div style="font-size:12px;color:#9CA3AF;margin-top:2px;">Tu y tu mascota en un lugar mágico</div>
+          <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:20px;color:#1F0A4A;">✨ Juntos</div>
+          <div style="font-size:11px;color:#9CA3AF;margin-top:1px;">Tu y tu mascota en un lugar mágico</div>
         </div>
-        <button onclick="cerrarJuntos()" style="width:36px;height:36px;border-radius:50%;border:1.5px solid #E5E7EB;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#6B7280;fill:none;stroke-width:2.5;stroke-linecap:round;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <button onclick="cerrarJuntos()" style="width:34px;height:34px;border-radius:50%;border:1.5px solid #E5E7EB;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#6B7280;fill:none;stroke-width:2.5;stroke-linecap:round;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
 
-      <!-- Paso 1: Foto mascota -->
-      <div style="margin-bottom:16px;">
-        <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:8px;">PASO 1 — FOTO DE TU MASCOTA</div>
-        <div id="juntos-z-mascota" onclick="document.getElementById('juntos-input-mascota').click()"
-          style="border:2px dashed #DDD6FE;border-radius:16px;padding:20px;text-align:center;cursor:pointer;background:#FAFAFA;transition:border-color 0.2s;position:relative;">
-          <input type="file" id="juntos-input-mascota" accept="image/*" style="display:none;" onchange="juntosCargarFoto(this,'mascota')">
-          <div id="juntos-ph-mascota">
-            <div style="font-size:36px;margin-bottom:6px;">🐾</div>
-            <div style="font-size:13px;font-weight:600;color:#7C4DCC;">Tomar foto o subir</div>
-            <div style="font-size:11px;color:#9CA3AF;margin-top:2px;">Cámara trasera recomendada</div>
+      <!-- Fotos: lado a lado -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+
+        <!-- Mascota -->
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#9CA3AF;letter-spacing:0.06em;margin-bottom:6px;">TU MASCOTA</div>
+          <div id="juntos-z-mascota" onclick="document.getElementById('juntos-input-mascota').click()"
+            style="aspect-ratio:1/1;border:2px dashed #DDD6FE;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:#FAFAFA;transition:all 0.2s;overflow:hidden;position:relative;">
+            <input type="file" id="juntos-input-mascota" accept="image/*" style="display:none;" onchange="juntosCargarFoto(this,'mascota')">
+            <div id="juntos-ph-mascota" style="text-align:center;">
+              <div style="font-size:28px;margin-bottom:4px;">🐾</div>
+              <div style="font-size:11px;font-weight:600;color:#7C4DCC;">Subir foto</div>
+            </div>
+            <div id="juntos-prev-mascota" style="display:none;position:absolute;inset:0;"></div>
           </div>
-          <div id="juntos-prev-mascota" style="display:none;"></div>
+        </div>
+
+        <!-- Selfie -->
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#9CA3AF;letter-spacing:0.06em;margin-bottom:6px;">TU SELFIE</div>
+          <div id="juntos-z-selfie" onclick="document.getElementById('juntos-input-selfie').click()"
+            style="aspect-ratio:1/1;border:2px dashed #DDD6FE;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:#FAFAFA;transition:all 0.2s;overflow:hidden;position:relative;">
+            <input type="file" id="juntos-input-selfie" accept="image/*" style="display:none;" onchange="juntosCargarFoto(this,'selfie')">
+            <div id="juntos-ph-selfie" style="text-align:center;">
+              <div style="font-size:28px;margin-bottom:4px;">🤳</div>
+              <div style="font-size:11px;font-weight:600;color:#7C4DCC;">Subir selfie</div>
+            </div>
+            <div id="juntos-prev-selfie" style="display:none;position:absolute;inset:0;"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Paso 2: Selfie -->
+      <!-- Lugar -->
       <div style="margin-bottom:16px;">
-        <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:8px;">PASO 2 — TU SELFIE</div>
-        <div id="juntos-z-selfie" onclick="document.getElementById('juntos-input-selfie').click()"
-          style="border:2px dashed #DDD6FE;border-radius:16px;padding:20px;text-align:center;cursor:pointer;background:#FAFAFA;transition:border-color 0.2s;position:relative;">
-          <input type="file" id="juntos-input-selfie" accept="image/*" style="display:none;" onchange="juntosCargarFoto(this,'selfie')">
-          <div id="juntos-ph-selfie">
-            <div style="font-size:36px;margin-bottom:6px;">🤳</div>
-            <div style="font-size:13px;font-weight:600;color:#7C4DCC;">Tomar selfie</div>
-            <div style="font-size:11px;color:#9CA3AF;margin-top:2px;">Cámara frontal recomendada</div>
-          </div>
-          <div id="juntos-prev-selfie" style="display:none;"></div>
-        </div>
-      </div>
-
-      <!-- Paso 3: Lugar -->
-      <div style="margin-bottom:24px;">
-        <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:8px;">PASO 3 — ELIGE EL LUGAR</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;" id="juntos-lugares">
+        <div style="font-size:10px;font-weight:700;color:#9CA3AF;letter-spacing:0.06em;margin-bottom:8px;">LUGAR</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;" id="juntos-lugares">
           ${JUNTOS_LUGARES.map((l, i) => `
             <button onclick="juntosElegirLugar(this,'${l.prompt}')"
-              style="padding:7px 13px;border-radius:100px;border:1.5px solid ${i===0?'#7C4DCC':'#E5E7EB'};background:${i===0?'#EDE9FE':'white'};font-size:12px;font-weight:600;color:${i===0?'#7C4DCC':'#6B7280'};cursor:pointer;transition:all 0.15s;white-space:nowrap;">
+              style="padding:6px 12px;border-radius:100px;border:1.5px solid ${i===0?'#7C4DCC':'#E5E7EB'};background:${i===0?'#EDE9FE':'white'};font-size:12px;font-weight:600;color:${i===0?'#7C4DCC':'#6B7280'};cursor:pointer;transition:all 0.15s;white-space:nowrap;">
               ${l.label}
             </button>
           `).join('')}
@@ -94,12 +100,12 @@ function abrirJuntos() {
 
       <!-- Botón Juntar -->
       <button id="juntos-btn" onclick="juntosGenerar()"
-        style="width:100%;padding:16px;border:none;border-radius:16px;background:linear-gradient(135deg,#5C2FA8,#9333EA);color:white;font-family:'Funnel Display',sans-serif;font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 6px 20px rgba(92,47,168,0.4);display:flex;align-items:center;justify-content:center;gap:10px;opacity:0.45;pointer-events:none;transition:opacity 0.2s;">
-        <span style="font-size:20px;">✨</span> Juntar con IA
+        style="width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#5C2FA8,#9333EA);color:white;font-family:'Funnel Display',sans-serif;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 6px 20px rgba(92,47,168,0.4);display:flex;align-items:center;justify-content:center;gap:10px;opacity:0.45;pointer-events:none;transition:opacity 0.2s;">
+        <span style="font-size:18px;">✨</span> Juntar con IA
       </button>
 
       <!-- Resultado -->
-      <div id="juntos-resultado" style="display:none;margin-top:22px;"></div>
+      <div id="juntos-resultado" style="display:none;margin-top:16px;"></div>
 
     </div>
   `;
@@ -110,6 +116,7 @@ function abrirJuntos() {
 function cerrarJuntos() {
   const m = document.getElementById('juntos-modal');
   if (m) m.remove();
+  document.body.style.overflow = '';
 }
 
 /* ── Elegir lugar ── */
@@ -159,17 +166,15 @@ function juntosCargarFoto(input, tipo) {
 }
 
 function _juntosSetPreview(prevId, phId, zoneId, src) {
-  const prev  = document.getElementById(prevId);
-  const ph    = document.getElementById(phId);
-  const zone  = document.getElementById(zoneId);
+  const prev = document.getElementById(prevId);
+  const ph   = document.getElementById(phId);
+  const zone = document.getElementById(zoneId);
   if (!prev) return;
-  prev.innerHTML = `
-    <img src="${src}" style="width:100%;border-radius:12px;max-height:180px;object-fit:cover;display:block;">
-    <div style="font-size:11px;color:#10B981;font-weight:600;margin-top:6px;text-align:center;">✓ Foto lista — toca para cambiar</div>`;
+  prev.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;display:block;">`;
   prev.style.display    = 'block';
   ph.style.display      = 'none';
   zone.style.borderColor = '#A78BFA';
-  zone.style.background  = '#F5F3FF';
+  zone.style.borderStyle = 'solid';
 }
 
 function _juntosCheckBtn() {
@@ -180,44 +185,31 @@ function _juntosCheckBtn() {
   btn.style.pointerEvents = listo ? 'auto' : 'none';
 }
 
-/* ── Fusionar selfie + mascota en un solo canvas para que la IA vea ambas ── */
+/* ── Fusionar selfie + mascota en un solo canvas ── */
 function _juntosCrearCanvasCombinado(selfieB64, mascotaB64) {
   return new Promise((resolve) => {
     const imgA = new Image();
     const imgB = new Image();
     let loaded = 0;
-
     const onLoad = () => {
       loaded++;
       if (loaded < 2) return;
-
-      // Canvas horizontal: selfie izquierda | mascota derecha
-      const H   = 512;
-      const wA  = Math.round(imgA.width  * H / imgA.height);
-      const wB  = Math.round(imgB.width  * H / imgB.height);
+      const H  = 512;
+      const wA = Math.round(imgA.width  * H / imgA.height);
+      const wB = Math.round(imgB.width  * H / imgB.height);
       const canvas = document.createElement('canvas');
       canvas.width  = wA + wB;
       canvas.height = H;
       const ctx = canvas.getContext('2d');
-
       ctx.drawImage(imgA, 0,  0, wA, H);
       ctx.drawImage(imgB, wA, 0, wB, H);
-
-      // Línea divisoria sutil para ayudar al modelo a distinguir las dos mitades
       ctx.strokeStyle = 'rgba(255,255,255,0.6)';
       ctx.lineWidth   = 3;
-      ctx.beginPath();
-      ctx.moveTo(wA, 0);
-      ctx.lineTo(wA, H);
-      ctx.stroke();
-
+      ctx.beginPath(); ctx.moveTo(wA, 0); ctx.lineTo(wA, H); ctx.stroke();
       resolve(canvas.toDataURL('image/jpeg', 0.88));
     };
-
-    imgA.onload = onLoad;
-    imgB.onload = onLoad;
-    imgA.src = selfieB64;
-    imgB.src = mascotaB64;
+    imgA.onload = onLoad; imgB.onload = onLoad;
+    imgA.src = selfieB64; imgB.src = mascotaB64;
   });
 }
 
@@ -227,112 +219,104 @@ async function juntosGenerar() {
   const resultado = document.getElementById('juntos-resultado');
   if (!_jFotoMascota || !_jSelfie) return;
 
-  btn.innerHTML       = `<div style="width:18px;height:18px;border:2.5px solid rgba(255,255,255,0.35);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div> Preparando imágenes…`;
+  btn.innerHTML = `<div style="width:16px;height:16px;border:2.5px solid rgba(255,255,255,0.35);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div> Preparando…`;
   btn.style.pointerEvents = 'none';
   resultado.style.display = 'none';
 
-  // Fusionar ambas fotos en un canvas antes de enviar
   const imagenCombinada = await _juntosCrearCanvasCombinado(_jSelfie, _jFotoMascota);
 
-  btn.innerHTML = `<div style="width:18px;height:18px;border:2.5px solid rgba(255,255,255,0.35);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div> Generando… puede tardar ~30s`;
+  btn.innerHTML = `<div style="width:16px;height:16px;border:2.5px solid rgba(255,255,255,0.35);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div> Generando… ~30s`;
 
   try {
     const res = await fetch(JUNTOS_WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        imagenCombinada,   // canvas con selfie + mascota juntas
-        lugar: _jLugar,
-      }),
+      body: JSON.stringify({ imagenCombinada, lugar: _jLugar }),
     });
 
-    if (!res.ok) {
-      const txt = await res.text();
-      throw new Error(txt || `HTTP ${res.status}`);
-    }
-
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const { imagenUrl } = await res.json();
-    if (!imagenUrl) throw new Error('Sin imagen en respuesta');
+    if (!imagenUrl) throw new Error('Sin imagen');
 
-    btn.innerHTML       = '<span style="font-size:20px;">✨</span> Juntar de nuevo';
+    btn.innerHTML       = '<span style="font-size:18px;">✨</span> Crear otra';
     btn.style.pointerEvents = 'auto';
+    btn.style.opacity       = '1';
 
     resultado.style.display = 'block';
     resultado.innerHTML = `
-      <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:10px;">¡AQUÍ ESTÁN JUNTOS! ✨</div>
-      <div style="border-radius:20px;overflow:hidden;box-shadow:0 8px 30px rgba(92,47,168,0.22);">
-        <img src="${imagenUrl}" style="width:100%;display:block;" alt="Tú y tu mascota juntos">
+      <div style="border-radius:18px;overflow:hidden;box-shadow:0 6px 24px rgba(92,47,168,0.2);">
+        <img src="${imagenUrl}" style="width:100%;display:block;" alt="Juntos">
       </div>
-      <div style="display:flex;gap:10px;margin-top:14px;">
+      <div style="display:flex;gap:10px;margin-top:12px;">
         <button onclick="juntosCompartir('${imagenUrl}')"
-          style="flex:1;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#5C2FA8,#9333EA);color:white;font-family:'Funnel Display',sans-serif;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
-          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          style="flex:1;padding:13px;border:none;border-radius:13px;background:linear-gradient(135deg,#5C2FA8,#9333EA);color:white;font-family:'Funnel Display',sans-serif;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
           Compartir en Wufly
         </button>
-        <button onclick="juntosDescargar('${imagenUrl}')"
-          title="Descargar"
-          style="padding:14px 16px;border:1.5px solid #E5E7EB;border-radius:14px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;">
-          <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#6B7280;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <button onclick="juntosDescargar('${imagenUrl}')" title="Descargar"
+          style="padding:13px 15px;border:1.5px solid #E5E7EB;border-radius:13px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+          <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#6B7280;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </button>
       </div>
     `;
 
-    resultado.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-    // Guardar en feed comunitario
-    _juntosGuardarComunidad(imagenUrl);
-
   } catch (err) {
     console.error('juntosGenerar:', err);
-    btn.innerHTML       = '<span style="font-size:20px;">✨</span> Juntar con IA';
+    btn.innerHTML       = '<span style="font-size:18px;">✨</span> Juntar con IA';
     btn.style.pointerEvents = 'auto';
+    btn.style.opacity       = '1';
     resultado.style.display = 'block';
     resultado.innerHTML = `
-      <div style="background:#FEF2F2;border:1.5px solid #FCA5A5;border-radius:12px;padding:14px;font-size:13px;color:#DC2626;line-height:1.5;">
-        No se pudo generar la imagen. Revisa tu conexión e intenta de nuevo.
+      <div style="background:#FEF2F2;border:1.5px solid #FCA5A5;border-radius:12px;padding:12px;font-size:13px;color:#DC2626;">
+        No se pudo generar la imagen. Intenta de nuevo.
       </div>`;
   }
 }
 
-/* ── Compartir con Web Share API ── */
+/* ── Compartir: guardar en comunidad + Web Share API ── */
 async function juntosCompartir(imagenUrl) {
+  // 1. Guardar en Supabase (solo la URL de Replicate, las fotos originales no se guardan)
+  const guardado = await _juntosGuardarComunidad(imagenUrl);
+
+  // 2. Recargar el carrusel del home
+  if (typeof cargarCarruselJuntos === 'function') cargarCarruselJuntos();
+
+  // 3. Web Share API o copiar enlace
   if (navigator.share) {
     try {
       await navigator.share({
         title: '¡Mira esto! 🐾✨',
-        text:  'Mira la foto que generé con Wufly — ¡mi mascota y yo juntos!',
+        text:  '¡Mira la foto que generé con Wufly!',
         url:   imagenUrl,
       });
       return;
     } catch {}
   }
-  // Fallback: copiar URL
   try {
     await navigator.clipboard.writeText(imagenUrl);
-    _juntosToast('¡Enlace copiado al portapapeles!');
+    _juntosToast('¡Enlace copiado!');
   } catch {
-    _juntosToast('Copia este enlace: ' + imagenUrl);
+    _juntosToast(guardado ? '¡Publicado en Wufly! 🎉' : 'Comparte este enlace: ' + imagenUrl);
   }
+
+  if (guardado) _juntosToast('¡Publicado en la comunidad Wufly! 🎉');
 }
 
 /* ── Descargar imagen ── */
 function juntosDescargar(imagenUrl) {
   const a = document.createElement('a');
-  a.href     = imagenUrl;
-  a.download = 'wufly-juntos.jpg';
-  a.target   = '_blank';
-  a.rel      = 'noopener';
-  a.click();
+  a.href = imagenUrl; a.download = 'wufly-juntos.jpg';
+  a.target = '_blank'; a.rel = 'noopener'; a.click();
 }
 
-/* ── Guardar en tabla fotos_juntos de Supabase ── */
+/* ── Guardar URL en fotos_juntos (sin guardar las fotos originales) ── */
 async function _juntosGuardarComunidad(imagenUrl) {
   try {
     const stored = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF_J}-auth-token`) || 'null');
     const token  = stored?.access_token;
-    if (!token) return;
+    if (!token) return false;
 
-    await fetch(`https://${SUPABASE_REF_J}.supabase.co/rest/v1/fotos_juntos`, {
+    const res = await fetch(`https://${SUPABASE_REF_J}.supabase.co/rest/v1/fotos_juntos`, {
       method: 'POST',
       headers: {
         'apikey':        SUPABASE_ANON_J,
@@ -342,7 +326,8 @@ async function _juntosGuardarComunidad(imagenUrl) {
       },
       body: JSON.stringify({ imagen_url: imagenUrl }),
     });
-  } catch {}
+    return res.ok;
+  } catch { return false; }
 }
 
 /* ── Toast liviano ── */
@@ -354,40 +339,36 @@ function _juntosToast(msg) {
   setTimeout(() => t.remove(), 3000);
 }
 
-/* ── Cargar feed comunitario de fotos juntos ── */
-async function cargarFeedJuntos() {
-  const container = document.getElementById('juntos-feed-grid');
-  if (!container) return;
+/* ── Cargar carrusel de fotos juntos para el home ── */
+async function cargarCarruselJuntos() {
+  const track   = document.getElementById('juntos-track');
+  const section = document.getElementById('juntos-carousel-section');
+  if (!track) return;
 
   try {
     const stored = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF_J}-auth-token`) || 'null');
     const token  = stored?.access_token || SUPABASE_ANON_J;
 
-    const url = `https://${SUPABASE_REF_J}.supabase.co/rest/v1/fotos_juntos?select=imagen_url,created_at&order=created_at.desc&limit=12`;
-    const res = await fetch(url, {
-      headers: {
-        'apikey':        SUPABASE_ANON_J,
-        'Authorization': `Bearer ${token}`,
-      },
-    });
+    const res = await fetch(
+      `https://${SUPABASE_REF_J}.supabase.co/rest/v1/fotos_juntos?select=imagen_url,created_at&order=created_at.desc&limit=10`,
+      { headers: { 'apikey': SUPABASE_ANON_J, 'Authorization': `Bearer ${token}` } }
+    );
 
     if (!res.ok) throw new Error();
     const data = await res.json();
+    if (!data || data.length === 0) { section?.style.setProperty('display','none'); return; }
 
-    if (!data || data.length === 0) {
-      document.getElementById('juntos-feed-section')?.style.setProperty('display', 'none');
-      return;
-    }
-
-    container.innerHTML = data.map(f => `
-      <div style="aspect-ratio:1/1;border-radius:14px;overflow:hidden;cursor:pointer;"
-        onclick="window.open('${f.imagen_url}','_blank','noopener')">
+    track.innerHTML = data.map(f => `
+      <div onclick="window.open('${f.imagen_url}','_blank','noopener')"
+        style="flex:0 0 44%;aspect-ratio:1/1;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.18);flex-shrink:0;">
         <img src="${f.imagen_url}" loading="lazy"
           style="width:100%;height:100%;object-fit:cover;display:block;">
       </div>
     `).join('');
 
+    if (section) section.style.display = 'block';
+
   } catch {
-    document.getElementById('juntos-feed-section')?.style.setProperty('display', 'none');
+    if (section) section.style.display = 'none';
   }
 }

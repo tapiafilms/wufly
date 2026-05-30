@@ -215,10 +215,17 @@ function renderHome() {
           </div>
         </div>
 
-        <!-- Feed fotos de la comunidad Juntos -->
-        <div id="juntos-feed-section" style="margin-top:16px;">
-          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:10px;">✨ MOMENTOS DE LA COMUNIDAD</div>
-          <div id="juntos-feed-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>
+      </div>
+
+      <!-- CARRUSEL FOTOS JUNTOS -->
+      <div id="juntos-carousel-section" style="display:none;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:10px;">
+          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">✨ MOMENTOS DE LA COMUNIDAD</div>
+        </div>
+        <div style="overflow:hidden;padding:4px 0 10px;">
+          <div id="juntos-track"
+            style="display:flex;gap:12px;padding:0 16px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+          </div>
         </div>
       </div>
 
@@ -263,7 +270,7 @@ function renderHome() {
   if (typeof cargarFotosMascotas === 'function') {
     setTimeout(() => {
       cargarFotosMascotas();
-      if (typeof cargarFeedJuntos === 'function') cargarFeedJuntos();
+      if (typeof cargarCarruselJuntos === 'function') cargarCarruselJuntos();
     }, 800);
   }
 
