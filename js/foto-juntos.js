@@ -164,10 +164,14 @@ function _juntosShowOverlay(texto) {
     // Loop sin parpadeo: reiniciar manualmente al terminar
     ov.addEventListener('click', () => {}, { once: true }); // dummy para activar listener scope
   }
-  // Loop sin parpadeo: reiniciar manualmente al terminar
+  // Loop sin parpadeo: reiniciar 0.1s antes del final para evitar frame negro
   requestAnimationFrame(() => {
     const vid = document.getElementById('juntos-video-gen');
-    if (vid) vid.addEventListener('ended', function loop() { this.currentTime = 0; this.play(); });
+    if (vid) vid.addEventListener('timeupdate', function() {
+      if (this.duration && this.currentTime >= this.duration - 0.1) {
+        this.currentTime = 0;
+      }
+    });
   });
   ov.innerHTML = `
     <div style="width:110px;height:110px;border-radius:50%;overflow:hidden;flex-shrink:0;">
