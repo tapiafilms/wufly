@@ -21,6 +21,16 @@ const JUNTOS_LUGARES = [
   { label: '🏙️ Ciudad',    prompt: 'futuristic neon city skyline at night' },
 ];
 
+/* ── Leer tipo de mascota del perfil ── */
+function _juntosGetTipoPet() {
+  try {
+    const perfil = JSON.parse(localStorage.getItem('wufly_profile_v1') || '{}');
+    const tipo = perfil.tipomascota || '';
+    const map = { perro: 'dog', gato: 'cat', conejo: 'rabbit', ave: 'bird', pez: 'fish' };
+    return map[tipo] || 'pet';
+  } catch { return 'pet'; }
+}
+
 /* ── Abrir modal ── */
 function abrirJuntos() {
   const existing = document.getElementById('juntos-modal');
@@ -232,6 +242,7 @@ async function juntosGenerar() {
         selfie:      _jSelfie,
         fotoMascota: _jFotoMascota,
         lugar:       _jLugar,
+        tipoPet:     _juntosGetTipoPet(),
       }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

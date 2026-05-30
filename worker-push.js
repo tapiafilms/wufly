@@ -180,7 +180,7 @@ export default {
 
     /* POST /api/juntar-fotos — combinar selfie + foto mascota con IA */
     if (url.pathname === '/api/juntar-fotos') {
-      const { selfie, fotoMascota, lugar } = await request.json();
+      const { selfie, fotoMascota, lugar, tipoPet } = await request.json();
 
       if (!selfie || !fotoMascota) {
         return new Response(JSON.stringify({ error: 'Faltan imágenes' }), {
@@ -189,9 +189,10 @@ export default {
         });
       }
 
-      const lugarSafe = (lugar || 'beautiful beach in Patagonia').slice(0, 120);
+      const lugarSafe = (lugar   || 'beautiful beach in Patagonia').slice(0, 120);
+      const petWord   = (tipoPet || 'pet').slice(0, 20);
 
-      const prompt = `The first image shows a person. The second image shows their pet. Create a single photorealistic image where EXACTLY this person and EXACTLY this pet are together, the person is hugging and smiling with their pet, on ${lugarSafe}. Preserve the exact face and appearance of the person. Preserve the exact breed, color and markings of the pet. Warm golden hour lighting, cinematic photography, bokeh background, high quality.`;
+      const prompt = `The FIRST image is a reference photo of a PERSON. The SECOND image is a reference photo of their ${petWord}. Generate a single photorealistic image showing EXACTLY this person and EXACTLY this ${petWord} together: the person is smiling and hugging their ${petWord} on ${lugarSafe}. Faithfully preserve the person's exact face, hair color, skin tone and expression from the first image. Faithfully preserve the ${petWord}'s exact breed, fur color, size and markings from the second image. Warm golden hour lighting, cinematic photography, shallow depth of field, high quality.`;
 
       // Enviar a la cola de fal.ai (no bloquea — devuelve request_id de inmediato)
       const falRes = await fetch('https://queue.fal.run/fal-ai/flux-pro/kontext/multi', {
