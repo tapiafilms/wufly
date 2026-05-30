@@ -334,30 +334,22 @@ function juntosDescargar(imagenUrl) {
 /* ── Guardar URL en fotos_juntos (sin guardar las fotos originales) ── */
 async function _juntosGuardarComunidad(imagenUrl) {
   try {
-    // Usar el cliente Supabase global (definido en auth.js) — más fiable que leer localStorage
-    if (typeof db === 'undefined') return false;
-
-    const { data: { session } } = await db.auth.getSession();
-    if (!session?.access_token) return false;
-
-    const res = await fetch(`https://${SUPABASE_REF_J}.supabase.co/rest/v1/fotos_juntos`, {
-      method: 'POST',
-      headers: {
-        'apikey':        SUPABASE_ANON_J,
-        'Authorization': `Bearer ${session.access_token}`,
-        'Content-Type':  'application/json',
-        'Prefer':        'return=minimal',
-      },
-      body: JSON.stringify({
-        imagen_url: imagenUrl,
-        user_id:    session.user.id,
-      }),
-    });
-    if (!res.ok) {
-      const detail = await res.text();
-      console.error('fotos_juntos insert error:', res.status, detail);
+    // currentUser viene de auth.js — ya está seteado, no necesita await
+    if (typeof currentUser === 'undefined' || !currentUser?.id) {
+      console.warn('fotos_juntos: no hay usuario logueado');
+      return false;
     }
-    return res.ok;
+
+    // Usar el cliente db de Supabase directamente (ya autenticado)
+    const { error } = await db
+      .from('fotos_juntos')
+      .insert({ imagen_url: imagenUrl, user_id: currentUser.id });
+
+    if (error) {
+      console.error('fotos_juntos insert error:', error.message);
+      return false;
+    }
+    return true;
   } catch (err) {
     console.error('_juntosGuardarComunidad catch:', err);
     return false;
