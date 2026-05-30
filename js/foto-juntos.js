@@ -122,11 +122,56 @@ function abrirJuntos() {
   document.body.appendChild(modal);
 }
 
-/* ── Cerrar modal ── */
-function cerrarJuntos() {
+/* ── Cerrar modal con animación slide-down + reload ── */
+function cerrarJuntos(recargar = false) {
   const m = document.getElementById('juntos-modal');
-  if (m) m.remove();
-  document.body.style.overflow = '';
+  if (!m) return;
+  const sheet = m.firstElementChild;
+  if (sheet) {
+    sheet.style.transition = 'transform 0.35s cubic-bezier(0.4,0,1,1)';
+    sheet.style.transform  = 'translateY(110%)';
+  }
+  m.style.transition  = 'background 0.3s ease';
+  m.style.background  = 'rgba(0,0,0,0)';
+  setTimeout(() => {
+    m.remove();
+    document.body.style.overflow = '';
+    if (recargar) window.location.reload();
+  }, 350);
+}
+
+/* ── Inyectar keyframes una sola vez ── */
+(function _juntosInjectStyles() {
+  if (document.getElementById('juntos-keyframes')) return;
+  const s = document.createElement('style');
+  s.id = 'juntos-keyframes';
+  s.textContent = `
+    @keyframes juntosFadeIn  { from { opacity:0 } to { opacity:1 } }
+    @keyframes juntosFadeOut { from { opacity:1 } to { opacity:0 } }
+    @keyframes juntosSpin    { to { transform:rotate(360deg) } }
+  `;
+  document.head.appendChild(s);
+})();
+
+/* ── Overlay negro de procesamiento ── */
+function _juntosShowOverlay(texto) {
+  let ov = document.getElementById('juntos-overlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'juntos-overlay';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,0.75);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;animation:juntosFadeIn 0.2s ease;';
+    document.body.appendChild(ov);
+  }
+  ov.innerHTML = `
+    <video src="img/generando.mp4" autoplay loop muted playsinline
+      style="width:220px;height:220px;object-fit:contain;"></video>
+    <div style="color:white;font-family:'Funnel Display',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.02em;">${texto}</div>
+  `;
+}
+
+function _juntosHideOverlay() {
+  const ov = document.getElementById('juntos-overlay');
+  if (ov) { ov.style.animation = 'juntosFadeOut 0.2s ease forwards'; setTimeout(() => ov.remove(), 200); }
 }
 
 /* ── Elegir lugar ── */
@@ -229,9 +274,10 @@ async function juntosGenerar() {
   const resultado = document.getElementById('juntos-resultado');
   if (!_jFotoMascota || !_jSelfie) return;
 
-  btn.innerHTML = `<div style="width:16px;height:16px;border:2.5px solid rgba(255,255,255,0.35);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div> Generando… ~20s`;
   btn.style.pointerEvents = 'none';
+  btn.style.opacity = '0.5';
   resultado.style.display = 'none';
+  _juntosShowOverlay('Creando tu foto mágica…');
 
   try {
     // Paso 1 — enviar fotos y obtener request_id
@@ -260,7 +306,7 @@ async function juntosGenerar() {
       intento++;
 
       const puntos = '.'.repeat((intento % 3) + 1);
-      btn.innerHTML = `<div style="width:16px;height:16px;border:2.5px solid rgba(255,255,255,0.35);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div> Generando${puntos}`;
+      _juntosShowOverlay(`Creando tu foto mágica${puntos}`);
 
       const poll = await fetch(
         `${JUNTOS_STATUS_URL}?id=${requestId}&statusUrl=${encodeURIComponent(statusUrl)}&responseUrl=${encodeURIComponent(responseUrl)}`
@@ -277,17 +323,14 @@ async function juntosGenerar() {
 
     if (!imagenUrl) throw new Error('Timeout esperando imagen');
 
-    btn.innerHTML       = '<span style="font-size:18px;">✨</span> Crear otra';
-    btn.style.pointerEvents = 'auto';
-    btn.style.opacity       = '1';
+    _juntosHideOverlay();
+    btn.style.display = 'none'; // ocultar botón "Juntar"
 
     resultado.style.display = 'block';
     resultado.innerHTML = `
       <!-- Imagen generada -->
       <div style="border-radius:18px;overflow:hidden;box-shadow:0 6px 24px rgba(92,47,168,0.2);">
-        <img src="${imagenUrl}"
-          alt="Foto Juntos IA"
-          style="width:100%;display:block;">
+        <img src="${imagenUrl}" alt="Foto Juntos IA" style="width:100%;display:block;">
       </div>
       <div style="display:flex;gap:10px;margin-top:12px;">
         <button id="juntos-btn-publicar" data-url="${imagenUrl.replace(/"/g,'&quot;')}"
@@ -300,19 +343,16 @@ async function juntosGenerar() {
           style="padding:13px 15px;border:1.5px solid #E5E7EB;border-radius:13px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;">
           <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#6B7280;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         </button>
-        <button data-url="${imagenUrl.replace(/"/g,'&quot;')}"
-          onclick="juntosDescargar(this.dataset.url)" title="Descargar"
-          style="padding:13px 15px;border:1.5px solid #E5E7EB;border-radius:13px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;">
-          <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#6B7280;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        </button>
       </div>
     `;
 
   } catch (err) {
     console.error('juntosGenerar:', err);
+    _juntosHideOverlay();
     btn.innerHTML       = '<span style="font-size:18px;">✨</span> Juntar con IA';
     btn.style.pointerEvents = 'auto';
     btn.style.opacity       = '1';
+    btn.style.display       = '';
     resultado.style.display = 'block';
     resultado.innerHTML = `
       <div style="background:#FEF2F2;border:1.5px solid #FCA5A5;border-radius:12px;padding:12px;font-size:13px;color:#DC2626;">
@@ -323,21 +363,31 @@ async function juntosGenerar() {
 
 /* ── Publicar en la comunidad Wufly ── */
 async function juntosPublicarEnWufly(imagenUrl, btn) {
-  btn.innerHTML       = `<div style="width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;"></div> Publicando…`;
   btn.style.pointerEvents = 'none';
+  btn.style.opacity = '0.6';
+  _juntosShowOverlay('Publicando en Wufly…');
 
   const _restaurar = () => {
+    _juntosHideOverlay();
     btn.innerHTML       = '🐾 Publicar en Wufly';
     btn.style.pointerEvents = 'auto';
+    btn.style.opacity   = '1';
   };
 
   try {
     const guardado = await _juntosGuardarComunidad(imagenUrl);
 
     if (guardado) {
+      _juntosHideOverlay();
       if (typeof cargarCarruselJuntos === 'function') cargarCarruselJuntos();
-      cerrarJuntos();
-      _juntosToast('¡Tu foto ya está en la comunidad! 🐾✨');
+      // Botón queda en verde — usuario cierra manualmente
+      btn.innerHTML        = '✓ Publicado';
+      btn.style.background = 'linear-gradient(135deg,#059669,#10B981)';
+      btn.style.opacity    = '1';
+      btn.style.pointerEvents = 'none';
+      // Botón cerrar ahora recarga la app
+      const closeBtn = document.querySelector('#juntos-modal button[onclick="cerrarJuntos()"]');
+      if (closeBtn) closeBtn.setAttribute('onclick', 'cerrarJuntos(true)');
     } else {
       _restaurar();
       _juntosToast('No se pudo publicar. ¿Estás con sesión iniciada?');
