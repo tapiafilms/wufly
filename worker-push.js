@@ -178,6 +178,82 @@ export default {
       });
     }
 
+    /* POST /api/juntar-fotos — combinar selfie + foto mascota con IA */
+    if (url.pathname === '/api/juntar-fotos') {
+      const { fotoMascota, selfie, lugar } = await request.json();
+
+      if (!selfie || !fotoMascota) {
+        return new Response(JSON.stringify({ error: 'Faltan imágenes' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json', ...CORS },
+        });
+      }
+
+      const lugarSafe = (lugar || 'beautiful beach in Patagonia').slice(0, 120);
+
+      // Llamar a Replicate — black-forest-labs/flux-kontext-pro
+      // Toma la selfie y genera la escena con la mascota en el lugar elegido
+      const replicateRes = await fetch('https://api.replicate.com/v1/models/black-forest-labs/flux-kontext-pro/predictions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${env.REPLICATE_API_KEY}`,
+          'Content-Type':  'application/json',
+          'Prefer':        'wait=60',
+        },
+        body: JSON.stringify({
+          input: {
+            prompt: `The person in the image is hugging their beloved pet on ${lugarSafe}, warm golden hour lighting, photorealistic, cinematic photography, high quality`,
+            input_image: selfie,
+            aspect_ratio: '1:1',
+            output_format: 'jpg',
+            safety_tolerance: 2,
+          },
+        }),
+      });
+
+      if (!replicateRes.ok) {
+        const detail = await replicateRes.text();
+        return new Response(JSON.stringify({ error: 'Replicate error', detail }), {
+          status: 502,
+          headers: { 'Content-Type': 'application/json', ...CORS },
+        });
+      }
+
+      const prediction = await replicateRes.json();
+
+      // Con Prefer: wait la predicción llega completada o podemos necesitar polling
+      let imagenUrl = null;
+      if (prediction.status === 'succeeded') {
+        imagenUrl = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
+      } else if (prediction.urls?.get) {
+        // Polling hasta 55s adicionales
+        const pollUrl = prediction.urls.get;
+        for (let i = 0; i < 10; i++) {
+          await new Promise(r => setTimeout(r, 5000));
+          const pollRes  = await fetch(pollUrl, {
+            headers: { 'Authorization': `Bearer ${env.REPLICATE_API_KEY}` },
+          });
+          const pollData = await pollRes.json();
+          if (pollData.status === 'succeeded') {
+            imagenUrl = Array.isArray(pollData.output) ? pollData.output[0] : pollData.output;
+            break;
+          }
+          if (pollData.status === 'failed' || pollData.status === 'canceled') break;
+        }
+      }
+
+      if (!imagenUrl) {
+        return new Response(JSON.stringify({ error: 'No se generó imagen', status: prediction.status }), {
+          status: 504,
+          headers: { 'Content-Type': 'application/json', ...CORS },
+        });
+      }
+
+      return new Response(JSON.stringify({ imagenUrl }), {
+        headers: { 'Content-Type': 'application/json', ...CORS },
+      });
+    }
+
     return new Response('Not Found', { status: 404 });
   }
 };
