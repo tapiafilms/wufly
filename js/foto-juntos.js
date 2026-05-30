@@ -250,7 +250,7 @@ async function juntosGenerar() {
           alt=""
           style="width:100%;display:block;opacity:0;transition:opacity 0.4s ease;"
           onload="this.style.opacity='1';this.parentElement.style.animation='none';this.parentElement.style.background='none';"
-          onerror="this.parentElement.innerHTML='<div style=\'padding:24px;text-align:center;color:#9CA3AF;font-size:13px;\'>No se pudo cargar la imagen</div>';">
+          onerror="this.style.display='none'">
       </div>
       <div style="display:flex;gap:10px;margin-top:12px;">
         <button id="juntos-btn-publicar" onclick="juntosPublicarEnWufly('${imagenUrl}', this)"
