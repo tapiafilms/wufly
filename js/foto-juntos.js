@@ -161,10 +161,19 @@ function _juntosShowOverlay(texto) {
     ov.id = 'juntos-overlay';
     ov.style.cssText = 'position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,0.75);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;animation:juntosFadeIn 0.2s ease;';
     document.body.appendChild(ov);
+    // Loop sin parpadeo: reiniciar manualmente al terminar
+    ov.addEventListener('click', () => {}, { once: true }); // dummy para activar listener scope
   }
+  // Loop sin parpadeo: reiniciar manualmente al terminar
+  requestAnimationFrame(() => {
+    const vid = document.getElementById('juntos-video-gen');
+    if (vid) vid.addEventListener('ended', function loop() { this.currentTime = 0; this.play(); });
+  });
   ov.innerHTML = `
-    <video src="img/generando.mp4" autoplay loop muted playsinline
-      style="width:220px;height:220px;object-fit:contain;"></video>
+    <div style="width:110px;height:110px;border-radius:50%;overflow:hidden;flex-shrink:0;">
+      <video id="juntos-video-gen" src="img/generando.mp4" autoplay muted playsinline
+        style="width:100%;height:100%;object-fit:cover;display:block;"></video>
+    </div>
     <div style="color:white;font-family:'Funnel Display',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.02em;">${texto}</div>
   `;
 }
@@ -492,7 +501,7 @@ async function cargarCarruselJuntos() {
     if (!data || data.length === 0) { section?.style.setProperty('display','none'); return; }
 
     track.innerHTML = data.map(f => `
-      <div onclick="window.open('${f.imagen_url}','_blank','noopener')"
+      <div onclick="_abrirFotoJuntos('${f.imagen_url.replace(/'/g,"&#39;")}')"
         style="flex:0 0 44%;aspect-ratio:1/1;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.18);flex-shrink:0;">
         <img src="${f.imagen_url}" loading="lazy"
           style="width:100%;height:100%;object-fit:cover;display:block;">
@@ -504,4 +513,62 @@ async function cargarCarruselJuntos() {
   } catch {
     if (section) section.style.display = 'none';
   }
+}
+
+/* ── Abrir foto Juntos en modal (idéntico al de mascotas) ── */
+function _abrirFotoJuntos(url) {
+  const prev = document.getElementById('pet-modal-overlay');
+  if (prev) prev.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'pet-modal-overlay';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9999;
+    background:rgba(0,0,0,0.82);
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
+    animation:petModalIn 0.22s ease;
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+  `;
+  overlay.onclick = (e) => { if (e.target === overlay) _cerrarFotoJuntos(); };
+
+  overlay.innerHTML = `
+    <div style="
+      position:relative;
+      max-width:380px;width:100%;
+      border-radius:24px;
+      overflow:hidden;
+      background:#1a0a3c;
+      box-shadow:0 24px 64px rgba(0,0,0,0.6);
+      animation:petModalCardIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    ">
+      <div style="position:relative;aspect-ratio:1/1;background:#2d1460;">
+        <img src="${url}" alt="Foto Juntos IA"
+          style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>
+      <div style="padding:16px 20px 20px;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:18px;font-weight:800;color:white;font-family:'Funnel Display',sans-serif;">✨ Juntos — IA</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">Comunidad Wufly 🐾</div>
+        </div>
+        <button onclick="_cerrarFotoJuntos()"
+          style="width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;background:rgba(255,255,255,0.1);color:white;font-size:18px;display:flex;align-items:center;justify-content:center;"
+          onmouseenter="this.style.background='rgba(255,255,255,0.2)'"
+          onmouseleave="this.style.background='rgba(255,255,255,0.1)'"
+        >✕</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  const escHandler = (e) => { if (e.key === 'Escape') { _cerrarFotoJuntos(); document.removeEventListener('keydown', escHandler); } };
+  document.addEventListener('keydown', escHandler);
+}
+
+function _cerrarFotoJuntos() {
+  const overlay = document.getElementById('pet-modal-overlay');
+  if (!overlay) return;
+  overlay.style.animation = 'petModalOut 0.18s ease forwards';
+  setTimeout(() => overlay.remove(), 180);
 }
