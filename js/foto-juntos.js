@@ -248,10 +248,13 @@ async function juntosGenerar() {
         <img src="${imagenUrl}" style="width:100%;display:block;" alt="Juntos">
       </div>
       <div style="display:flex;gap:10px;margin-top:12px;">
-        <button onclick="juntosCompartir('${imagenUrl}')"
+        <button id="juntos-btn-publicar" onclick="juntosPublicarEnWufly('${imagenUrl}', this)"
           style="flex:1;padding:13px;border:none;border-radius:13px;background:linear-gradient(135deg,#5C2FA8,#9333EA);color:white;font-family:'Funnel Display',sans-serif;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
-          <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          Compartir en Wufly
+          🐾 Publicar en Wufly
+        </button>
+        <button onclick="juntosCompartirexterno('${imagenUrl}')" title="Compartir en redes"
+          style="padding:13px 15px;border:1.5px solid #E5E7EB;border-radius:13px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+          <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#6B7280;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         </button>
         <button onclick="juntosDescargar('${imagenUrl}')" title="Descargar"
           style="padding:13px 15px;border:1.5px solid #E5E7EB;border-radius:13px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;">
@@ -273,33 +276,37 @@ async function juntosGenerar() {
   }
 }
 
-/* ── Compartir: guardar en comunidad + Web Share API ── */
-async function juntosCompartir(imagenUrl) {
-  // 1. Guardar en Supabase (solo la URL de Replicate, las fotos originales no se guardan)
+/* ── Publicar en la comunidad Wufly ── */
+async function juntosPublicarEnWufly(imagenUrl, btn) {
+  btn.innerHTML = `<div style="width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;"></div> Publicando…`;
+  btn.style.pointerEvents = 'none';
+
   const guardado = await _juntosGuardarComunidad(imagenUrl);
 
-  // 2. Recargar el carrusel del home
-  if (typeof cargarCarruselJuntos === 'function') cargarCarruselJuntos();
+  if (guardado) {
+    btn.innerHTML        = '✓ Publicado en Wufly';
+    btn.style.background = 'linear-gradient(135deg,#059669,#10B981)';
+    if (typeof cargarCarruselJuntos === 'function') cargarCarruselJuntos();
+    _juntosToast('¡Tu foto ya está en la comunidad! 🐾✨');
+  } else {
+    btn.innerHTML        = '🐾 Publicar en Wufly';
+    btn.style.pointerEvents = 'auto';
+    _juntosToast('Inicia sesión para publicar en Wufly');
+  }
+}
 
-  // 3. Web Share API o copiar enlace
+/* ── Compartir en redes sociales (menú nativo) ── */
+async function juntosCompartirexterno(imagenUrl) {
   if (navigator.share) {
     try {
-      await navigator.share({
-        title: '¡Mira esto! 🐾✨',
-        text:  '¡Mira la foto que generé con Wufly!',
-        url:   imagenUrl,
-      });
+      await navigator.share({ title: '¡Mira esto! 🐾✨', text: '¡Mira la foto que generé con Wufly!', url: imagenUrl });
       return;
     } catch {}
   }
   try {
     await navigator.clipboard.writeText(imagenUrl);
     _juntosToast('¡Enlace copiado!');
-  } catch {
-    _juntosToast(guardado ? '¡Publicado en Wufly! 🎉' : 'Comparte este enlace: ' + imagenUrl);
-  }
-
-  if (guardado) _juntosToast('¡Publicado en la comunidad Wufly! 🎉');
+  } catch {}
 }
 
 /* ── Descargar imagen ── */
