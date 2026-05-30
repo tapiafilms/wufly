@@ -244,8 +244,13 @@ async function juntosGenerar() {
 
     resultado.style.display = 'block';
     resultado.innerHTML = `
-      <div style="border-radius:18px;overflow:hidden;box-shadow:0 6px 24px rgba(92,47,168,0.2);">
-        <img src="${imagenUrl}" style="width:100%;display:block;" alt="Juntos">
+      <!-- Imagen con skeleton mientras carga -->
+      <div style="border-radius:18px;overflow:hidden;box-shadow:0 6px 24px rgba(92,47,168,0.2);background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s infinite;min-height:260px;position:relative;">
+        <img src="${imagenUrl}"
+          alt=""
+          style="width:100%;display:block;opacity:0;transition:opacity 0.4s ease;"
+          onload="this.style.opacity='1';this.parentElement.style.animation='none';this.parentElement.style.background='none';"
+          onerror="this.parentElement.innerHTML='<div style=\'padding:24px;text-align:center;color:#9CA3AF;font-size:13px;\'>No se pudo cargar la imagen</div>';">
       </div>
       <div style="display:flex;gap:10px;margin-top:12px;">
         <button id="juntos-btn-publicar" onclick="juntosPublicarEnWufly('${imagenUrl}', this)"
@@ -278,20 +283,30 @@ async function juntosGenerar() {
 
 /* ── Publicar en la comunidad Wufly ── */
 async function juntosPublicarEnWufly(imagenUrl, btn) {
-  btn.innerHTML = `<div style="width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;"></div> Publicando…`;
+  btn.innerHTML       = `<div style="width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;"></div> Publicando…`;
   btn.style.pointerEvents = 'none';
 
-  const guardado = await _juntosGuardarComunidad(imagenUrl);
-
-  if (guardado) {
-    btn.innerHTML        = '✓ Publicado en Wufly';
-    btn.style.background = 'linear-gradient(135deg,#059669,#10B981)';
-    if (typeof cargarCarruselJuntos === 'function') cargarCarruselJuntos();
-    _juntosToast('¡Tu foto ya está en la comunidad! 🐾✨');
-  } else {
-    btn.innerHTML        = '🐾 Publicar en Wufly';
+  const _restaurar = () => {
+    btn.innerHTML       = '🐾 Publicar en Wufly';
     btn.style.pointerEvents = 'auto';
-    _juntosToast('Inicia sesión para publicar en Wufly');
+  };
+
+  try {
+    const guardado = await _juntosGuardarComunidad(imagenUrl);
+
+    if (guardado) {
+      btn.innerHTML        = '✓ Publicado en Wufly';
+      btn.style.background = 'linear-gradient(135deg,#059669,#10B981)';
+      if (typeof cargarCarruselJuntos === 'function') cargarCarruselJuntos();
+      _juntosToast('¡Tu foto ya está en la comunidad! 🐾✨');
+    } else {
+      _restaurar();
+      _juntosToast('No se pudo publicar. ¿Estás con sesión iniciada?');
+    }
+  } catch (err) {
+    console.error('juntosPublicarEnWufly error:', err);
+    _restaurar();
+    _juntosToast('Error al publicar. Intenta de nuevo.');
   }
 }
 
@@ -335,11 +350,18 @@ async function _juntosGuardarComunidad(imagenUrl) {
       },
       body: JSON.stringify({
         imagen_url: imagenUrl,
-        user_id:    session.user.id,   // requerido por la política RLS
+        user_id:    session.user.id,
       }),
     });
+    if (!res.ok) {
+      const detail = await res.text();
+      console.error('fotos_juntos insert error:', res.status, detail);
+    }
     return res.ok;
-  } catch { return false; }
+  } catch (err) {
+    console.error('_juntosGuardarComunidad catch:', err);
+    return false;
+  }
 }
 
 /* ── Toast liviano ── */
