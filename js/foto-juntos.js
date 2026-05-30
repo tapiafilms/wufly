@@ -47,7 +47,7 @@ function abrirJuntos() {
   modal.style.cssText = 'position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,0.6);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s ease;';
 
   modal.innerHTML = `
-    <div style="background:white;border-radius:28px 28px 0 0;width:100%;max-width:480px;padding:20px 20px 36px;">
+    <div style="background:white;border-radius:28px 28px 0 0;width:100%;max-width:480px;padding:20px 20px 36px;max-height:90vh;overflow-y:auto;">
 
       <!-- Handle -->
       <div style="width:40px;height:4px;border-radius:100px;background:#E5E7EB;margin:0 auto 16px;"></div>
@@ -292,15 +292,18 @@ async function juntosGenerar() {
           onerror="this.style.display='none'">
       </div>
       <div style="display:flex;gap:10px;margin-top:12px;">
-        <button id="juntos-btn-publicar" onclick="juntosPublicarEnWufly('${imagenUrl}', this)"
+        <button id="juntos-btn-publicar" data-url="${imagenUrl.replace(/"/g,'&quot;')}"
+          onclick="juntosPublicarEnWufly(this.dataset.url, this)"
           style="flex:1;padding:13px;border:none;border-radius:13px;background:linear-gradient(135deg,#5C2FA8,#9333EA);color:white;font-family:'Funnel Display',sans-serif;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
           🐾 Publicar en Wufly
         </button>
-        <button onclick="juntosCompartirexterno('${imagenUrl}')" title="Compartir en redes"
+        <button data-url="${imagenUrl.replace(/"/g,'&quot;')}"
+          onclick="juntosCompartirexterno(this.dataset.url)" title="Compartir en redes"
           style="padding:13px 15px;border:1.5px solid #E5E7EB;border-radius:13px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;">
           <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#6B7280;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         </button>
-        <button onclick="juntosDescargar('${imagenUrl}')" title="Descargar"
+        <button data-url="${imagenUrl.replace(/"/g,'&quot;')}"
+          onclick="juntosDescargar(this.dataset.url)" title="Descargar"
           style="padding:13px 15px;border:1.5px solid #E5E7EB;border-radius:13px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;">
           <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#6B7280;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </button>
@@ -345,7 +348,7 @@ async function juntosPublicarEnWufly(imagenUrl, btn) {
   } catch (err) {
     console.error('juntosPublicarEnWufly error:', err);
     _restaurar();
-    _juntosToast('Error al publicar. Intenta de nuevo.');
+    _juntosToast(`Error: ${err.message || 'Intenta de nuevo.'}`);
   }
 }
 
@@ -385,8 +388,8 @@ async function _juntosGuardarComunidad(imagenUrl) {
       .insert({ imagen_url: imagenUrl, user_id: currentUser.id });
 
     if (error) {
-      console.error('fotos_juntos insert error:', error.message);
-      return false;
+      console.error('fotos_juntos insert error:', error.message, error.code, error.details);
+      throw new Error(error.message || 'Error al insertar en fotos_juntos');
     }
     return true;
   } catch (err) {
