@@ -335,9 +335,8 @@ async function juntosPublicarEnWufly(imagenUrl, btn) {
     const guardado = await _juntosGuardarComunidad(imagenUrl);
 
     if (guardado) {
-      btn.innerHTML        = '✓ Publicado en Wufly';
-      btn.style.background = 'linear-gradient(135deg,#059669,#10B981)';
       if (typeof cargarCarruselJuntos === 'function') cargarCarruselJuntos();
+      cerrarJuntos();
       _juntosToast('¡Tu foto ya está en la comunidad! 🐾✨');
     } else {
       _restaurar();
