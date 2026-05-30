@@ -378,13 +378,19 @@ async function _juntosGuardarComunidad(imagenUrl) {
     return false;
   }
 
-  // Obtener el JWT del usuario autenticado (necesario para RLS)
+  // Leer JWT del usuario desde localStorage (compatible v1 y v2)
   let token = SUPABASE_ANON_J;
   try {
-    const { data: sd } = await db.auth.getSession();
-    if (sd?.session?.access_token) token = sd.session.access_token;
+    // Supabase v2
+    const v2 = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF_J}-auth-token`) || 'null');
+    if (v2?.access_token) { token = v2.access_token; }
+    else {
+      // Supabase v1
+      const v1 = JSON.parse(localStorage.getItem('supabase.auth.token') || 'null');
+      if (v1?.currentSession?.access_token) token = v1.currentSession.access_token;
+    }
   } catch {}
-  console.log('juntos publish token type:', token === SUPABASE_ANON_J ? 'ANON' : 'USER_JWT');
+  console.log('juntos token:', token === SUPABASE_ANON_J ? 'ANON (sin sesión)' : 'USER_JWT ✓');
 
   const res = await fetch(
     `https://${SUPABASE_REF_J}.supabase.co/rest/v1/fotos_juntos`,
