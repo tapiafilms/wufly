@@ -319,19 +319,24 @@ function juntosDescargar(imagenUrl) {
 /* ── Guardar URL en fotos_juntos (sin guardar las fotos originales) ── */
 async function _juntosGuardarComunidad(imagenUrl) {
   try {
-    const stored = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF_J}-auth-token`) || 'null');
-    const token  = stored?.access_token;
-    if (!token) return false;
+    // Usar el cliente Supabase global (definido en auth.js) — más fiable que leer localStorage
+    if (typeof db === 'undefined') return false;
+
+    const { data: { session } } = await db.auth.getSession();
+    if (!session?.access_token) return false;
 
     const res = await fetch(`https://${SUPABASE_REF_J}.supabase.co/rest/v1/fotos_juntos`, {
       method: 'POST',
       headers: {
         'apikey':        SUPABASE_ANON_J,
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${session.access_token}`,
         'Content-Type':  'application/json',
         'Prefer':        'return=minimal',
       },
-      body: JSON.stringify({ imagen_url: imagenUrl }),
+      body: JSON.stringify({
+        imagen_url: imagenUrl,
+        user_id:    session.user.id,   // requerido por la política RLS
+      }),
     });
     return res.ok;
   } catch { return false; }
