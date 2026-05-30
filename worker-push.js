@@ -180,9 +180,9 @@ export default {
 
     /* POST /api/juntar-fotos — combinar selfie + foto mascota con IA */
     if (url.pathname === '/api/juntar-fotos') {
-      const { imagenCombinada, lugar } = await request.json();
+      const { selfie, fotoMascota, lugar } = await request.json();
 
-      if (!imagenCombinada) {
+      if (!selfie || !fotoMascota) {
         return new Response(JSON.stringify({ error: 'Faltan imágenes' }), {
           status: 400,
           headers: { 'Content-Type': 'application/json', ...CORS },
@@ -191,61 +191,39 @@ export default {
 
       const lugarSafe = (lugar || 'beautiful beach in Patagonia').slice(0, 120);
 
-      // El canvas combinado tiene: selfie (izq) | mascota (der)
-      // flux-kontext-pro ve ambas y sigue la instrucción de combinarlas
-      const prompt = `This reference image is split in two halves by a white line: the LEFT half shows a person, the RIGHT half shows their pet animal. Generate a single new photorealistic image where EXACTLY this person and EXACTLY this pet animal are together hugging and smiling on ${lugarSafe}. Preserve the exact face, hair and appearance of the person from the left half. Preserve the exact breed, color and appearance of the pet from the right half. Warm golden hour lighting, cinematic photography, high quality, bokeh background.`;
+      const prompt = `The first image shows a person. The second image shows their pet. Create a single photorealistic image where EXACTLY this person and EXACTLY this pet are together, the person is hugging and smiling with their pet, on ${lugarSafe}. Preserve the exact face and appearance of the person. Preserve the exact breed, color and markings of the pet. Warm golden hour lighting, cinematic photography, bokeh background, high quality.`;
 
-      const replicateRes = await fetch('https://api.replicate.com/v1/models/black-forest-labs/flux-kontext-pro/predictions', {
+      // fal.ai — flux-kontext/multi acepta dos imágenes de entrada separadas
+      const falRes = await fetch('https://fal.run/fal-ai/flux-pro/kontext/multi', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${env.REPLICATE_API_KEY}`,
+          'Authorization': `Key ${env.FAL_API_KEY}`,
           'Content-Type':  'application/json',
-          'Prefer':        'wait=60',
         },
         body: JSON.stringify({
-          input: {
-            prompt,
-            input_image:      imagenCombinada,
-            aspect_ratio:     '1:1',
-            output_format:    'jpg',
-            safety_tolerance: 2,
-          },
+          image_urls:       [selfie, fotoMascota],
+          prompt,
+          num_images:       1,
+          guidance_scale:   3.5,
+          safety_tolerance: '2',
+          output_format:    'jpeg',
+          aspect_ratio:     '1:1',
         }),
       });
 
-      if (!replicateRes.ok) {
-        const detail = await replicateRes.text();
-        return new Response(JSON.stringify({ error: 'Replicate error', detail }), {
+      if (!falRes.ok) {
+        const detail = await falRes.text();
+        return new Response(JSON.stringify({ error: 'fal.ai error', detail }), {
           status: 502,
           headers: { 'Content-Type': 'application/json', ...CORS },
         });
       }
 
-      const prediction = await replicateRes.json();
-
-      // Con Prefer: wait la predicción llega completada o podemos necesitar polling
-      let imagenUrl = null;
-      if (prediction.status === 'succeeded') {
-        imagenUrl = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
-      } else if (prediction.urls?.get) {
-        // Polling hasta 55s adicionales
-        const pollUrl = prediction.urls.get;
-        for (let i = 0; i < 10; i++) {
-          await new Promise(r => setTimeout(r, 5000));
-          const pollRes  = await fetch(pollUrl, {
-            headers: { 'Authorization': `Bearer ${env.REPLICATE_API_KEY}` },
-          });
-          const pollData = await pollRes.json();
-          if (pollData.status === 'succeeded') {
-            imagenUrl = Array.isArray(pollData.output) ? pollData.output[0] : pollData.output;
-            break;
-          }
-          if (pollData.status === 'failed' || pollData.status === 'canceled') break;
-        }
-      }
+      const falData = await falRes.json();
+      const imagenUrl = falData?.images?.[0]?.url ?? falData?.image?.url ?? null;
 
       if (!imagenUrl) {
-        return new Response(JSON.stringify({ error: 'No se generó imagen', status: prediction.status }), {
+        return new Response(JSON.stringify({ error: 'Sin imagen en respuesta', detail: JSON.stringify(falData).slice(0, 300) }), {
           status: 504,
           headers: { 'Content-Type': 'application/json', ...CORS },
         });

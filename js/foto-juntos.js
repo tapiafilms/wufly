@@ -219,19 +219,19 @@ async function juntosGenerar() {
   const resultado = document.getElementById('juntos-resultado');
   if (!_jFotoMascota || !_jSelfie) return;
 
-  btn.innerHTML = `<div style="width:16px;height:16px;border:2.5px solid rgba(255,255,255,0.35);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div> Preparando…`;
+  btn.innerHTML = `<div style="width:16px;height:16px;border:2.5px solid rgba(255,255,255,0.35);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div> Generando… ~20s`;
   btn.style.pointerEvents = 'none';
   resultado.style.display = 'none';
-
-  const imagenCombinada = await _juntosCrearCanvasCombinado(_jSelfie, _jFotoMascota);
-
-  btn.innerHTML = `<div style="width:16px;height:16px;border:2.5px solid rgba(255,255,255,0.35);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div> Generando… ~30s`;
 
   try {
     const res = await fetch(JUNTOS_WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ imagenCombinada, lugar: _jLugar }),
+      body: JSON.stringify({
+        selfie:       _jSelfie,
+        fotoMascota:  _jFotoMascota,
+        lugar:        _jLugar,
+      }),
     });
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
