@@ -125,7 +125,7 @@ async function sendPush(sub, payload) {
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') return new Response(null, { headers: CORS });
-    if (request.method !== 'POST')    return new Response('Method Not Allowed', { status: 405 });
+    if (request.method !== 'POST' && request.method !== 'GET') return new Response('Method Not Allowed', { status: 405 });
 
     const url = new URL(request.url);
 
@@ -193,8 +193,8 @@ export default {
 
       const prompt = `The first image shows a person. The second image shows their pet. Create a single photorealistic image where EXACTLY this person and EXACTLY this pet are together, the person is hugging and smiling with their pet, on ${lugarSafe}. Preserve the exact face and appearance of the person. Preserve the exact breed, color and markings of the pet. Warm golden hour lighting, cinematic photography, bokeh background, high quality.`;
 
-      // fal.ai — flux-kontext/multi acepta dos imágenes de entrada separadas
-      const falRes = await fetch('https://fal.run/fal-ai/flux-pro/kontext/multi', {
+      // Enviar a la cola de fal.ai (no bloquea — devuelve request_id de inmediato)
+      const falRes = await fetch('https://queue.fal.run/fal-ai/flux-pro/kontext/multi', {
         method: 'POST',
         headers: {
           'Authorization': `Key ${env.FAL_API_KEY}`,
@@ -220,16 +220,51 @@ export default {
       }
 
       const falData = await falRes.json();
-      const imagenUrl = falData?.images?.[0]?.url ?? falData?.image?.url ?? null;
+      // fal.ai devuelve status_url y response_url exactas — las guardamos para polling
+      return new Response(JSON.stringify({
+        requestId:   falData.request_id,
+        statusUrl:   falData.status_url,
+        responseUrl: falData.response_url,
+      }), {
+        headers: { 'Content-Type': 'application/json', ...CORS },
+      });
+    }
 
-      if (!imagenUrl) {
-        return new Response(JSON.stringify({ error: 'Sin imagen en respuesta', detail: JSON.stringify(falData).slice(0, 300) }), {
-          status: 504,
+    /* GET /api/juntar-status?id=xxx — consultar estado del job en fal.ai */
+    if (url.pathname === '/api/juntar-status' && request.method === 'GET') {
+      const id = url.searchParams.get('id');
+      if (!id) return new Response(JSON.stringify({ error: 'Falta id' }), { status: 400, headers: { 'Content-Type': 'application/json', ...CORS } });
+
+      // Recibir las URLs exactas que fal.ai generó (vienen del frontend)
+      const statusUrl  = url.searchParams.get('statusUrl');
+      const responseUrl = url.searchParams.get('responseUrl');
+      if (!statusUrl || !responseUrl) {
+        return new Response(JSON.stringify({ error: 'Faltan statusUrl/responseUrl' }), { status: 400, headers: { 'Content-Type': 'application/json', ...CORS } });
+      }
+
+      const FAL_HEADERS = { 'Authorization': `Key ${env.FAL_API_KEY}` };
+
+      const statusRes = await fetch(statusUrl, { headers: FAL_HEADERS });
+      const statusRaw = await statusRes.text();
+      let statusData;
+      try { statusData = JSON.parse(statusRaw); }
+      catch { return new Response(JSON.stringify({ status: 'IN_QUEUE' }), { headers: { 'Content-Type': 'application/json', ...CORS } }); }
+
+      if (statusData.status === 'COMPLETED') {
+        const resultRes = await fetch(responseUrl, { headers: FAL_HEADERS });
+        const resultRaw = await resultRes.text();
+        let result;
+        try { result = JSON.parse(resultRaw); }
+        catch { return new Response(JSON.stringify({ status: 'COMPLETED', imagenUrl: null }), { headers: { 'Content-Type': 'application/json', ...CORS } }); }
+
+        const imagenUrl = result?.images?.[0]?.url ?? result?.image?.url
+          ?? result?.output?.[0] ?? result?.output ?? null;
+        return new Response(JSON.stringify({ status: 'COMPLETED', imagenUrl }), {
           headers: { 'Content-Type': 'application/json', ...CORS },
         });
       }
 
-      return new Response(JSON.stringify({ imagenUrl }), {
+      return new Response(JSON.stringify({ status: statusData.status ?? 'IN_QUEUE' }), {
         headers: { 'Content-Type': 'application/json', ...CORS },
       });
     }

@@ -224,19 +224,47 @@ async function juntosGenerar() {
   resultado.style.display = 'none';
 
   try {
+    // Paso 1 — enviar fotos y obtener request_id
     const res = await fetch(JUNTOS_WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        selfie:       _jSelfie,
-        fotoMascota:  _jFotoMascota,
-        lugar:        _jLugar,
+        selfie:      _jSelfie,
+        fotoMascota: _jFotoMascota,
+        lugar:       _jLugar,
       }),
     });
-
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const { imagenUrl } = await res.json();
-    if (!imagenUrl) throw new Error('Sin imagen');
+    const { requestId, statusUrl, responseUrl } = await res.json();
+    if (!requestId || !statusUrl || !responseUrl) throw new Error('Respuesta incompleta del Worker');
+
+    // Paso 2 — polling usando las URLs exactas de fal.ai
+    let imagenUrl = null;
+    const JUNTOS_STATUS_URL = JUNTOS_WORKER_URL.replace('/api/juntar-fotos', '/api/juntar-status');
+    const tiempoInicio = Date.now();
+    let intento = 0;
+
+    while (!imagenUrl && Date.now() - tiempoInicio < 90000) {
+      await new Promise(r => setTimeout(r, intento < 3 ? 4000 : 5000));
+      intento++;
+
+      const puntos = '.'.repeat((intento % 3) + 1);
+      btn.innerHTML = `<div style="width:16px;height:16px;border:2.5px solid rgba(255,255,255,0.35);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div> Generando${puntos}`;
+
+      const poll = await fetch(
+        `${JUNTOS_STATUS_URL}?id=${requestId}&statusUrl=${encodeURIComponent(statusUrl)}&responseUrl=${encodeURIComponent(responseUrl)}`
+      );
+      if (!poll.ok) continue;
+      const pollData = await poll.json();
+
+      if (pollData.status === 'COMPLETED' && pollData.imagenUrl) {
+        imagenUrl = pollData.imagenUrl;
+      } else if (pollData.status === 'FAILED') {
+        throw new Error('Job fallido en fal.ai');
+      }
+    }
+
+    if (!imagenUrl) throw new Error('Timeout esperando imagen');
 
     btn.innerHTML       = '<span style="font-size:18px;">✨</span> Crear otra';
     btn.style.pointerEvents = 'auto';
