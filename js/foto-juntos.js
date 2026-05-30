@@ -373,32 +373,39 @@ function juntosDescargar(imagenUrl) {
 
 /* ── Guardar URL en fotos_juntos (sin guardar las fotos originales) ── */
 async function _juntosGuardarComunidad(imagenUrl) {
-  try {
-    // currentUser viene de auth.js — ya está seteado, no necesita await
-    if (typeof currentUser === 'undefined' || !currentUser?.id) {
-      console.warn('fotos_juntos: no hay usuario logueado');
-      return false;
-    }
-
-    // Usar el cliente db de Supabase directamente (ya autenticado)
-    const timeout = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Timeout: sin respuesta de Supabase')), 8000)
-    );
-    const insert = db
-      .from('fotos_juntos')
-      .insert({ imagen_url: imagenUrl, user_id: currentUser.id });
-
-    const { error } = await Promise.race([insert, timeout]);
-
-    if (error) {
-      console.error('fotos_juntos insert error:', error.message, error.code, error.details);
-      throw new Error(error.message);
-    }
-    return true;
-  } catch (err) {
-    console.error('_juntosGuardarComunidad catch:', err);
-    throw err;
+  if (typeof currentUser === 'undefined' || !currentUser?.id) {
+    console.warn('fotos_juntos: no hay usuario logueado');
+    return false;
   }
+
+  // Obtener el JWT del usuario autenticado (necesario para RLS)
+  let token = SUPABASE_ANON_J;
+  try {
+    const { data: sd } = await db.auth.getSession();
+    if (sd?.session?.access_token) token = sd.session.access_token;
+  } catch {}
+  console.log('juntos publish token type:', token === SUPABASE_ANON_J ? 'ANON' : 'USER_JWT');
+
+  const res = await fetch(
+    `https://${SUPABASE_REF_J}.supabase.co/rest/v1/fotos_juntos`,
+    {
+      method: 'POST',
+      headers: {
+        'apikey':        SUPABASE_ANON_J,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type':  'application/json',
+        'Prefer':        'return=minimal',
+      },
+      body: JSON.stringify({ imagen_url: imagenUrl, user_id: currentUser.id }),
+    }
+  );
+
+  if (!res.ok) {
+    const detail = await res.text().catch(() => res.status);
+    console.error('fotos_juntos insert error:', res.status, detail);
+    throw new Error(`(${res.status}) ${detail}`);
+  }
+  return true;
 }
 
 /* ── Toast liviano ── */
