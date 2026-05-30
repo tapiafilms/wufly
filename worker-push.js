@@ -180,9 +180,9 @@ export default {
 
     /* POST /api/juntar-fotos — combinar selfie + foto mascota con IA */
     if (url.pathname === '/api/juntar-fotos') {
-      const { fotoMascota, selfie, lugar } = await request.json();
+      const { imagenCombinada, lugar } = await request.json();
 
-      if (!selfie || !fotoMascota) {
+      if (!imagenCombinada) {
         return new Response(JSON.stringify({ error: 'Faltan imágenes' }), {
           status: 400,
           headers: { 'Content-Type': 'application/json', ...CORS },
@@ -191,8 +191,10 @@ export default {
 
       const lugarSafe = (lugar || 'beautiful beach in Patagonia').slice(0, 120);
 
-      // Llamar a Replicate — black-forest-labs/flux-kontext-pro
-      // Toma la selfie y genera la escena con la mascota en el lugar elegido
+      // El canvas combinado tiene: selfie (izq) | mascota (der)
+      // flux-kontext-pro ve ambas y sigue la instrucción de combinarlas
+      const prompt = `This reference image is split in two halves by a white line: the LEFT half shows a person, the RIGHT half shows their pet animal. Generate a single new photorealistic image where EXACTLY this person and EXACTLY this pet animal are together hugging and smiling on ${lugarSafe}. Preserve the exact face, hair and appearance of the person from the left half. Preserve the exact breed, color and appearance of the pet from the right half. Warm golden hour lighting, cinematic photography, high quality, bokeh background.`;
+
       const replicateRes = await fetch('https://api.replicate.com/v1/models/black-forest-labs/flux-kontext-pro/predictions', {
         method: 'POST',
         headers: {
@@ -202,10 +204,10 @@ export default {
         },
         body: JSON.stringify({
           input: {
-            prompt: `The person in the image is hugging their beloved pet on ${lugarSafe}, warm golden hour lighting, photorealistic, cinematic photography, high quality`,
-            input_image: selfie,
-            aspect_ratio: '1:1',
-            output_format: 'jpg',
+            prompt,
+            input_image:      imagenCombinada,
+            aspect_ratio:     '1:1',
+            output_format:    'jpg',
             safety_tolerance: 2,
           },
         }),

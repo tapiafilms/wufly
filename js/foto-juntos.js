@@ -54,7 +54,7 @@ function abrirJuntos() {
         <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:8px;">PASO 1 — FOTO DE TU MASCOTA</div>
         <div id="juntos-z-mascota" onclick="document.getElementById('juntos-input-mascota').click()"
           style="border:2px dashed #DDD6FE;border-radius:16px;padding:20px;text-align:center;cursor:pointer;background:#FAFAFA;transition:border-color 0.2s;position:relative;">
-          <input type="file" id="juntos-input-mascota" accept="image/*" capture="environment" style="display:none;" onchange="juntosCargarFoto(this,'mascota')">
+          <input type="file" id="juntos-input-mascota" accept="image/*" style="display:none;" onchange="juntosCargarFoto(this,'mascota')">
           <div id="juntos-ph-mascota">
             <div style="font-size:36px;margin-bottom:6px;">🐾</div>
             <div style="font-size:13px;font-weight:600;color:#7C4DCC;">Tomar foto o subir</div>
@@ -69,7 +69,7 @@ function abrirJuntos() {
         <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:8px;">PASO 2 — TU SELFIE</div>
         <div id="juntos-z-selfie" onclick="document.getElementById('juntos-input-selfie').click()"
           style="border:2px dashed #DDD6FE;border-radius:16px;padding:20px;text-align:center;cursor:pointer;background:#FAFAFA;transition:border-color 0.2s;position:relative;">
-          <input type="file" id="juntos-input-selfie" accept="image/*" capture="user" style="display:none;" onchange="juntosCargarFoto(this,'selfie')">
+          <input type="file" id="juntos-input-selfie" accept="image/*" style="display:none;" onchange="juntosCargarFoto(this,'selfie')">
           <div id="juntos-ph-selfie">
             <div style="font-size:36px;margin-bottom:6px;">🤳</div>
             <div style="font-size:13px;font-weight:600;color:#7C4DCC;">Tomar selfie</div>
@@ -180,24 +180,69 @@ function _juntosCheckBtn() {
   btn.style.pointerEvents = listo ? 'auto' : 'none';
 }
 
+/* ── Fusionar selfie + mascota en un solo canvas para que la IA vea ambas ── */
+function _juntosCrearCanvasCombinado(selfieB64, mascotaB64) {
+  return new Promise((resolve) => {
+    const imgA = new Image();
+    const imgB = new Image();
+    let loaded = 0;
+
+    const onLoad = () => {
+      loaded++;
+      if (loaded < 2) return;
+
+      // Canvas horizontal: selfie izquierda | mascota derecha
+      const H   = 512;
+      const wA  = Math.round(imgA.width  * H / imgA.height);
+      const wB  = Math.round(imgB.width  * H / imgB.height);
+      const canvas = document.createElement('canvas');
+      canvas.width  = wA + wB;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+
+      ctx.drawImage(imgA, 0,  0, wA, H);
+      ctx.drawImage(imgB, wA, 0, wB, H);
+
+      // Línea divisoria sutil para ayudar al modelo a distinguir las dos mitades
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+      ctx.lineWidth   = 3;
+      ctx.beginPath();
+      ctx.moveTo(wA, 0);
+      ctx.lineTo(wA, H);
+      ctx.stroke();
+
+      resolve(canvas.toDataURL('image/jpeg', 0.88));
+    };
+
+    imgA.onload = onLoad;
+    imgB.onload = onLoad;
+    imgA.src = selfieB64;
+    imgB.src = mascotaB64;
+  });
+}
+
 /* ── Llamar al Worker y mostrar resultado ── */
 async function juntosGenerar() {
   const btn       = document.getElementById('juntos-btn');
   const resultado = document.getElementById('juntos-resultado');
   if (!_jFotoMascota || !_jSelfie) return;
 
-  btn.innerHTML       = `<div style="width:18px;height:18px;border:2.5px solid rgba(255,255,255,0.35);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div> Generando… puede tardar ~30s`;
+  btn.innerHTML       = `<div style="width:18px;height:18px;border:2.5px solid rgba(255,255,255,0.35);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div> Preparando imágenes…`;
   btn.style.pointerEvents = 'none';
   resultado.style.display = 'none';
+
+  // Fusionar ambas fotos en un canvas antes de enviar
+  const imagenCombinada = await _juntosCrearCanvasCombinado(_jSelfie, _jFotoMascota);
+
+  btn.innerHTML = `<div style="width:18px;height:18px;border:2.5px solid rgba(255,255,255,0.35);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div> Generando… puede tardar ~30s`;
 
   try {
     const res = await fetch(JUNTOS_WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        fotoMascota: _jFotoMascota,
-        selfie:      _jSelfie,
-        lugar:       _jLugar,
+        imagenCombinada,   // canvas con selfie + mascota juntas
+        lugar: _jLugar,
       }),
     });
 
