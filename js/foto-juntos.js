@@ -1,0 +1,348 @@
+/* ══════════════════════════════════════
+   FOTO JUNTOS — Wufly
+   IA une foto de mascota + selfie en
+   una imagen mágica compartible
+   ══════════════════════════════════════ */
+
+const JUNTOS_WORKER_URL = 'https://wufly-push.pablo77tapia.workers.dev/api/juntar-fotos';
+const SUPABASE_REF_J    = 'ybnacudfqerbzpvqcjzc';
+const SUPABASE_ANON_J   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibmFjdWRmcWVyYnpwdnFjanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzYzNjksImV4cCI6MjA5MTk1MjM2OX0.pQ4PVNS1wqHvnvEPO0TYwlMS6ooDpsP7DaYXqdTbFxE';
+
+/* ── Estado interno ── */
+let _jFotoMascota = null;
+let _jSelfie      = null;
+let _jLugar       = 'beautiful beach in Patagonia';
+
+const JUNTOS_LUGARES = [
+  { label: '🏖️ Playa Patagonia',  prompt: 'beautiful beach in Patagonia' },
+  { label: '🏔️ Andes nevados',    prompt: 'snowy Andes mountains at sunset' },
+  { label: '🌌 Espacio estelar',   prompt: 'outer space surrounded by stars and galaxies' },
+  { label: '🌿 Bosque mágico',     prompt: 'magical enchanted forest with glowing lights' },
+  { label: '🏙️ Ciudad futurista', prompt: 'futuristic neon city skyline at night' },
+];
+
+/* ── Abrir modal ── */
+function abrirJuntos() {
+  const existing = document.getElementById('juntos-modal');
+  if (existing) existing.remove();
+  _jFotoMascota = null;
+  _jSelfie      = null;
+  _jLugar       = JUNTOS_LUGARES[0].prompt;
+
+  const modal = document.createElement('div');
+  modal.id = 'juntos-modal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,0.6);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s ease;';
+  modal.innerHTML = `
+    <div style="background:white;border-radius:28px 28px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding:24px 20px 44px;">
+
+      <!-- Handle -->
+      <div style="width:40px;height:4px;border-radius:100px;background:#E5E7EB;margin:0 auto 20px;"></div>
+
+      <!-- Header -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;">
+        <div>
+          <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:22px;color:#1F0A4A;">✨ Juntos</div>
+          <div style="font-size:12px;color:#9CA3AF;margin-top:2px;">Tu y tu mascota en un lugar mágico</div>
+        </div>
+        <button onclick="cerrarJuntos()" style="width:36px;height:36px;border-radius:50%;border:1.5px solid #E5E7EB;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#6B7280;fill:none;stroke-width:2.5;stroke-linecap:round;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Paso 1: Foto mascota -->
+      <div style="margin-bottom:16px;">
+        <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:8px;">PASO 1 — FOTO DE TU MASCOTA</div>
+        <div id="juntos-z-mascota" onclick="document.getElementById('juntos-input-mascota').click()"
+          style="border:2px dashed #DDD6FE;border-radius:16px;padding:20px;text-align:center;cursor:pointer;background:#FAFAFA;transition:border-color 0.2s;position:relative;">
+          <input type="file" id="juntos-input-mascota" accept="image/*" capture="environment" style="display:none;" onchange="juntosCargarFoto(this,'mascota')">
+          <div id="juntos-ph-mascota">
+            <div style="font-size:36px;margin-bottom:6px;">🐾</div>
+            <div style="font-size:13px;font-weight:600;color:#7C4DCC;">Tomar foto o subir</div>
+            <div style="font-size:11px;color:#9CA3AF;margin-top:2px;">Cámara trasera recomendada</div>
+          </div>
+          <div id="juntos-prev-mascota" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- Paso 2: Selfie -->
+      <div style="margin-bottom:16px;">
+        <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:8px;">PASO 2 — TU SELFIE</div>
+        <div id="juntos-z-selfie" onclick="document.getElementById('juntos-input-selfie').click()"
+          style="border:2px dashed #DDD6FE;border-radius:16px;padding:20px;text-align:center;cursor:pointer;background:#FAFAFA;transition:border-color 0.2s;position:relative;">
+          <input type="file" id="juntos-input-selfie" accept="image/*" capture="user" style="display:none;" onchange="juntosCargarFoto(this,'selfie')">
+          <div id="juntos-ph-selfie">
+            <div style="font-size:36px;margin-bottom:6px;">🤳</div>
+            <div style="font-size:13px;font-weight:600;color:#7C4DCC;">Tomar selfie</div>
+            <div style="font-size:11px;color:#9CA3AF;margin-top:2px;">Cámara frontal recomendada</div>
+          </div>
+          <div id="juntos-prev-selfie" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- Paso 3: Lugar -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:8px;">PASO 3 — ELIGE EL LUGAR</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;" id="juntos-lugares">
+          ${JUNTOS_LUGARES.map((l, i) => `
+            <button onclick="juntosElegirLugar(this,'${l.prompt}')"
+              style="padding:7px 13px;border-radius:100px;border:1.5px solid ${i===0?'#7C4DCC':'#E5E7EB'};background:${i===0?'#EDE9FE':'white'};font-size:12px;font-weight:600;color:${i===0?'#7C4DCC':'#6B7280'};cursor:pointer;transition:all 0.15s;white-space:nowrap;">
+              ${l.label}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Botón Juntar -->
+      <button id="juntos-btn" onclick="juntosGenerar()"
+        style="width:100%;padding:16px;border:none;border-radius:16px;background:linear-gradient(135deg,#5C2FA8,#9333EA);color:white;font-family:'Funnel Display',sans-serif;font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 6px 20px rgba(92,47,168,0.4);display:flex;align-items:center;justify-content:center;gap:10px;opacity:0.45;pointer-events:none;transition:opacity 0.2s;">
+        <span style="font-size:20px;">✨</span> Juntar con IA
+      </button>
+
+      <!-- Resultado -->
+      <div id="juntos-resultado" style="display:none;margin-top:22px;"></div>
+
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+/* ── Cerrar modal ── */
+function cerrarJuntos() {
+  const m = document.getElementById('juntos-modal');
+  if (m) m.remove();
+}
+
+/* ── Elegir lugar ── */
+function juntosElegirLugar(btn, prompt) {
+  _jLugar = prompt;
+  document.querySelectorAll('#juntos-lugares button').forEach(b => {
+    b.style.borderColor = '#E5E7EB';
+    b.style.background  = 'white';
+    b.style.color       = '#6B7280';
+  });
+  btn.style.borderColor = '#7C4DCC';
+  btn.style.background  = '#EDE9FE';
+  btn.style.color       = '#7C4DCC';
+}
+
+/* ── Cargar y comprimir foto ── */
+function juntosCargarFoto(input, tipo) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 800;
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else       { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const b64 = canvas.toDataURL('image/jpeg', 0.82);
+
+      if (tipo === 'mascota') {
+        _jFotoMascota = b64;
+        _juntosSetPreview('juntos-prev-mascota', 'juntos-ph-mascota', 'juntos-z-mascota', b64);
+      } else {
+        _jSelfie = b64;
+        _juntosSetPreview('juntos-prev-selfie', 'juntos-ph-selfie', 'juntos-z-selfie', b64);
+      }
+      _juntosCheckBtn();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function _juntosSetPreview(prevId, phId, zoneId, src) {
+  const prev  = document.getElementById(prevId);
+  const ph    = document.getElementById(phId);
+  const zone  = document.getElementById(zoneId);
+  if (!prev) return;
+  prev.innerHTML = `
+    <img src="${src}" style="width:100%;border-radius:12px;max-height:180px;object-fit:cover;display:block;">
+    <div style="font-size:11px;color:#10B981;font-weight:600;margin-top:6px;text-align:center;">✓ Foto lista — toca para cambiar</div>`;
+  prev.style.display    = 'block';
+  ph.style.display      = 'none';
+  zone.style.borderColor = '#A78BFA';
+  zone.style.background  = '#F5F3FF';
+}
+
+function _juntosCheckBtn() {
+  const btn = document.getElementById('juntos-btn');
+  if (!btn) return;
+  const listo = _jFotoMascota && _jSelfie;
+  btn.style.opacity       = listo ? '1'    : '0.45';
+  btn.style.pointerEvents = listo ? 'auto' : 'none';
+}
+
+/* ── Llamar al Worker y mostrar resultado ── */
+async function juntosGenerar() {
+  const btn       = document.getElementById('juntos-btn');
+  const resultado = document.getElementById('juntos-resultado');
+  if (!_jFotoMascota || !_jSelfie) return;
+
+  btn.innerHTML       = `<div style="width:18px;height:18px;border:2.5px solid rgba(255,255,255,0.35);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div> Generando… puede tardar ~30s`;
+  btn.style.pointerEvents = 'none';
+  resultado.style.display = 'none';
+
+  try {
+    const res = await fetch(JUNTOS_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fotoMascota: _jFotoMascota,
+        selfie:      _jSelfie,
+        lugar:       _jLugar,
+      }),
+    });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(txt || `HTTP ${res.status}`);
+    }
+
+    const { imagenUrl } = await res.json();
+    if (!imagenUrl) throw new Error('Sin imagen en respuesta');
+
+    btn.innerHTML       = '<span style="font-size:20px;">✨</span> Juntar de nuevo';
+    btn.style.pointerEvents = 'auto';
+
+    resultado.style.display = 'block';
+    resultado.innerHTML = `
+      <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:10px;">¡AQUÍ ESTÁN JUNTOS! ✨</div>
+      <div style="border-radius:20px;overflow:hidden;box-shadow:0 8px 30px rgba(92,47,168,0.22);">
+        <img src="${imagenUrl}" style="width:100%;display:block;" alt="Tú y tu mascota juntos">
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px;">
+        <button onclick="juntosCompartir('${imagenUrl}')"
+          style="flex:1;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#5C2FA8,#9333EA);color:white;font-family:'Funnel Display',sans-serif;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Compartir en Wufly
+        </button>
+        <button onclick="juntosDescargar('${imagenUrl}')"
+          title="Descargar"
+          style="padding:14px 16px;border:1.5px solid #E5E7EB;border-radius:14px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#6B7280;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+      </div>
+    `;
+
+    resultado.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // Guardar en feed comunitario
+    _juntosGuardarComunidad(imagenUrl);
+
+  } catch (err) {
+    console.error('juntosGenerar:', err);
+    btn.innerHTML       = '<span style="font-size:20px;">✨</span> Juntar con IA';
+    btn.style.pointerEvents = 'auto';
+    resultado.style.display = 'block';
+    resultado.innerHTML = `
+      <div style="background:#FEF2F2;border:1.5px solid #FCA5A5;border-radius:12px;padding:14px;font-size:13px;color:#DC2626;line-height:1.5;">
+        No se pudo generar la imagen. Revisa tu conexión e intenta de nuevo.
+      </div>`;
+  }
+}
+
+/* ── Compartir con Web Share API ── */
+async function juntosCompartir(imagenUrl) {
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: '¡Mira esto! 🐾✨',
+        text:  'Mira la foto que generé con Wufly — ¡mi mascota y yo juntos!',
+        url:   imagenUrl,
+      });
+      return;
+    } catch {}
+  }
+  // Fallback: copiar URL
+  try {
+    await navigator.clipboard.writeText(imagenUrl);
+    _juntosToast('¡Enlace copiado al portapapeles!');
+  } catch {
+    _juntosToast('Copia este enlace: ' + imagenUrl);
+  }
+}
+
+/* ── Descargar imagen ── */
+function juntosDescargar(imagenUrl) {
+  const a = document.createElement('a');
+  a.href     = imagenUrl;
+  a.download = 'wufly-juntos.jpg';
+  a.target   = '_blank';
+  a.rel      = 'noopener';
+  a.click();
+}
+
+/* ── Guardar en tabla fotos_juntos de Supabase ── */
+async function _juntosGuardarComunidad(imagenUrl) {
+  try {
+    const stored = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF_J}-auth-token`) || 'null');
+    const token  = stored?.access_token;
+    if (!token) return;
+
+    await fetch(`https://${SUPABASE_REF_J}.supabase.co/rest/v1/fotos_juntos`, {
+      method: 'POST',
+      headers: {
+        'apikey':        SUPABASE_ANON_J,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type':  'application/json',
+        'Prefer':        'return=minimal',
+      },
+      body: JSON.stringify({ imagen_url: imagenUrl }),
+    });
+  } catch {}
+}
+
+/* ── Toast liviano ── */
+function _juntosToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1F0A4A;color:white;padding:10px 18px;border-radius:100px;font-size:13px;font-weight:600;z-index:9999;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.3);animation:fadeIn 0.2s ease;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+/* ── Cargar feed comunitario de fotos juntos ── */
+async function cargarFeedJuntos() {
+  const container = document.getElementById('juntos-feed-grid');
+  if (!container) return;
+
+  try {
+    const stored = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF_J}-auth-token`) || 'null');
+    const token  = stored?.access_token || SUPABASE_ANON_J;
+
+    const url = `https://${SUPABASE_REF_J}.supabase.co/rest/v1/fotos_juntos?select=imagen_url,created_at&order=created_at.desc&limit=12`;
+    const res = await fetch(url, {
+      headers: {
+        'apikey':        SUPABASE_ANON_J,
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+
+    if (!data || data.length === 0) {
+      document.getElementById('juntos-feed-section')?.style.setProperty('display', 'none');
+      return;
+    }
+
+    container.innerHTML = data.map(f => `
+      <div style="aspect-ratio:1/1;border-radius:14px;overflow:hidden;cursor:pointer;"
+        onclick="window.open('${f.imagen_url}','_blank','noopener')">
+        <img src="${f.imagen_url}" loading="lazy"
+          style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>
+    `).join('');
+
+  } catch {
+    document.getElementById('juntos-feed-section')?.style.setProperty('display', 'none');
+  }
+}

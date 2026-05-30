@@ -183,6 +183,45 @@ function renderHome() {
         </div>
       </div>
 
+      <!-- SECCIÓN JUNTOS IA -->
+      <div style="margin:0 16px 24px;">
+        <!-- Card principal -->
+        <div style="
+          border-radius:22px;
+          overflow:hidden;
+          background:linear-gradient(135deg,#3B0764,#6D28D9,#9333EA);
+          box-shadow:0 8px 28px rgba(109,40,217,0.38);
+          padding:22px 18px 20px;
+          position:relative;
+        ">
+          <!-- Destellos decorativos -->
+          <div style="position:absolute;top:-20px;right:-20px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none;"></div>
+          <div style="position:absolute;bottom:-30px;left:-10px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.05);pointer-events:none;"></div>
+
+          <div style="position:relative;z-index:1;">
+            <div style="font-size:32px;margin-bottom:10px;">✨</div>
+            <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:20px;color:white;line-height:1.2;margin-bottom:6px;">
+              Juntos — IA
+            </div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.8);line-height:1.5;margin-bottom:18px;">
+              Toma una foto de tu mascota y una selfie. La IA los une en un lugar mágico.
+            </div>
+            <button onclick="abrirJuntos()"
+              style="width:100%;padding:14px;border:none;border-radius:14px;background:white;color:#6D28D9;font-family:'Funnel Display',sans-serif;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;gap:8px;transition:transform 0.15s;"
+              onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'"
+              ontouchstart="this.style.transform='scale(0.97)'" ontouchend="this.style.transform='scale(1)'">
+              <span style="font-size:18px;">🐾</span> Crear mi foto con IA
+            </button>
+          </div>
+        </div>
+
+        <!-- Feed fotos de la comunidad Juntos -->
+        <div id="juntos-feed-section" style="margin-top:16px;">
+          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:10px;">✨ MOMENTOS DE LA COMUNIDAD</div>
+          <div id="juntos-feed-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>
+        </div>
+      </div>
+
       <!-- BANNER ARTE — imagen: img/banner-arte.jpg | link: onclick abajo -->
       <div style="margin:0 16px 20px;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(124,58,237,0.15);cursor:pointer;"
         onclick="switchServiciosTab('arte'); switchTab('servicios')">
@@ -224,7 +263,8 @@ function renderHome() {
   if (typeof cargarFotosMascotas === 'function') {
     setTimeout(() => {
       cargarFotosMascotas();
-    }, 800); // espera a que auth.js inicialice la sesión
+      if (typeof cargarFeedJuntos === 'function') cargarFeedJuntos();
+    }, 800);
   }
 
   // Detectar región y recargar clínicas/tiendas si corresponde
