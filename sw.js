@@ -6,7 +6,7 @@
    - Imágenes                           → Cache First
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'wufly-v54';
+const CACHE_NAME = 'wufly-v55';
 const API_HOST = 'divine-waterfall-d1dfsin-gluten-life.pablo77tapia.workers.dev';
 
 const STATIC_ASSETS = [
@@ -32,6 +32,7 @@ const STATIC_ASSETS = [
   '/js/chat.js',
   '/img/logo.png',
   '/img/icono.png',
+  '/img/generando.mp4',
   '/js/analytics.js',
   '/js/vitrina.js',
   '/js/arte.js',
