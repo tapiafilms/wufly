@@ -62,10 +62,10 @@ function _renderGalleryGrid(container, mascotas) {
         class="pet-thumb"
         onclick="_abrirFotoMascota('${_escapar(m.foto_mascota_url)}', '${_escapar(nombre)}', '${emoji}')"
         style="
-          flex:0 0 38%;
+          flex:0 0 calc(25% - 17px);
           scroll-snap-align:start;
           position:relative;
-          border-radius:18px;
+          border-radius:14px;
           overflow:hidden;
           aspect-ratio:1/1;
           cursor:pointer;

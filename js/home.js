@@ -168,10 +168,10 @@ function renderHome() {
             style="display:flex;gap:12px;padding:0 16px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;"
           >
             <!-- Skeletons iniciales -->
-            <div style="flex:0 0 38%;aspect-ratio:1/1;border-radius:18px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s infinite;scroll-snap-align:start;"></div>
-            <div style="flex:0 0 38%;aspect-ratio:1/1;border-radius:18px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.1s infinite;scroll-snap-align:start;"></div>
-            <div style="flex:0 0 38%;aspect-ratio:1/1;border-radius:18px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.2s infinite;scroll-snap-align:start;"></div>
-            <div style="flex:0 0 38%;aspect-ratio:1/1;border-radius:18px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.3s infinite;scroll-snap-align:start;"></div>
+            <div style="flex:0 0 calc(25% - 17px);aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s infinite;scroll-snap-align:start;"></div>
+            <div style="flex:0 0 calc(25% - 17px);aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.1s infinite;scroll-snap-align:start;"></div>
+            <div style="flex:0 0 calc(25% - 17px);aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.2s infinite;scroll-snap-align:start;"></div>
+            <div style="flex:0 0 calc(25% - 17px);aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.3s infinite;scroll-snap-align:start;"></div>
           </div>
         </div>
       </div>
