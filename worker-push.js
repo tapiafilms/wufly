@@ -270,6 +270,26 @@ export default {
       });
     }
 
+    /* GET /api/proxy-imagen?url=... — descargar imagen de fal.ai sin CORS */
+    if (url.pathname === '/api/proxy-imagen' && request.method === 'GET') {
+      const imgUrl = url.searchParams.get('url');
+      if (!imgUrl || !imgUrl.startsWith('https://')) {
+        return new Response('URL inválida', { status: 400, headers: CORS });
+      }
+      const imgRes = await fetch(imgUrl);
+      if (!imgRes.ok) {
+        return new Response('No se pudo descargar la imagen', { status: 502, headers: CORS });
+      }
+      const imgBlob = await imgRes.arrayBuffer();
+      return new Response(imgBlob, {
+        headers: {
+          'Content-Type': imgRes.headers.get('Content-Type') || 'image/jpeg',
+          'Cache-Control': 'no-store',
+          ...CORS,
+        },
+      });
+    }
+
     return new Response('Not Found', { status: 404 });
   }
 };
