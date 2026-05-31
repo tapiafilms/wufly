@@ -435,12 +435,33 @@ function juntosDescargar(imagenUrl) {
 
 /* ── Comprimir imagen desde URL externa → Blob JPEG ── */
 async function _juntosComprimirImagen(url, maxPx = 1080, calidad = 0.78) {
-  // Descargar via worker para evitar CORS (el worker ya tiene acceso a fal.ai)
-  const proxyUrl = `${JUNTOS_WORKER_URL.replace('/api/juntar-fotos', '/api/proxy-imagen')}?url=${encodeURIComponent(url)}`;
-  const fetchRes  = await fetch(proxyUrl);
-  if (!fetchRes.ok) throw new Error('No se pudo descargar la imagen para comprimir');
-  const blob = await fetchRes.blob();
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if (w > maxPx || h > maxPx) {
+        if (w > h) { h = Math.round(h * maxPx / w); w = maxPx; }
+        else       { w = Math.round(w * maxPx / h); h = maxPx; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('canvas.toBlob falló')), 'image/jpeg', calidad);
+    };
+    img.onerror = () => {
+      // CORS bloqueado — usar proxy del Worker como fallback
+      _juntosComprimirViaProxy(url, maxPx, calidad).then(resolve).catch(reject);
+    };
+    img.src = url;
+  });
+}
 
+async function _juntosComprimirViaProxy(url, maxPx, calidad) {
+  const proxyUrl = `${JUNTOS_WORKER_URL.replace('/api/juntar-fotos', '/api/proxy-imagen')}?url=${encodeURIComponent(url)}`;
+  const res = await fetch(proxyUrl);
+  if (!res.ok) throw new Error('No se pudo descargar la imagen');
+  const blob = await res.blob();
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
@@ -455,7 +476,7 @@ async function _juntosComprimirImagen(url, maxPx = 1080, calidad = 0.78) {
       canvas.toBlob(b => b ? resolve(b) : reject(new Error('canvas.toBlob falló')), 'image/jpeg', calidad);
       URL.revokeObjectURL(img.src);
     };
-    img.onerror = () => reject(new Error('Error al cargar imagen en canvas'));
+    img.onerror = () => reject(new Error('Error al procesar imagen'));
     img.src = URL.createObjectURL(blob);
   });
 }
