@@ -158,28 +158,21 @@ function renderHome() {
 
       <!-- GALERÍA DE MASCOTAS DE LA COMUNIDAD -->
       <div id="pet-gallery-section" style="margin-bottom:24px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:10px;">
           <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">🐾 MASCOTAS DE LA COMUNIDAD</div>
           <div style="font-size:11px;font-weight:600;color:var(--purple);">Últimas registradas</div>
         </div>
-        <div
-          id="pet-gallery-grid"
-          style="
-            display:grid;
-            grid-template-columns:repeat(4, 1fr);
-            gap:8px;
-            padding:0 16px;
-          "
-        >
-          <!-- Skeletons iniciales -->
-          <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s infinite;"></div>
-          <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.1s infinite;"></div>
-          <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.2s infinite;"></div>
-          <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.3s infinite;"></div>
-          <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.4s infinite;"></div>
-          <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.5s infinite;"></div>
-          <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.6s infinite;"></div>
-          <div style="aspect-ratio:1/1;border-radius:14px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.7s infinite;"></div>
+        <div style="overflow:hidden;padding:4px 0 10px;">
+          <div
+            id="pet-gallery-grid"
+            style="display:flex;gap:12px;padding:0 16px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;"
+          >
+            <!-- Skeletons iniciales -->
+            <div style="flex:0 0 38%;aspect-ratio:1/1;border-radius:18px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s infinite;scroll-snap-align:start;"></div>
+            <div style="flex:0 0 38%;aspect-ratio:1/1;border-radius:18px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.1s infinite;scroll-snap-align:start;"></div>
+            <div style="flex:0 0 38%;aspect-ratio:1/1;border-radius:18px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.2s infinite;scroll-snap-align:start;"></div>
+            <div style="flex:0 0 38%;aspect-ratio:1/1;border-radius:18px;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.3s infinite;scroll-snap-align:start;"></div>
+          </div>
         </div>
       </div>
 

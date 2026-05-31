@@ -51,7 +51,7 @@ function _ocultarGaleriaSection() {
   if (section) section.style.display = 'none';
 }
 
-/* ── Render de la grilla ── */
+/* ── Render del carrusel ── */
 function _renderGalleryGrid(container, mascotas) {
   const especieEmoji = { perro: '🐕', gato: '🐈' };
   container.innerHTML = mascotas.map((m, i) => {
@@ -62,16 +62,19 @@ function _renderGalleryGrid(container, mascotas) {
         class="pet-thumb"
         onclick="_abrirFotoMascota('${_escapar(m.foto_mascota_url)}', '${_escapar(nombre)}', '${emoji}')"
         style="
+          flex:0 0 38%;
+          scroll-snap-align:start;
           position:relative;
-          border-radius:14px;
+          border-radius:18px;
           overflow:hidden;
           aspect-ratio:1/1;
           cursor:pointer;
           background:#EDE9FE;
-          box-shadow:0 2px 8px rgba(92,47,168,0.12);
+          box-shadow:0 4px 16px rgba(92,47,168,0.18);
           transition:transform 0.15s, box-shadow 0.15s;
           animation:petThumbIn 0.35s ease both;
           animation-delay:${i * 30}ms;
+          flex-shrink:0;
         "
         onmousedown="this.style.transform='scale(0.93)'"
         onmouseup="this.style.transform='scale(1)'"
