@@ -433,47 +433,132 @@ function juntosDescargar(imagenUrl) {
   a.target = '_blank'; a.rel = 'noopener'; a.click();
 }
 
-/* ── Guardar URL en fotos_juntos (sin guardar las fotos originales) ── */
+/* ── Comprimir imagen desde URL externa → Blob JPEG ── */
+async function _juntosComprimirImagen(url, maxPx = 1080, calidad = 0.78) {
+  // Descargar via worker para evitar CORS (el worker ya tiene acceso a fal.ai)
+  const proxyUrl = `${JUNTOS_WORKER_URL.replace('/api/juntar-fotos', '/api/proxy-imagen')}?url=${encodeURIComponent(url)}`;
+  const fetchRes  = await fetch(proxyUrl);
+  if (!fetchRes.ok) throw new Error('No se pudo descargar la imagen para comprimir');
+  const blob = await fetchRes.blob();
+
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if (w > maxPx || h > maxPx) {
+        if (w > h) { h = Math.round(h * maxPx / w); w = maxPx; }
+        else       { w = Math.round(w * maxPx / h); h = maxPx; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('canvas.toBlob falló')), 'image/jpeg', calidad);
+      URL.revokeObjectURL(img.src);
+    };
+    img.onerror = () => reject(new Error('Error al cargar imagen en canvas'));
+    img.src = URL.createObjectURL(blob);
+  });
+}
+
+/* ── Subir blob a Supabase Storage y guardar URL en fotos_juntos ── */
 async function _juntosGuardarComunidad(imagenUrl) {
   if (typeof currentUser === 'undefined' || !currentUser?.id) {
     console.warn('fotos_juntos: no hay usuario logueado');
     return false;
   }
 
-  // Leer JWT del usuario desde localStorage (compatible v1 y v2)
+  // Leer JWT del usuario
   let token = SUPABASE_ANON_J;
   try {
-    // Supabase v2
     const v2 = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF_J}-auth-token`) || 'null');
-    if (v2?.access_token) { token = v2.access_token; }
+    if (v2?.access_token) token = v2.access_token;
     else {
-      // Supabase v1
       const v1 = JSON.parse(localStorage.getItem('supabase.auth.token') || 'null');
       if (v1?.currentSession?.access_token) token = v1.currentSession.access_token;
     }
   } catch {}
-  console.log('juntos token:', token === SUPABASE_ANON_J ? 'ANON (sin sesión)' : 'USER_JWT ✓');
 
-  const res = await fetch(
+  const headers = { 'apikey': SUPABASE_ANON_J, 'Authorization': `Bearer ${token}` };
+
+  // 1 — Comprimir imagen
+  _juntosShowOverlay('Optimizando imagen…');
+  const blob = await _juntosComprimirImagen(imagenUrl);
+
+  // 2 — Subir a Supabase Storage (bucket: fotos-juntos)
+  _juntosShowOverlay('Subiendo a Wufly…');
+  const fileName = `${currentUser.id}_${Date.now()}.jpg`;
+  const uploadRes = await fetch(
+    `https://${SUPABASE_REF_J}.supabase.co/storage/v1/object/fotos-juntos/${fileName}`,
+    {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'image/jpeg', 'x-upsert': 'true' },
+      body: blob,
+    }
+  );
+  if (!uploadRes.ok) {
+    const detail = await uploadRes.text().catch(() => uploadRes.status);
+    console.error('Storage upload error:', uploadRes.status, detail);
+    throw new Error(`Upload (${uploadRes.status}): ${detail}`);
+  }
+
+  // 3 — URL pública permanente
+  const urlPermanente = `https://${SUPABASE_REF_J}.supabase.co/storage/v1/object/public/fotos-juntos/${fileName}`;
+
+  // 4 — Guardar en tabla fotos_juntos
+  const insertRes = await fetch(
     `https://${SUPABASE_REF_J}.supabase.co/rest/v1/fotos_juntos`,
     {
       method: 'POST',
-      headers: {
-        'apikey':        SUPABASE_ANON_J,
-        'Authorization': `Bearer ${token}`,
-        'Content-Type':  'application/json',
-        'Prefer':        'return=minimal',
-      },
-      body: JSON.stringify({ imagen_url: imagenUrl, user_id: currentUser.id }),
+      headers: { ...headers, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ imagen_url: urlPermanente, user_id: currentUser.id }),
     }
   );
-
-  if (!res.ok) {
-    const detail = await res.text().catch(() => res.status);
-    console.error('fotos_juntos insert error:', res.status, detail);
-    throw new Error(`(${res.status}) ${detail}`);
+  if (!insertRes.ok) {
+    const detail = await insertRes.text().catch(() => insertRes.status);
+    console.error('fotos_juntos insert error:', insertRes.status, detail);
+    throw new Error(`Insert (${insertRes.status}): ${detail}`);
   }
+
+  // 5 — Limpiar: mantener solo las 10 más recientes
+  _juntosPurgarAntiguos(headers).catch(e => console.warn('purgar:', e));
+
   return true;
+}
+
+/* ── Borrar fotos más allá del límite de 10 (tabla + Storage) ── */
+async function _juntosPurgarAntiguos(headers) {
+  const MAX = 10;
+
+  // Traer todas ordenadas por fecha desc
+  const listRes = await fetch(
+    `https://${SUPABASE_REF_J}.supabase.co/rest/v1/fotos_juntos?select=id,imagen_url&order=created_at.desc`,
+    { headers }
+  );
+  if (!listRes.ok) return;
+  const todas = await listRes.json();
+  if (!Array.isArray(todas) || todas.length <= MAX) return;
+
+  const sobran = todas.slice(MAX); // todo lo que pase del top 10
+
+  for (const f of sobran) {
+    // Borrar de Storage (extraer nombre de archivo de la URL)
+    try {
+      const fileName = f.imagen_url.split('/fotos-juntos/').pop();
+      if (fileName) {
+        await fetch(
+          `https://${SUPABASE_REF_J}.supabase.co/storage/v1/object/fotos-juntos/${fileName}`,
+          { method: 'DELETE', headers }
+        );
+      }
+    } catch {}
+
+    // Borrar de la tabla
+    await fetch(
+      `https://${SUPABASE_REF_J}.supabase.co/rest/v1/fotos_juntos?id=eq.${f.id}`,
+      { method: 'DELETE', headers }
+    );
+  }
+  console.log(`juntos: ${sobran.length} foto(s) antigua(s) purgada(s)`);
 }
 
 /* ── Toast liviano ── */
