@@ -4,7 +4,7 @@
    Muestra las últimas 16 fotos subidas
    ══════════════════════════════════════ */
 
-const PET_GALLERY_LIMIT = 16;
+const PET_GALLERY_LIMIT = 4;
 
 /* ── Cargar últimas 16 fotos de mascotas desde Supabase ── */
 async function cargarFotosMascotas() {
