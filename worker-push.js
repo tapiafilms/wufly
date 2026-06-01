@@ -324,26 +324,27 @@ export default {
           );
           const vData = await vRes.json();
 
-          const short = (vData.items || []).find(v => {
-            const dur = v.contentDetails.duration; // ISO 8601 ej: PT45S, PT1M30S
+          const shorts = (vData.items || []).filter(v => {
+            const dur = v.contentDetails.duration;
             const m = dur.match(/PT(?:(\d+)M)?(?:(\d+)S)?/);
             if (!m) return false;
             const mins = parseInt(m[1] || '0');
             const secs = parseInt(m[2] || '0');
-            return mins < 3 || (mins === 3 && secs === 0); // ≤ 3 minutos
-          });
+            return mins < 3 || (mins === 3 && secs === 0);
+          }).slice(0, 3); // máximo 3 por canal
 
-          if (!short) return null;
-          return {
-            videoId:   short.id,
-            titulo:    short.snippet.title,
+          if (!shorts.length) return [];
+          return shorts.map(s => ({
+            videoId:   s.id,
+            titulo:    s.snippet.title,
             canal:     ch.nombre,
-            thumbnail: `https://wufly-push.pablo77tapia.workers.dev/api/thumb?id=${short.id}`,
-          };
+            thumbnail: `https://wufly-push.pablo77tapia.workers.dev/api/thumb?id=${s.id}`,
+          }));
         } catch { return null; }
       }));
 
-      return new Response(JSON.stringify(results.filter(Boolean)), {
+      const shorts = results.flat().filter(Boolean);
+      return new Response(JSON.stringify(shorts), {
         headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=1800', ...CORS },
       });
     }
