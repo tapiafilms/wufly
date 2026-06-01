@@ -314,7 +314,27 @@ const VIDEOS_WUFLY = [
 ];
 
 function abrirVideoYoutube(id) {
-  window.open('https://www.youtube.com/watch?v=' + id, '_blank', 'noopener');
+  const prev = document.getElementById('yt-modal-overlay');
+  if (prev) prev.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'yt-modal-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;';
+  overlay.innerHTML = `
+    <div style="width:100%;max-width:560px;">
+      <div style="position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 20px 60px rgba(0,0,0,0.6);">
+        <iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0"
+          frameborder="0" allow="autoplay; encrypted-media; fullscreen"
+          allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;"></iframe>
+      </div>
+      <button onclick="document.getElementById('yt-modal-overlay').remove()"
+        style="display:block;margin:16px auto 0;padding:10px 28px;border-radius:100px;border:none;background:rgba(255,255,255,0.12);color:white;font-size:14px;font-weight:600;cursor:pointer;">
+        ✕ Cerrar
+      </button>
+    </div>
+  `;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
 }
 
 function _carouselVideos() {
