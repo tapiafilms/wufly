@@ -292,7 +292,7 @@ const VIDEOS_WUFLY = [
     categoria: 'Consejos',
     duracion: '30:32',
     canal: 'Mascotas y Familias Felices',
-    youtubeId: 'jNQXAC9IVRw', // reemplazar con ID real de YouTube
+    youtubeId: 'zBGdDpx84Es',
     preview: '/img/video1.mp4',
   },
   {
@@ -300,7 +300,7 @@ const VIDEOS_WUFLY = [
     categoria: 'Educación',
     duracion: '51:30',
     canal: 'Experto Animal',
-    youtubeId: 'jNQXAC9IVRw', // reemplazar con ID real de YouTube
+    youtubeId: 'uqY9f8SOnQw',
     preview: '/img/video2.mp4',
   },
   {
@@ -308,7 +308,7 @@ const VIDEOS_WUFLY = [
     categoria: 'Veterinaria',
     duracion: '49:00',
     canal: 'TVN',
-    youtubeId: 'jNQXAC9IVRw', // reemplazar con ID real de YouTube
+    youtubeId: '-b_PcM8Zi-s',
     preview: '/img/video3.mp4',
   },
 ];

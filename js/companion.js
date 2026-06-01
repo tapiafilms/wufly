@@ -280,7 +280,7 @@ async function initCompanion() {
 /* ── Lanzar con delay tras carga ── */
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(initCompanion, COMPANION_DELAY);
-  initWuflyFAB();
+  // initWuflyFAB(); // FAB desactivado
 });
 
 /* ══════════════════════════════════════
