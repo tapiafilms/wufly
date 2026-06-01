@@ -336,10 +336,6 @@ async function juntosGenerar() {
 
     if (!imagenUrl) throw new Error('Timeout esperando imagen');
 
-    // Agregar logo Wufly a la imagen antes de mostrar
-    _juntosShowOverlay('Finalizando…');
-    const imagenFinal = await _juntosAgregarLogo(imagenUrl).catch(() => imagenUrl);
-
     _juntosHideOverlay();
     btn.style.display = 'none'; // ocultar botón "Juntar"
 
@@ -347,15 +343,15 @@ async function juntosGenerar() {
     resultado.innerHTML = `
       <!-- Imagen generada -->
       <div style="border-radius:18px;overflow:hidden;box-shadow:0 6px 24px rgba(92,47,168,0.2);">
-        <img src="${imagenFinal}" alt="Foto Juntos IA" style="width:100%;display:block;">
+        <img src="${imagenUrl}" alt="Foto Juntos IA" style="width:100%;display:block;">
       </div>
       <div style="display:flex;gap:10px;margin-top:12px;">
-        <button id="juntos-btn-publicar" data-url="${imagenFinal.replace(/"/g,'&quot;')}"
+        <button id="juntos-btn-publicar" data-url="${imagenUrl.replace(/"/g,'&quot;')}"
           onclick="juntosPublicarEnWufly(this.dataset.url, this)"
           style="flex:1;padding:13px;border:none;border-radius:13px;background:linear-gradient(135deg,#5C2FA8,#9333EA);color:white;font-family:'Funnel Display',sans-serif;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
           🐾 Publicar en Wufly
         </button>
-        <button data-url="${imagenFinal.replace(/"/g,'&quot;')}"
+        <button data-url="${imagenUrl.replace(/"/g,'&quot;')}"
           onclick="juntosCompartirexterno(this.dataset.url)" title="Compartir en redes"
           style="padding:13px 15px;border:1.5px solid #E5E7EB;border-radius:13px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;">
           <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#6B7280;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -439,33 +435,12 @@ function juntosDescargar(imagenUrl) {
 
 /* ── Comprimir imagen desde URL externa → Blob JPEG ── */
 async function _juntosComprimirImagen(url, maxPx = 1080, calidad = 0.78) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      let w = img.width, h = img.height;
-      if (w > maxPx || h > maxPx) {
-        if (w > h) { h = Math.round(h * maxPx / w); w = maxPx; }
-        else       { w = Math.round(w * maxPx / h); h = maxPx; }
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      canvas.toBlob(b => b ? resolve(b) : reject(new Error('canvas.toBlob falló')), 'image/jpeg', calidad);
-    };
-    img.onerror = () => {
-      // CORS bloqueado — usar proxy del Worker como fallback
-      _juntosComprimirViaProxy(url, maxPx, calidad).then(resolve).catch(reject);
-    };
-    img.src = url;
-  });
-}
-
-async function _juntosComprimirViaProxy(url, maxPx, calidad) {
+  // Descargar via worker para evitar CORS (el worker ya tiene acceso a fal.ai)
   const proxyUrl = `${JUNTOS_WORKER_URL.replace('/api/juntar-fotos', '/api/proxy-imagen')}?url=${encodeURIComponent(url)}`;
-  const res = await fetch(proxyUrl);
-  if (!res.ok) throw new Error('No se pudo descargar la imagen');
-  const blob = await res.blob();
+  const fetchRes  = await fetch(proxyUrl);
+  if (!fetchRes.ok) throw new Error('No se pudo descargar la imagen para comprimir');
+  const blob = await fetchRes.blob();
+
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
@@ -480,7 +455,7 @@ async function _juntosComprimirViaProxy(url, maxPx, calidad) {
       canvas.toBlob(b => b ? resolve(b) : reject(new Error('canvas.toBlob falló')), 'image/jpeg', calidad);
       URL.revokeObjectURL(img.src);
     };
-    img.onerror = () => reject(new Error('Error al procesar imagen'));
+    img.onerror = () => reject(new Error('Error al cargar imagen en canvas'));
     img.src = URL.createObjectURL(blob);
   });
 }
@@ -685,54 +660,4 @@ function _cerrarFotoJuntos() {
   if (!overlay) return;
   overlay.style.animation = 'petModalOut 0.18s ease forwards';
   setTimeout(() => overlay.remove(), 180);
-}
-
-/* ── Compositar logo Wufly en esquina inferior derecha ── */
-async function _juntosAgregarLogo(imagenUrl) {
-  const LOGO_SRC = 'img/logo.png';
-  const PROXY    = JUNTOS_WORKER_URL.replace('/api/juntar-fotos', '/api/proxy-imagen');
-
-  // Cargar imagen resultado (con fallback proxy para CORS)
-  const cargarImagen = (src, usarCrossOrigin) => new Promise((resolve, reject) => {
-    const img = new Image();
-    if (usarCrossOrigin) img.crossOrigin = 'anonymous';
-    img.onload  = () => resolve(img);
-    img.onerror = reject;
-    img.src = src;
-  });
-
-  let imgResult;
-  try {
-    imgResult = await cargarImagen(imagenUrl, true);
-  } catch {
-    // CORS bloqueado → usar proxy
-    imgResult = await cargarImagen(`${PROXY}?url=${encodeURIComponent(imagenUrl)}`, false);
-  }
-
-  const logo = await cargarImagen(LOGO_SRC, false);
-
-  const W = imgResult.naturalWidth  || imgResult.width;
-  const H = imgResult.naturalHeight || imgResult.height;
-
-  const canvas = document.createElement('canvas');
-  canvas.width  = W;
-  canvas.height = H;
-  const ctx = canvas.getContext('2d');
-
-  // Dibujar imagen resultado
-  ctx.drawImage(imgResult, 0, 0, W, H);
-
-  // Logo: 20% del ancho con padding del 3%
-  const logoW   = Math.round(W * 0.20);
-  const logoH   = Math.round(logo.naturalHeight * (logoW / logo.naturalWidth));
-  const padding = Math.round(W * 0.03);
-  const lx      = W - logoW - padding;
-  const ly      = H - logoH - padding;
-
-  // Usar globalCompositeOperation 'screen' para hacer transparente el fondo negro del logo
-  ctx.globalCompositeOperation = 'screen';
-  ctx.drawImage(logo, lx, ly, logoW, logoH);
-  ctx.globalCompositeOperation = 'source-over';
-
-  return canvas.toDataURL('image/jpeg', 0.90);
 }
