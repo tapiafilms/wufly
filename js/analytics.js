@@ -116,7 +116,7 @@ async function _cargarAdminData() {
     // Visitas desde el Worker (IP real)
     let visitasStats = { total: 0, hoy: 0, n7d: 0, n30d: 0, porDia: {} };
     try {
-      const vRes = await fetch('https://divine-waterfall-d1dfsin-gluten-life.pablo77tapia.workers.dev/api/stats-visitas');
+      const vRes = await fetch('https://wufly-push.pablo77tapia.workers.dev/api/stats-visitas');
       if (vRes.ok) visitasStats = await vRes.json();
     } catch (_) {}
 

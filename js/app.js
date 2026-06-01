@@ -658,7 +658,7 @@ function geoModalRechazar() {
 /* ── Registrar visita única por IP ── */
 (function registrarVisita() {
   try {
-    fetch(`${WORKER_URL}/api/registrar-visita`, {
+    fetch('https://wufly-push.pablo77tapia.workers.dev/api/registrar-visita', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
     }).catch(() => {});
