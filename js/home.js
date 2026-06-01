@@ -151,7 +151,7 @@ function renderHome() {
           </div>
         </div>
         <div id="carousel-dots" style="display:flex;justify-content:center;gap:5px;margin-top:6px;">
-          ${VIDEOS_WUFLY.map((_, i) => `<div class="cdot${i===0?' cdot-active':''}" style="width:${i===0?'20px':'6px'};height:6px;border-radius:100px;background:${i===0?'var(--purple)':'#D1D5DB'};transition:all 0.3s;"></div>`).join('')}
+          ${[0,1,2].map((i) => `<div class="cdot${i===0?' cdot-active':''}" style="width:${i===0?'20px':'6px'};height:6px;border-radius:100px;background:${i===0?'var(--purple)':'#D1D5DB'};transition:all 0.3s;"></div>`).join('')}
         </div>
       </div>
 
