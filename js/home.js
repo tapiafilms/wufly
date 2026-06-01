@@ -151,7 +151,7 @@ function renderHome() {
           </div>
         </div>
         <div id="carousel-dots" style="display:flex;justify-content:center;gap:5px;margin-top:6px;">
-          ${[0,1,2].map((i) => `<div class="cdot${i===0?' cdot-active':''}" style="width:${i===0?'20px':'6px'};height:6px;border-radius:100px;background:${i===0?'var(--purple)':'#D1D5DB'};transition:all 0.3s;"></div>`).join('')}
+          ${[0,1,2].map((i) => `<div class="cdot cdot-page" data-page="${i}" style="width:${i===0?'20px':'6px'};height:6px;border-radius:100px;background:${i===0?'var(--purple)':'#D1D5DB'};transition:all 0.3s;"></div>`).join('')}
         </div>
       </div>
 
@@ -332,28 +332,72 @@ async function _cargarShorts() {
   _initCarouselDots();
 }
 
+let _shortIdx = 0;
+
 function abrirShort(id) {
+  _shortIdx = _shortsData.findIndex(v => v.videoId === id);
+  if (_shortIdx < 0) _shortIdx = 0;
+  _renderShortModal();
+}
+
+function _renderShortModal() {
+  const v = _shortsData[_shortIdx];
+  if (!v) return;
+
   const prev = document.getElementById('yt-modal-overlay');
   if (prev) prev.remove();
 
+  const total = _shortsData.length;
   const overlay = document.createElement('div');
   overlay.id = 'yt-modal-overlay';
   overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn 0.2s ease;';
   overlay.innerHTML = `
-    <div style="width:100%;max-width:360px;">
+    <div style="width:100%;max-width:360px;position:relative;">
+      <!-- Botón cerrar -->
+      <button onclick="document.getElementById('yt-modal-overlay').remove()"
+        style="position:absolute;top:-44px;right:0;width:34px;height:34px;border-radius:50%;border:none;background:rgba(255,255,255,0.12);color:white;font-size:16px;cursor:pointer;z-index:2;">✕</button>
+
+      <!-- Contador -->
+      <div style="position:absolute;top:-40px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.5);font-size:12px;font-weight:600;">${_shortIdx + 1} / ${total}</div>
+
+      <!-- Video -->
       <div style="position:relative;aspect-ratio:9/16;border-radius:18px;overflow:hidden;background:#000;box-shadow:0 20px 60px rgba(0,0,0,0.7);">
-        <iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0&loop=1&playlist=${id}"
+        <iframe src="https://www.youtube.com/embed/${v.videoId}?autoplay=1&rel=0"
           frameborder="0" allow="autoplay; encrypted-media; fullscreen"
           allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;"></iframe>
       </div>
-      <button onclick="document.getElementById('yt-modal-overlay').remove()"
-        style="display:block;margin:14px auto 0;padding:10px 28px;border-radius:100px;border:none;background:rgba(255,255,255,0.12);color:white;font-size:14px;font-weight:600;cursor:pointer;">
-        ✕ Cerrar
-      </button>
+
+      <!-- Navegación -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;gap:10px;">
+        <button onclick="_navShort(-1)"
+          style="flex:1;padding:10px;border-radius:100px;border:none;background:rgba(255,255,255,0.10);color:white;font-size:18px;cursor:pointer;${_shortIdx === 0 ? 'opacity:0.3;pointer-events:none;' : ''}">‹</button>
+        <div style="flex:2;text-align:center;">
+          <div style="font-size:12px;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v.titulo}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px;">📺 ${v.canal}</div>
+        </div>
+        <button onclick="_navShort(1)"
+          style="flex:1;padding:10px;border-radius:100px;border:none;background:rgba(255,255,255,0.10);color:white;font-size:18px;cursor:pointer;${_shortIdx === total - 1 ? 'opacity:0.3;pointer-events:none;' : ''}">›</button>
+      </div>
     </div>
   `;
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+  // Swipe horizontal para navegar entre shorts
+  let _swipeX = 0;
+  overlay.addEventListener('touchstart', e => { _swipeX = e.touches[0].clientX; }, { passive: true });
+  overlay.addEventListener('touchend', e => {
+    const diff = _swipeX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) _navShort(diff > 0 ? 1 : -1);
+  }, { passive: true });
+
   document.body.appendChild(overlay);
+}
+
+function _navShort(dir) {
+  const next = _shortIdx + dir;
+  if (next < 0 || next >= _shortsData.length) return;
+  _shortIdx = next;
+  _renderShortModal();
 }
 
 // Mantener función por compatibilidad
@@ -366,20 +410,22 @@ let _touchStartY = 0;
 let _swipeLocked  = false; // true cuando el gesto es claramente horizontal
 
 /* Mueve el track al slide idx usando CSS transition */
-function _goToSlide(idx) {
+const SHORTS_PER_PAGE = 3;
+
+function _goToSlide(pageIdx) {
   const track = document.getElementById('clinicas-track');
   if (!track) return;
   const card = track.querySelector('div');
   if (!card) return;
-  const step = card.offsetWidth + 12; // ancho tarjeta + gap
-  track.style.transform = `translateX(-${idx * step}px)`;
-  _carouselIdx = idx;
-  _updateDots(idx);
+  const step = card.offsetWidth + 12;
+  track.style.transform = `translateX(-${pageIdx * SHORTS_PER_PAGE * step}px)`;
+  _carouselIdx = pageIdx;
+  _updateDots(pageIdx);
 }
 
-function _updateDots(idx) {
+function _updateDots(pageIdx) {
   document.querySelectorAll('.cdot').forEach((d, i) => {
-    const active = i === idx;
+    const active = i === pageIdx;
     d.style.width      = active ? '20px' : '6px';
     d.style.background = active ? 'var(--purple)' : '#D1D5DB';
   });
@@ -392,7 +438,7 @@ function _updateDots(idx) {
 function _initCarouselDots() {
   const clip  = document.getElementById('clinicas-clip');
   if (!clip) return;
-  const total = _shortsData.length || 3;
+  const totalPages = Math.ceil((_shortsData.length || 9) / SHORTS_PER_PAGE);
   _carouselIdx = 0;
 
   clip.addEventListener('touchstart', e => {
@@ -412,7 +458,7 @@ function _initCarouselDots() {
     if (!_swipeLocked) return;
     const dx = e.changedTouches[0].clientX - _touchStartX;
     if (Math.abs(dx) > 40) {
-      if (dx < 0) _carouselIdx = Math.min(_carouselIdx + 1, total - 1);
+      if (dx < 0) _carouselIdx = Math.min(_carouselIdx + 1, totalPages - 1);
       else        _carouselIdx = Math.max(_carouselIdx - 1, 0);
       _goToSlide(_carouselIdx);
     }
