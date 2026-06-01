@@ -338,13 +338,30 @@ export default {
             videoId:   short.id,
             titulo:    short.snippet.title,
             canal:     ch.nombre,
-            thumbnail: `https://img.youtube.com/vi/${short.id}/hqdefault.jpg`,
+            thumbnail: `https://wufly-push.pablo77tapia.workers.dev/api/thumb?id=${short.id}`,
           };
         } catch { return null; }
       }));
 
       return new Response(JSON.stringify(results.filter(Boolean)), {
         headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=1800', ...CORS },
+      });
+    }
+
+    /* GET /api/thumb?id=VIDEO_ID — proxy de thumbnail YouTube */
+    if (url.pathname === '/api/thumb' && request.method === 'GET') {
+      const id = url.searchParams.get('id');
+      if (!id) return new Response('Falta id', { status: 400, headers: CORS });
+      const thumbUrl = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+      const r = await fetch(thumbUrl);
+      if (!r.ok) return new Response('No encontrado', { status: 404, headers: CORS });
+      const buf = await r.arrayBuffer();
+      return new Response(buf, {
+        headers: {
+          'Content-Type': 'image/jpeg',
+          'Cache-Control': 'public, max-age=86400',
+          ...CORS,
+        },
       });
     }
 
