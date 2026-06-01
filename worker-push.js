@@ -299,6 +299,57 @@ export default {
       });
     }
 
+    /* GET /api/shorts — último Short de cada canal vinculado */
+    if (url.pathname === '/api/shorts' && request.method === 'GET') {
+      const CANALES = [
+        { uploads: 'UUGi1-MMRagIIhzPWp3nCl6Q', nombre: 'TV Mascotas' },
+        { uploads: 'UUQQOXSmeLzqBlaVIXt-58YA', nombre: 'Universo de Gatitos' },
+        { uploads: 'UUMJdVEwqOrsR4y5VCJEFOag', nombre: 'Husky Mania ASM' },
+      ];
+      const YT = env.YOUTUBE_API_KEY;
+
+      const results = await Promise.all(CANALES.map(async ch => {
+        try {
+          // Últimas 20 subidas del canal
+          const plRes = await fetch(
+            `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${ch.uploads}&maxResults=20&key=${YT}`
+          );
+          const plData = await plRes.json();
+          const videoIds = (plData.items || []).map(i => i.snippet.resourceId.videoId).join(',');
+          if (!videoIds) return null;
+
+          // Detalles para filtrar por duración (Shorts ≤ 3 min)
+          const vRes = await fetch(
+            `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,snippet&id=${videoIds}&key=${YT}`
+          );
+          const vData = await vRes.json();
+
+          const short = (vData.items || []).find(v => {
+            const dur = v.contentDetails.duration; // ISO 8601 ej: PT45S, PT1M30S
+            const m = dur.match(/PT(?:(\d+)M)?(?:(\d+)S)?/);
+            if (!m) return false;
+            const mins = parseInt(m[1] || '0');
+            const secs = parseInt(m[2] || '0');
+            return mins < 3 || (mins === 3 && secs === 0); // ≤ 3 minutos
+          });
+
+          if (!short) return null;
+          return {
+            videoId:   short.id,
+            titulo:    short.snippet.title,
+            canal:     ch.nombre,
+            thumbnail: short.snippet.thumbnails?.high?.url
+                    || short.snippet.thumbnails?.medium?.url
+                    || short.snippet.thumbnails?.default?.url,
+          };
+        } catch { return null; }
+      }));
+
+      return new Response(JSON.stringify(results.filter(Boolean)), {
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=1800', ...CORS },
+      });
+    }
+
     /* POST /api/registrar-visita — contar visita única por IP+día */
     if (url.pathname === '/api/registrar-visita' && request.method === 'POST') {
       const ip = request.headers.get('CF-Connecting-IP')

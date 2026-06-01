@@ -147,7 +147,7 @@ function renderHome() {
         <div id="clinicas-clip" style="overflow:hidden;">
           <div id="clinicas-track"
             style="display:flex;gap:12px;padding:4px 0 12px 16px;will-change:transform;transition:transform 0.65s cubic-bezier(0.25,0.46,0.45,0.94);">
-            ${_carouselVideos()}
+            <!-- Shorts se cargan dinámicamente -->
           </div>
         </div>
         <div id="carousel-dots" style="display:flex;justify-content:center;gap:5px;margin-top:6px;">
@@ -246,7 +246,8 @@ function renderHome() {
     </div>
   `;
 
-  // Inicializar carousel cada vez que se renderiza el home
+  // Cargar Shorts dinámicos y luego inicializar dots
+  _cargarShorts().then(() => setTimeout(_initCarouselDots, 50));
   setTimeout(_initCarouselDots, 50);
 
   // Forzar play del video hero (iOS ignora autoplay en elementos creados con innerHTML)
@@ -285,67 +286,75 @@ function renderHome() {
   });
 }
 
-/* ── Videos Wufly — reemplaza youtubeId y preview cuando tengas el canal ── */
-const VIDEOS_WUFLY = [
-  {
-    titulo: 'Cómo gatificar tu casa',
-    categoria: 'Consejos',
-    duracion: '30:32',
-    canal: 'Mascotas y Familias Felices',
-    youtubeId: 'jNQXAC9IVRw', // reemplazar con ID real de YouTube
-    preview: '/img/video1.mp4',
-  },
-  {
-    titulo: 'Todas las razas de perros',
-    categoria: 'Educación',
-    duracion: '51:30',
-    canal: 'Experto Animal',
-    youtubeId: 'jNQXAC9IVRw', // reemplazar con ID real de YouTube
-    preview: '/img/video2.mp4',
-  },
-  {
-    titulo: 'Acción Animal E1T1',
-    categoria: 'Veterinaria',
-    duracion: '49:00',
-    canal: 'TVN',
-    youtubeId: 'jNQXAC9IVRw', // reemplazar con ID real de YouTube
-    preview: '/img/video3.mp4',
-  },
-];
+/* ── Shorts dinámicos desde 3 canales YouTube ── */
+let _shortsData = [];
 
-function abrirVideoYoutube(id) {
-  window.open('https://www.youtube.com/watch?v=' + id, '_blank', 'noopener');
-}
+async function _cargarShorts() {
+  const track = document.getElementById('clinicas-track');
+  if (!track) return;
 
-function _carouselVideos() {
-  return VIDEOS_WUFLY.map(v => {
-    const thumb = `https://img.youtube.com/vi/${v.youtubeId}/hqdefault.jpg`;
-    const media = v.preview
-      ? `<video src="${v.preview}" autoplay muted loop playsinline
-           style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;"></video>`
-      : `<img src="${thumb}" alt="${v.titulo}"
-           style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;"
-           onerror="this.style.background='linear-gradient(135deg,#5C2FA8,#7C4DCC)';this.style.display='none'">`;
-    return `
-    <div onclick="abrirVideoYoutube('${v.youtubeId}')"
-      style="flex:0 0 88%;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,0.22);position:relative;aspect-ratio:16/9;">
-      ${media}
-      <!-- Overlay degradado -->
-      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.05) 30%,rgba(0,0,0,0.72) 100%);pointer-events:none;"></div>
-      <!-- Botón play -->
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);width:52px;height:52px;background:rgba(255,255,255,0.92);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.3);">
-        <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:#5C2FA8;margin-left:3px;"><polygon points="5,3 19,12 5,21"/></svg>
+  try {
+    const res = await fetch('https://wufly-push.pablo77tapia.workers.dev/api/shorts');
+    if (!res.ok) throw new Error();
+    _shortsData = await res.json();
+  } catch {
+    // Fallback silencioso — el track queda vacío o con skeleton
+    return;
+  }
+
+  if (!_shortsData.length) return;
+
+  track.innerHTML = _shortsData.map(v => `
+    <div onclick="abrirShort('${v.videoId}')"
+      style="flex:0 0 52%;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,0.22);position:relative;aspect-ratio:9/16;background:#0d0620;">
+      <img src="${v.thumbnail}" alt="${v.titulo.replace(/"/g,'')}"
+        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;">
+      <!-- Overlay -->
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 40%,rgba(0,0,0,0.78) 100%);pointer-events:none;"></div>
+      <!-- Badge Shorts -->
+      <div style="position:absolute;top:10px;left:10px;background:#FF0000;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:800;color:white;letter-spacing:0.05em;">▶ SHORT</div>
+      <!-- Play -->
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:48px;height:48px;background:rgba(255,255,255,0.90);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.3);">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:#5C2FA8;margin-left:3px;"><polygon points="5,3 19,12 5,21"/></svg>
       </div>
-      <!-- Categoría badge -->
-      <div style="position:absolute;top:12px;right:12px;background:rgba(124,77,204,0.85);backdrop-filter:blur(4px);border-radius:100px;padding:3px 10px;font-size:10px;font-weight:700;color:white;">${v.categoria}</div>
       <!-- Info pie -->
-      <div style="position:absolute;bottom:12px;left:12px;right:12px;">
-        <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:15px;color:white;line-height:1.3;text-shadow:0 1px 6px rgba(0,0,0,0.4);margin-bottom:4px;">${v.titulo}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.75);">▶ ${v.duracion} · ${v.canal}</div>
+      <div style="position:absolute;bottom:10px;left:10px;right:10px;">
+        <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:13px;color:white;line-height:1.3;text-shadow:0 1px 4px rgba(0,0,0,0.5);margin-bottom:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${v.titulo}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.7);">📺 ${v.canal}</div>
       </div>
-    </div>`;
-  }).join('');
+    </div>
+  `).join('');
+
+  // Reiniciar dots con nuevo total
+  _initCarouselDots();
 }
+
+function abrirShort(id) {
+  const prev = document.getElementById('yt-modal-overlay');
+  if (prev) prev.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'yt-modal-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn 0.2s ease;';
+  overlay.innerHTML = `
+    <div style="width:100%;max-width:360px;">
+      <div style="position:relative;aspect-ratio:9/16;border-radius:18px;overflow:hidden;background:#000;box-shadow:0 20px 60px rgba(0,0,0,0.7);">
+        <iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0&loop=1&playlist=${id}"
+          frameborder="0" allow="autoplay; encrypted-media; fullscreen"
+          allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;"></iframe>
+      </div>
+      <button onclick="document.getElementById('yt-modal-overlay').remove()"
+        style="display:block;margin:14px auto 0;padding:10px 28px;border-radius:100px;border:none;background:rgba(255,255,255,0.12);color:white;font-size:14px;font-weight:600;cursor:pointer;">
+        ✕ Cerrar
+      </button>
+    </div>
+  `;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+// Mantener función por compatibilidad
+function abrirVideoYoutube(id) { abrirShort(id); }
 
 /* ── Carousel: CSS transform + swipe táctil ── */
 let _carouselIdx = 0;
@@ -380,7 +389,7 @@ function _updateDots(idx) {
 function _initCarouselDots() {
   const clip  = document.getElementById('clinicas-clip');
   if (!clip) return;
-  const total = VIDEOS_WUFLY.length;
+  const total = _shortsData.length || 3;
   _carouselIdx = 0;
 
   clip.addEventListener('touchstart', e => {
