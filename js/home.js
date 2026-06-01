@@ -305,14 +305,12 @@ async function _cargarShorts() {
   if (!_shortsData.length) return;
 
   track.innerHTML = _shortsData.map(v => {
-    // Thumbnail: usar maxresdefault de YouTube para mejor calidad vertical
-    const thumb = `https://img.youtube.com/vi/${v.videoId}/maxresdefault.jpg`;
-    const thumbFallback = `https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg`;
+    const thumb = v.thumbnail || `https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg`;
     return `
     <div onclick="abrirShort('${v.videoId}')"
       style="flex:0 0 30%;min-width:110px;border-radius:14px;overflow:hidden;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.22);position:relative;aspect-ratio:9/16;background:#1a0a3c;">
       <img src="${thumb}" alt="${v.titulo.replace(/"/g,'')}"
-        onerror="this.src='${thumbFallback}'"
+        onerror="this.src='https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg'"
         style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;">
       <!-- Overlay -->
       <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 40%,rgba(0,0,0,0.78) 100%);pointer-events:none;"></div>
