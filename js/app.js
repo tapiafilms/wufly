@@ -655,6 +655,16 @@ function geoModalRechazar() {
   sessionStorage.setItem('wufly_geo_declined', '1');
 }
 
+/* ── Registrar visita única por IP ── */
+(function registrarVisita() {
+  try {
+    fetch(`${WORKER_URL}/api/registrar-visita`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    }).catch(() => {});
+  } catch (_) {}
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
   injectProfileStyles();
   buildAllergyGrid();

@@ -299,6 +299,70 @@ export default {
       });
     }
 
+    /* POST /api/registrar-visita — contar visita única por IP+día */
+    if (url.pathname === '/api/registrar-visita' && request.method === 'POST') {
+      const ip = request.headers.get('CF-Connecting-IP')
+               || request.headers.get('X-Forwarded-For')?.split(',')[0]?.trim()
+               || 'unknown';
+      const ua    = request.headers.get('User-Agent') || '';
+      const today = new Date().toISOString().slice(0, 10);
+
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/visitas`, {
+        method: 'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'apikey':        env.SUPABASE_SERVICE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_KEY}`,
+          'Prefer':        'return=minimal,resolution=ignore-duplicates',
+        },
+        body: JSON.stringify({ ip, fecha: today, user_agent: ua }),
+      });
+
+      const nueva = res.status === 201;
+      return new Response(JSON.stringify({ ok: true, nueva }), {
+        headers: { 'Content-Type': 'application/json', ...CORS },
+      });
+    }
+
+    /* GET /api/stats-visitas — estadísticas para el dashboard */
+    if (url.pathname === '/api/stats-visitas' && request.method === 'GET') {
+      const hoy    = new Date().toISOString().slice(0, 10);
+      const hace7  = new Date(Date.now() - 7  * 86400000).toISOString().slice(0, 10);
+      const hace30 = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+      const hace14 = new Date(Date.now() - 14 * 86400000).toISOString().slice(0, 10);
+
+      const h = {
+        'apikey':        env.SUPABASE_SERVICE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_KEY}`,
+        'Prefer':        'count=exact',
+      };
+
+      const [resTotal, resHoy, res7d, res30d, resDias] = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/visitas?select=*`, { headers: h }),
+        fetch(`${SUPABASE_URL}/rest/v1/visitas?select=*&fecha=eq.${hoy}`, { headers: h }),
+        fetch(`${SUPABASE_URL}/rest/v1/visitas?select=*&fecha=gte.${hace7}`, { headers: h }),
+        fetch(`${SUPABASE_URL}/rest/v1/visitas?select=*&fecha=gte.${hace30}`, { headers: h }),
+        fetch(`${SUPABASE_URL}/rest/v1/visitas?select=fecha&fecha=gte.${hace14}`, {
+          headers: { 'apikey': env.SUPABASE_SERVICE_KEY, 'Authorization': `Bearer ${env.SUPABASE_SERVICE_KEY}` }
+        }),
+      ]);
+
+      const total = parseInt(resTotal.headers.get('content-range')?.split('/')[1] ?? '0');
+      const hoyN  = parseInt(resHoy.headers.get('content-range')?.split('/')[1] ?? '0');
+      const n7d   = parseInt(res7d.headers.get('content-range')?.split('/')[1] ?? '0');
+      const n30d  = parseInt(res30d.headers.get('content-range')?.split('/')[1] ?? '0');
+
+      const diasData = await resDias.json();
+      const porDia   = {};
+      (Array.isArray(diasData) ? diasData : []).forEach(v => {
+        porDia[v.fecha] = (porDia[v.fecha] || 0) + 1;
+      });
+
+      return new Response(JSON.stringify({ total, hoy: hoyN, n7d, n30d, porDia }), {
+        headers: { 'Content-Type': 'application/json', ...CORS },
+      });
+    }
+
     return new Response('Not Found', { status: 404 });
   }
 };
