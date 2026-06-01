@@ -141,7 +141,7 @@ function renderHome() {
       <!-- CAROUSEL VIDEOS -->
       <div style="margin-bottom:20px;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:10px;">
-          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">▶️ VIDEOS WUFLY</div>
+          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">▶️ SHORTS MASCOTAS</div>
           <a href="https://www.youtube.com/@wufly" target="_blank" rel="noopener" style="background:none;border:none;font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;">Ver canal →</a>
         </div>
         <div id="clinicas-clip" style="overflow:hidden;">
