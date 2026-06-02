@@ -98,43 +98,11 @@ function renderHome() {
         </div>
       </div>
 
-      <!-- ACCESO RÁPIDO -->
+      <!-- ACCESO RÁPIDO — Cards 3D flotantes -->
       <div style="padding:0 16px;margin-bottom:20px;">
         <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:12px;">ACCESO RÁPIDO</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-
-          <!-- Vets -->
-          <button onclick="switchTab('restaurantes')"
-            style="height:80px;border:none;cursor:pointer;border-radius:16px;background:linear-gradient(135deg,#5C2FA8,#7C4DCC);box-shadow:0 4px 14px rgba(92,47,168,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0;transition:transform 0.15s;"
-            onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(0.96)'" ontouchend="this.style.transform='scale(1)'">
-            <span style="font-size:28px;line-height:1;">🏥</span>
-            <span style="font-size:11px;font-weight:700;color:white;">Vets Cercanas</span>
-          </button>
-
-          <!-- Dr. Wufly -->
-          <button onclick="switchTab('drwufly')"
-            style="height:80px;border:none;cursor:pointer;border-radius:16px;background:linear-gradient(135deg,#0891B2,#06B6D4);box-shadow:0 4px 14px rgba(8,145,178,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0;transition:transform 0.15s;"
-            onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(0.96)'" ontouchend="this.style.transform='scale(1)'">
-            <span style="font-size:28px;line-height:1;">🩺</span>
-            <span style="font-size:11px;font-weight:700;color:white;">Dr. Wufly</span>
-          </button>
-
-          <!-- Adoptar -->
-          <button onclick="switchComunidadTab('adoptar'); switchTab('comunidad')"
-            style="height:80px;border:none;cursor:pointer;border-radius:16px;background:linear-gradient(135deg,#059669,#10B981);box-shadow:0 4px 14px rgba(5,150,105,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0;transition:transform 0.15s;"
-            onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(0.96)'" ontouchend="this.style.transform='scale(1)'">
-            <span style="font-size:28px;line-height:1;">🐾</span>
-            <span style="font-size:11px;font-weight:700;color:white;">Adoptar</span>
-          </button>
-
-          <!-- Arte -->
-          <button onclick="switchServiciosTab('arte'); switchTab('servicios')"
-            style="height:80px;border:none;cursor:pointer;border-radius:16px;background:linear-gradient(135deg,#7C3AED,#C026D3);box-shadow:0 4px 14px rgba(124,58,237,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0;transition:transform 0.15s;"
-            onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(0.96)'" ontouchend="this.style.transform='scale(1)'">
-            <span style="font-size:28px;line-height:1;">🎨</span>
-            <span style="font-size:11px;font-weight:700;color:white;">Arte</span>
-          </button>
-
+        <div id="cards3d-scene" style="width:100%;height:220px;position:relative;overflow:hidden;border-radius:20px;background:#08041a;perspective:600px;cursor:pointer;">
+          <!-- Cards generadas por JS -->
         </div>
       </div>
 
@@ -249,6 +217,7 @@ function renderHome() {
   // Cargar Shorts dinámicos y luego inicializar dots
   _cargarShorts().then(() => setTimeout(_initCarouselDots, 50));
   setTimeout(_initCarouselDots, 50);
+  setTimeout(_initCards3D, 100);
 
   // Forzar play del video hero (iOS ignora autoplay en elementos creados con innerHTML)
   setTimeout(() => {
@@ -511,6 +480,116 @@ function _initCarouselDots() {
     }
     _swipeLocked = false;
   }, { passive: true });
+}
+
+/* ══════════════════════════════════════
+   ACCESO RÁPIDO — Cards 3D flotantes
+   ══════════════════════════════════════ */
+
+const CARDS_3D = [
+  { icon:'🏥', label:'Vets Cercanas',  action:"switchTab('restaurantes')",                          bg:'#1a0a3c', accent:'#7C4DCC' },
+  { icon:'🩺', label:'Dra. Wufly',     action:"switchTab('drwufly')",                               bg:'#051e2e', accent:'#06B6D4' },
+  { icon:'🐾', label:'Adoptar',        action:"switchComunidadTab('adoptar'); switchTab('comunidad')", bg:'#051e14', accent:'#10B981' },
+  { icon:'🎨', label:'Arte',           action:"switchServiciosTab('arte'); switchTab('servicios')",  bg:'#1a0529', accent:'#C026D3' },
+  { icon:'✂️', label:'Grooming',       action:"switchServiciosTab('grooming'); switchTab('servicios')", bg:'#1e1005', accent:'#F59E0B' },
+  { icon:'🐕', label:'Paseadores',     action:"switchServiciosTab('paseadores'); switchTab('servicios')", bg:'#051a1e', accent:'#0EA5E9' },
+];
+
+let _cards3dRAF = null;
+
+function _initCards3D() {
+  const scene = document.getElementById('cards3d-scene');
+  if (!scene) return;
+  if (_cards3dRAF) cancelAnimationFrame(_cards3dRAF);
+  scene.innerHTML = '';
+
+  const W = scene.offsetWidth;
+  const H = scene.offsetHeight;
+  const CARD_W = 160, CARD_H = 90;
+  const TOTAL  = 18; // instancias totales en el loop
+
+  // Crear instancias de cards (3 por cada tipo)
+  const cards = Array.from({ length: TOTAL }, (_, i) => {
+    const def = CARDS_3D[i % CARDS_3D.length];
+
+    // Posición inicial distribuida a distintas profundidades
+    const z0    = -1200 + (i / TOTAL) * 1200;
+    const xOff  = (Math.random() - 0.5) * W * 1.2;
+    const yOff  = (Math.random() - 0.5) * H * 0.8;
+    const rotX  = (Math.random() - 0.5) * 10;
+    const rotY  = (Math.random() - 0.5) * 14;
+    const rotZ  = (Math.random() - 0.5) * 6;
+    const speed = 0.4 + Math.random() * 0.5; // velocidad variada por card
+
+    const el = document.createElement('div');
+    el.style.cssText = `
+      position:absolute;
+      width:${CARD_W}px;height:${CARD_H}px;
+      border-radius:14px;
+      background:${def.bg};
+      border:1px solid ${def.accent}44;
+      box-shadow:0 0 20px ${def.accent}22, inset 0 0 30px rgba(0,0,0,0.4);
+      display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;
+      padding:10px 12px;
+      cursor:pointer;
+      will-change:transform,opacity;
+      backface-visibility:hidden;
+      -webkit-backface-visibility:hidden;
+    `;
+    el.innerHTML = `
+      <div style="font-size:22px;margin-bottom:4px;">${def.icon}</div>
+      <div style="font-size:12px;font-weight:700;color:white;letter-spacing:0.02em;">${def.label}</div>
+      <div style="position:absolute;top:10px;right:10px;width:6px;height:6px;border-radius:50%;background:${def.accent};box-shadow:0 0 6px ${def.accent};"></div>
+    `;
+    el.addEventListener('click', () => eval(def.action));
+    scene.appendChild(el);
+
+    return { el, z: z0, x: xOff, y: yOff, rotX, rotY, rotZ, speed };
+  });
+
+  const cx = W / 2, cy = H / 2;
+  let last = performance.now();
+
+  function tick(now) {
+    const dt = Math.min(now - last, 32);
+    last = now;
+
+    cards.forEach(c => {
+      c.z += dt * c.speed * 0.9;
+
+      // Resetear al fondo cuando pasa la cámara
+      if (c.z > 400) {
+        c.z = -1200;
+        c.x = (Math.random() - 0.5) * W * 1.2;
+        c.y = (Math.random() - 0.5) * H * 0.8;
+      }
+
+      // Proyección perspectiva
+      const fov   = 600;
+      const scale = fov / (fov - c.z);
+      const sx    = cx + c.x * scale;
+      const sy    = cy + c.y * scale;
+
+      // Opacidad: aparece suave desde lejos
+      const progress = (c.z + 1200) / 1600;
+      const opacity  = Math.min(1, Math.max(0, progress * 1.5 - 0.2));
+
+      // Rotación suave continua
+      c.rotY += dt * 0.003;
+
+      c.el.style.transform = `
+        translate(${sx - CARD_W / 2}px, ${sy - CARD_H / 2}px)
+        scale(${Math.max(0.05, scale)})
+        rotateX(${c.rotX}deg) rotateY(${c.rotY}deg) rotateZ(${c.rotZ}deg)
+      `;
+      c.el.style.opacity   = opacity;
+      c.el.style.zIndex    = Math.round(scale * 100);
+    });
+
+    _cards3dRAF = requestAnimationFrame(tick);
+  }
+
+  _cards3dRAF = requestAnimationFrame(tick);
 }
 
 /* ── Init ── */
