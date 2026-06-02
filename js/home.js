@@ -567,7 +567,7 @@ function _stackTransform(pos, dy) {
 function _renderStack(animate, dy = 0) {
   _stackOrder.forEach((cardIdx, pos) => {
     const el = _stackEls[cardIdx];
-    const { scale, translateY, opacity } = _stackTransform(pos, dy);
+    const { scale, translateY, opacity, rotateZ } = _stackTransform(pos, dy);
     if (animate) {
       el.style.transition = 'transform 0.45s cubic-bezier(0.34,1.2,0.64,1), opacity 0.35s ease';
     } else {
