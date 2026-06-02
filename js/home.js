@@ -198,7 +198,7 @@ function renderHome() {
           <!-- Imagen de fondo con blend mode screen -->
           <div style="position:absolute;inset:0;background-image:url('img/bg-juntos.png');background-size:contain;background-repeat:no-repeat;background-position:right center;mix-blend-mode:screen;opacity:0.9;pointer-events:none;"></div>
 
-          <div style="position:relative;z-index:1;max-width:60%;">
+          <div style="position:relative;z-index:1;max-width:55%;">
             <div style="font-size:28px;margin-bottom:8px;">✨</div>
             <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:20px;color:white;line-height:1.2;margin-bottom:6px;">
               Juntos — IA
@@ -350,44 +350,70 @@ function _renderShortModal() {
   const total = _shortsData.length;
   const overlay = document.createElement('div');
   overlay.id = 'yt-modal-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn 0.2s ease;';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9999;
+    background:rgba(0,0,0,0.95);
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  `;
+
   overlay.innerHTML = `
-    <div style="width:100%;max-width:360px;position:relative;">
-      <!-- Botón cerrar -->
-      <button onclick="document.getElementById('yt-modal-overlay').remove()"
-        style="position:absolute;top:-44px;right:0;width:34px;height:34px;border-radius:50%;border:none;background:rgba(255,255,255,0.12);color:white;font-size:16px;cursor:pointer;z-index:2;">✕</button>
+    <!-- Botón cerrar — esquina superior derecha con área generosa -->
+    <button onclick="document.getElementById('yt-modal-overlay').remove()"
+      style="position:absolute;top:16px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.15);color:white;font-size:18px;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;">✕</button>
 
-      <!-- Contador -->
-      <div style="position:absolute;top:-40px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.5);font-size:12px;font-weight:600;">${_shortIdx + 1} / ${total}</div>
+    <!-- Contador -->
+    <div style="position:absolute;top:22px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.4);font-size:12px;font-weight:600;z-index:10;">${_shortIdx + 1} / ${total}</div>
 
-      <!-- Video -->
-      <div style="position:relative;aspect-ratio:9/16;border-radius:18px;overflow:hidden;background:#000;box-shadow:0 20px 60px rgba(0,0,0,0.7);">
-        <iframe src="https://www.youtube.com/embed/${v.videoId}?autoplay=1&rel=0"
-          frameborder="0" allow="autoplay; encrypted-media; fullscreen"
-          allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;"></iframe>
-      </div>
-
-      <!-- Navegación -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;gap:10px;">
-        <button onclick="_navShort(-1)"
-          style="flex:1;padding:10px;border-radius:100px;border:none;background:rgba(255,255,255,0.10);color:white;font-size:18px;cursor:pointer;${_shortIdx === 0 ? 'opacity:0.3;pointer-events:none;' : ''}">‹</button>
-        <div style="flex:2;text-align:center;">
-          <div style="font-size:12px;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v.titulo}</div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px;">📺 ${v.canal}</div>
+    <!-- Contenedor deslizable -->
+    <div id="short-slider" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;will-change:transform;">
+      <div style="width:min(280px, 72vw);position:relative;">
+        <div style="position:relative;aspect-ratio:9/16;border-radius:20px;overflow:hidden;background:#000;box-shadow:0 20px 60px rgba(0,0,0,0.8);">
+          <iframe id="short-iframe"
+            src="https://www.youtube.com/embed/${v.videoId}?autoplay=1&rel=0"
+            frameborder="0" allow="autoplay; encrypted-media; fullscreen"
+            allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;"></iframe>
         </div>
-        <button onclick="_navShort(1)"
-          style="flex:1;padding:10px;border-radius:100px;border:none;background:rgba(255,255,255,0.10);color:white;font-size:18px;cursor:pointer;${_shortIdx === total - 1 ? 'opacity:0.3;pointer-events:none;' : ''}">›</button>
       </div>
     </div>
   `;
+
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 
-  // Swipe horizontal para navegar entre shorts
-  let _swipeX = 0;
-  overlay.addEventListener('touchstart', e => { _swipeX = e.touches[0].clientX; }, { passive: true });
-  overlay.addEventListener('touchend', e => {
-    const diff = _swipeX - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 50) _navShort(diff > 0 ? 1 : -1);
+  // Swipe con animación fluida
+  let _tx = 0, _startX = 0, _dragging = false;
+  const slider = () => overlay.querySelector('#short-slider');
+
+  overlay.addEventListener('touchstart', e => {
+    _startX = e.touches[0].clientX;
+    _tx = 0;
+    _dragging = true;
+    const s = slider(); if (s) s.style.transition = 'none';
+  }, { passive: true });
+
+  overlay.addEventListener('touchmove', e => {
+    if (!_dragging) return;
+    _tx = e.touches[0].clientX - _startX;
+    const s = slider(); if (s) s.style.transform = `translateX(${_tx * 0.4}px)`;
+  }, { passive: true });
+
+  overlay.addEventListener('touchend', () => {
+    _dragging = false;
+    const s = slider(); if (!s) return;
+    if (Math.abs(_tx) > 60) {
+      const dir = _tx < 0 ? 1 : -1;
+      const next = _shortIdx + dir;
+      if (next >= 0 && next < total) {
+        // Animación de salida
+        s.style.transition = 'transform 0.22s ease';
+        s.style.transform = `translateX(${dir < 0 ? '100%' : '-100%'})`;
+        setTimeout(() => { _shortIdx = next; _renderShortModal(); }, 200);
+        return;
+      }
+    }
+    // Volver al centro
+    s.style.transition = 'transform 0.3s ease';
+    s.style.transform = 'translateX(0)';
   }, { passive: true });
 
   document.body.appendChild(overlay);
