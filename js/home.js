@@ -376,13 +376,16 @@ function _renderShortModal() {
             <div style="width:40%;height:8px;border-radius:99px;background:rgba(255,255,255,0.05);"></div>
           </div>
           <iframe id="short-iframe"
-            src="https://www.youtube.com/embed/${v.videoId}?autoplay=1&rel=0"
-            frameborder="0" allow="autoplay; encrypted-media; fullscreen"
+            src="https://www.youtube.com/embed/${v.videoId}?autoplay=1&mute=1&playsinline=1&rel=0"
+            frameborder="0" allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
             allowfullscreen
             onload="document.getElementById('short-skeleton')?.remove()"
             style="position:absolute;inset:0;width:100%;height:100%;z-index:2;"></iframe>
-          <!-- Capa transparente para capturar swipe sobre el iframe -->
-          <div id="short-swipe-layer" style="position:absolute;inset:0;z-index:5;"></div>
+          <!-- Franjas laterales para swipe (no bloquean el centro del video) -->
+          <div id="short-swipe-layer" style="position:absolute;inset:0;z-index:5;pointer-events:none;">
+            <div style="position:absolute;left:0;top:0;width:18%;height:100%;pointer-events:auto;"></div>
+            <div style="position:absolute;right:0;top:0;width:18%;height:100%;pointer-events:auto;"></div>
+          </div>
         </div>
       </div>
     </div>
