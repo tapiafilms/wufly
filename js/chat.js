@@ -70,7 +70,7 @@ function toggleMic() {
 document.addEventListener('DOMContentLoaded', initMic);
 
 
-async function drwSpeak(text) {
+async function drwSpeak(text, { onStart } = {}) {
   try {
     const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE}/stream`, {
       method: 'POST',
@@ -95,9 +95,11 @@ async function drwSpeak(text) {
     source.connect(audioCtx.destination);
     source.onended = () => drwSetVideo('escuchando');
     source.start();
-    drwSetVideo('hablando'); // cambia justo cuando el audio arranca
+    onStart?.();
+    drwSetVideo('hablando');
   } catch (err) {
     console.warn('[drwSpeak]', err);
+    onStart?.(); // mostrar texto igual si falla el audio
     drwSetVideo('escuchando');
   }
 }
@@ -207,8 +209,7 @@ REGLAS ESTRICTAS:
     const data = await res.json();
     const text = data.content.map(i => i.text || '').join('');
 
-    drwSetBubble(text, 'doc');
-    drwSpeak(text);
+    drwSpeak(text, { onStart: () => drwSetBubble(text, 'doc') });
 
   } catch (e) {
     clearTimeout(timeoutId);
