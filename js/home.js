@@ -196,7 +196,7 @@ function renderHome() {
           min-height:180px;
         ">
           <!-- Imagen de fondo con blend mode screen -->
-          <div style="position:absolute;inset:0;background-image:url('img/bg-juntos.png');background-size:cover;background-position:center right;mix-blend-mode:screen;opacity:0.9;pointer-events:none;"></div>
+          <div style="position:absolute;inset:0;background-image:url('img/bg-juntos.png');background-size:contain;background-repeat:no-repeat;background-position:right center;mix-blend-mode:screen;opacity:0.9;pointer-events:none;"></div>
 
           <div style="position:relative;z-index:1;max-width:60%;">
             <div style="font-size:28px;margin-bottom:8px;">✨</div>
