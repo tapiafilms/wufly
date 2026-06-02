@@ -98,12 +98,10 @@ function renderHome() {
         </div>
       </div>
 
-      <!-- ACCESO RÁPIDO — Cards 3D flotantes -->
+      <!-- ACCESO RÁPIDO — Stack drag interactivo -->
       <div style="padding:0 16px;margin-bottom:20px;">
         <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:12px;">ACCESO RÁPIDO</div>
-        <div id="cards3d-scene" style="width:100%;height:220px;position:relative;overflow:hidden;border-radius:20px;background:#08041a;perspective:600px;cursor:pointer;">
-          <!-- Cards generadas por JS -->
-        </div>
+        <div id="card-stack" style="position:relative;height:200px;touch-action:none;"></div>
       </div>
 
       <!-- CAROUSEL VIDEOS -->
@@ -217,7 +215,7 @@ function renderHome() {
   // Cargar Shorts dinámicos y luego inicializar dots
   _cargarShorts().then(() => setTimeout(_initCarouselDots, 50));
   setTimeout(_initCarouselDots, 50);
-  setTimeout(_initCards3D, 100);
+  setTimeout(_initCardStack, 80);
 
   // Forzar play del video hero (iOS ignora autoplay en elementos creados con innerHTML)
   setTimeout(() => {
@@ -482,114 +480,155 @@ function _initCarouselDots() {
   }, { passive: true });
 }
 
+
 /* ══════════════════════════════════════
-   ACCESO RÁPIDO — Cards 3D flotantes
+   ACCESO RÁPIDO — Stack drag interactivo
    ══════════════════════════════════════ */
 
-const CARDS_3D = [
-  { icon:'🏥', label:'Vets Cercanas',  action:"switchTab('restaurantes')",                          bg:'#1a0a3c', accent:'#7C4DCC' },
-  { icon:'🩺', label:'Dra. Wufly',     action:"switchTab('drwufly')",                               bg:'#051e2e', accent:'#06B6D4' },
-  { icon:'🐾', label:'Adoptar',        action:"switchComunidadTab('adoptar'); switchTab('comunidad')", bg:'#051e14', accent:'#10B981' },
-  { icon:'🎨', label:'Arte',           action:"switchServiciosTab('arte'); switchTab('servicios')",  bg:'#1a0529', accent:'#C026D3' },
-  { icon:'✂️', label:'Grooming',       action:"switchServiciosTab('grooming'); switchTab('servicios')", bg:'#1e1005', accent:'#F59E0B' },
-  { icon:'🐕', label:'Paseadores',     action:"switchServiciosTab('paseadores'); switchTab('servicios')", bg:'#051a1e', accent:'#0EA5E9' },
+const STACK_CARDS = [
+  { icon:'🏥', label:'Vets Cercanas',  sub:'Clínicas y veterinarias',         action:"switchTab('restaurantes')",                               grad:'linear-gradient(135deg,#3b1465,#5C2FA8)' },
+  { icon:'🩺', label:'Dra. Wufly',     sub:'Asistente veterinario IA',        action:"switchTab('drwufly')",                                    grad:'linear-gradient(135deg,#052e3a,#0891B2)' },
+  { icon:'🐾', label:'Adoptar',        sub:'Mascotas que buscan hogar',       action:"switchComunidadTab('adoptar'); switchTab('comunidad')",    grad:'linear-gradient(135deg,#052e1a,#059669)' },
+  { icon:'🎨', label:'Arte',           sub:'Retratos de tu mascota',          action:"switchServiciosTab('arte'); switchTab('servicios')",       grad:'linear-gradient(135deg,#2a0545,#7C3AED)' },
+  { icon:'✂️', label:'Grooming',       sub:'Estética y peluquería',           action:"switchServiciosTab('grooming'); switchTab('servicios')",   grad:'linear-gradient(135deg,#2e1a05,#D97706)' },
+  { icon:'🐕', label:'Paseadores',     sub:'Paseos para tu mascota',          action:"switchServiciosTab('paseadores'); switchTab('servicios')", grad:'linear-gradient(135deg,#051a2e,#0EA5E9)' },
 ];
 
-let _cards3dRAF = null;
+let _stackOrder  = []; // índices de cards, [0] = frente
+let _stackEls    = [];
+let _dragActive  = false;
+let _dragStartY  = 0;
+let _dragCurrY   = 0;
+let _dragVel     = 0;
+let _dragPrevY   = 0;
 
-function _initCards3D() {
-  const scene = document.getElementById('cards3d-scene');
-  if (!scene) return;
-  if (_cards3dRAF) cancelAnimationFrame(_cards3dRAF);
-  scene.innerHTML = '';
+function _initCardStack() {
+  const container = document.getElementById('card-stack');
+  if (!container) return;
+  container.innerHTML = '';
+  _stackEls = [];
+  _stackOrder = STACK_CARDS.map((_, i) => i);
 
-  const W = scene.offsetWidth;
-  const H = scene.offsetHeight;
-  const CARD_W = 160, CARD_H = 90;
-  const TOTAL  = 18; // instancias totales en el loop
-
-  // Crear instancias de cards (3 por cada tipo)
-  const cards = Array.from({ length: TOTAL }, (_, i) => {
-    const def = CARDS_3D[i % CARDS_3D.length];
-
-    // Posición inicial distribuida a distintas profundidades
-    const z0    = -1200 + (i / TOTAL) * 1200;
-    const xOff  = (Math.random() - 0.5) * W * 1.2;
-    const yOff  = (Math.random() - 0.5) * H * 0.8;
-    const rotX  = (Math.random() - 0.5) * 10;
-    const rotY  = (Math.random() - 0.5) * 14;
-    const rotZ  = (Math.random() - 0.5) * 6;
-    const speed = 0.4 + Math.random() * 0.5; // velocidad variada por card
-
+  STACK_CARDS.forEach((c, i) => {
     const el = document.createElement('div');
     el.style.cssText = `
-      position:absolute;
-      width:${CARD_W}px;height:${CARD_H}px;
-      border-radius:14px;
-      background:${def.bg};
-      border:1px solid ${def.accent}44;
-      box-shadow:0 0 20px ${def.accent}22, inset 0 0 30px rgba(0,0,0,0.4);
-      display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;
-      padding:10px 12px;
-      cursor:pointer;
+      position:absolute;left:0;right:0;
+      height:160px;border-radius:22px;
+      background:${c.grad};
+      box-shadow:0 8px 32px rgba(0,0,0,0.35);
+      padding:20px 22px;
+      display:flex;flex-direction:column;justify-content:space-between;
       will-change:transform,opacity;
-      backface-visibility:hidden;
-      -webkit-backface-visibility:hidden;
+      cursor:grab;
+      user-select:none;
+      -webkit-user-select:none;
+      touch-action:none;
     `;
     el.innerHTML = `
-      <div style="font-size:22px;margin-bottom:4px;">${def.icon}</div>
-      <div style="font-size:12px;font-weight:700;color:white;letter-spacing:0.02em;">${def.label}</div>
-      <div style="position:absolute;top:10px;right:10px;width:6px;height:6px;border-radius:50%;background:${def.accent};box-shadow:0 0 6px ${def.accent};"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:32px;">${c.icon}</span>
+        <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:20px;color:white;line-height:1.1;">${c.label}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.55);margin-top:4px;">${c.sub}</div>
+      </div>
     `;
-    el.addEventListener('click', () => eval(def.action));
-    scene.appendChild(el);
 
-    return { el, z: z0, x: xOff, y: yOff, rotX, rotY, rotZ, speed };
+    // Tap para navegar
+    let _tapStartY = 0;
+    el.addEventListener('touchstart', e => { _tapStartY = e.touches[0].clientY; }, { passive: true });
+    el.addEventListener('touchend', e => {
+      if (Math.abs(e.changedTouches[0].clientY - _tapStartY) < 8 && _stackOrder[0] === i) {
+        eval(c.action);
+      }
+    }, { passive: true });
+
+    container.appendChild(el);
+    _stackEls.push(el);
   });
 
-  const cx = W / 2, cy = H / 2;
-  let last = performance.now();
+  _renderStack(false);
+  _attachDrag();
+}
 
-  function tick(now) {
-    const dt = Math.min(now - last, 32);
-    last = now;
+function _stackTransform(pos, dy) {
+  // pos=0 → frente, pos=1 → segunda, etc.
+  const scale   = 1 - pos * 0.06;
+  const translateY = pos * -12 + (pos === 0 ? dy : Math.max(0, dy * 0.15 * (1 - pos * 0.4)));
+  const opacity = pos >= 4 ? 0 : 1 - pos * 0.08;
+  return { scale, translateY, opacity };
+}
 
-    cards.forEach(c => {
-      c.z += dt * c.speed * 0.9;
+function _renderStack(animate, dy = 0) {
+  _stackOrder.forEach((cardIdx, pos) => {
+    const el = _stackEls[cardIdx];
+    const { scale, translateY, opacity } = _stackTransform(pos, dy);
+    if (animate) {
+      el.style.transition = 'transform 0.45s cubic-bezier(0.34,1.2,0.64,1), opacity 0.35s ease';
+    } else {
+      el.style.transition = pos === 0 ? 'none' : 'transform 0.45s cubic-bezier(0.34,1.2,0.64,1), opacity 0.35s ease';
+    }
+    el.style.transform = `translateY(${translateY}px) scale(${scale})`;
+    el.style.opacity   = opacity;
+    el.style.zIndex    = 100 - pos;
+  });
+}
 
-      // Resetear al fondo cuando pasa la cámara
-      if (c.z > 400) {
-        c.z = -1200;
-        c.x = (Math.random() - 0.5) * W * 1.2;
-        c.y = (Math.random() - 0.5) * H * 0.8;
-      }
+function _attachDrag() {
+  const container = document.getElementById('card-stack');
+  if (!container) return;
 
-      // Proyección perspectiva
-      const fov   = 600;
-      const scale = fov / (fov - c.z);
-      const sx    = cx + c.x * scale;
-      const sy    = cy + c.y * scale;
+  container.addEventListener('touchstart', e => {
+    if (_stackOrder.length === 0) return;
+    const frontEl = _stackEls[_stackOrder[0]];
+    if (!e.target.closest('#card-stack')) return;
+    _dragActive = true;
+    _dragStartY = e.touches[0].clientY;
+    _dragCurrY  = 0;
+    _dragPrevY  = _dragStartY;
+    _dragVel    = 0;
+    frontEl.style.transition = 'none';
+    frontEl.style.cursor = 'grabbing';
+  }, { passive: true });
 
-      // Opacidad: aparece suave desde lejos
-      const progress = (c.z + 1200) / 1600;
-      const opacity  = Math.min(1, Math.max(0, progress * 1.5 - 0.2));
+  container.addEventListener('touchmove', e => {
+    if (!_dragActive) return;
+    const y = e.touches[0].clientY;
+    _dragVel   = y - _dragPrevY;
+    _dragPrevY = y;
+    _dragCurrY = y - _dragStartY;
+    // Solo hacia abajo
+    if (_dragCurrY < 0) _dragCurrY = _dragCurrY * 0.2;
+    _renderStack(false, _dragCurrY);
+  }, { passive: true });
 
-      // Rotación suave continua
-      c.rotY += dt * 0.003;
+  container.addEventListener('touchend', () => {
+    if (!_dragActive) return;
+    _dragActive = false;
+    const frontEl = _stackEls[_stackOrder[0]];
+    frontEl.style.cursor = 'grab';
 
-      c.el.style.transform = `
-        translate(${sx - CARD_W / 2}px, ${sy - CARD_H / 2}px)
-        scale(${Math.max(0.05, scale)})
-        rotateX(${c.rotX}deg) rotateY(${c.rotY}deg) rotateZ(${c.rotZ}deg)
-      `;
-      c.el.style.opacity   = opacity;
-      c.el.style.zIndex    = Math.round(scale * 100);
-    });
-
-    _cards3dRAF = requestAnimationFrame(tick);
-  }
-
-  _cards3dRAF = requestAnimationFrame(tick);
+    const THRESHOLD = 60;
+    if (_dragCurrY > THRESHOLD || _dragVel > 8) {
+      // Descartar — animar hacia abajo y rotar al final
+      frontEl.style.transition = 'transform 0.4s cubic-bezier(0.4,0,1,1), opacity 0.3s ease';
+      frontEl.style.transform  = `translateY(320px) scale(0.85)`;
+      frontEl.style.opacity    = '0';
+      setTimeout(() => {
+        // Mover al final del stack
+        const dismissed = _stackOrder.shift();
+        _stackOrder.push(dismissed);
+        _renderStack(true, 0);
+      }, 380);
+    } else {
+      // Volver al lugar con rebote
+      _renderStack(true, 0);
+    }
+    _dragCurrY = 0;
+  }, { passive: true });
 }
 
 /* ── Init ── */
