@@ -358,21 +358,31 @@ function _renderShortModal() {
   `;
 
   overlay.innerHTML = `
-    <!-- Botón cerrar — esquina superior derecha con área generosa -->
+    <!-- Botón cerrar — bajado para evitar notch/batería iPhone -->
     <button onclick="document.getElementById('yt-modal-overlay').remove()"
-      style="position:absolute;top:16px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.15);color:white;font-size:18px;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;">✕</button>
+      style="position:absolute;top:56px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.15);color:white;font-size:18px;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;">✕</button>
 
     <!-- Contador -->
-    <div style="position:absolute;top:22px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.4);font-size:12px;font-weight:600;z-index:10;">${_shortIdx + 1} / ${total}</div>
+    <div style="position:absolute;top:62px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.4);font-size:12px;font-weight:600;z-index:10;">${_shortIdx + 1} / ${total}</div>
 
     <!-- Contenedor deslizable -->
     <div id="short-slider" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;will-change:transform;">
-      <div style="width:min(280px, 72vw);position:relative;">
-        <div style="position:relative;aspect-ratio:9/16;border-radius:20px;overflow:hidden;background:#000;box-shadow:0 20px 60px rgba(0,0,0,0.8);">
+      <div style="width:min(308px, 79vw);position:relative;">
+        <div style="position:relative;aspect-ratio:9/16;border-radius:20px;overflow:hidden;background:#111;box-shadow:0 20px 60px rgba(0,0,0,0.8);">
+          <!-- Skeleton loading -->
+          <div id="short-skeleton" style="position:absolute;inset:0;z-index:3;background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+            <div style="width:52px;height:52px;border:3px solid rgba(255,255,255,0.1);border-top-color:rgba(255,255,255,0.6);border-radius:50%;animation:adminSpin 0.8s linear infinite;"></div>
+            <div style="width:60%;height:8px;border-radius:99px;background:rgba(255,255,255,0.08);"></div>
+            <div style="width:40%;height:8px;border-radius:99px;background:rgba(255,255,255,0.05);"></div>
+          </div>
           <iframe id="short-iframe"
             src="https://www.youtube.com/embed/${v.videoId}?autoplay=1&rel=0"
             frameborder="0" allow="autoplay; encrypted-media; fullscreen"
-            allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;"></iframe>
+            allowfullscreen
+            onload="document.getElementById('short-skeleton')?.remove()"
+            style="position:absolute;inset:0;width:100%;height:100%;z-index:2;"></iframe>
+          <!-- Capa transparente para capturar swipe sobre el iframe -->
+          <div id="short-swipe-layer" style="position:absolute;inset:0;z-index:5;"></div>
         </div>
       </div>
     </div>
@@ -380,41 +390,49 @@ function _renderShortModal() {
 
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 
-  // Swipe con animación fluida
-  let _tx = 0, _startX = 0, _dragging = false;
+  // Swipe con animación fluida — funciona sobre el iframe y el overlay
+  let _tx = 0, _startX = 0, _startY = 0, _dragging = false, _isSwiping = false;
   const slider = () => overlay.querySelector('#short-slider');
 
-  overlay.addEventListener('touchstart', e => {
+  const onStart = e => {
     _startX = e.touches[0].clientX;
-    _tx = 0;
-    _dragging = true;
+    _startY = e.touches[0].clientY;
+    _tx = 0; _dragging = true; _isSwiping = false;
     const s = slider(); if (s) s.style.transition = 'none';
-  }, { passive: true });
-
-  overlay.addEventListener('touchmove', e => {
+  };
+  const onMove = e => {
     if (!_dragging) return;
-    _tx = e.touches[0].clientX - _startX;
+    const dx = e.touches[0].clientX - _startX;
+    const dy = e.touches[0].clientY - _startY;
+    if (!_isSwiping && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) _isSwiping = true;
+    if (!_isSwiping) return;
+    _tx = dx;
     const s = slider(); if (s) s.style.transform = `translateX(${_tx * 0.4}px)`;
-  }, { passive: true });
-
-  overlay.addEventListener('touchend', () => {
+  };
+  const onEnd = () => {
     _dragging = false;
     const s = slider(); if (!s) return;
-    if (Math.abs(_tx) > 60) {
+    if (_isSwiping && Math.abs(_tx) > 60) {
       const dir = _tx < 0 ? 1 : -1;
       const next = _shortIdx + dir;
       if (next >= 0 && next < total) {
-        // Animación de salida
         s.style.transition = 'transform 0.22s ease';
         s.style.transform = `translateX(${dir < 0 ? '100%' : '-100%'})`;
         setTimeout(() => { _shortIdx = next; _renderShortModal(); }, 200);
         return;
       }
     }
-    // Volver al centro
     s.style.transition = 'transform 0.3s ease';
     s.style.transform = 'translateX(0)';
-  }, { passive: true });
+  };
+
+  // Escuchar en overlay y en la capa sobre el iframe
+  [overlay, overlay.querySelector('#short-swipe-layer')].forEach(el => {
+    if (!el) return;
+    el.addEventListener('touchstart', onStart, { passive: true });
+    el.addEventListener('touchmove', onMove, { passive: true });
+    el.addEventListener('touchend', onEnd, { passive: true });
+  });
 
   document.body.appendChild(overlay);
 }
