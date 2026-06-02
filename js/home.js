@@ -63,7 +63,7 @@ function renderHome() {
         min-height:430px;
         padding:0;
         text-align:center;
-        margin-bottom:20px;
+        margin-bottom:40px;
         position:relative;
         overflow:hidden;
         background:#4C1D95;
