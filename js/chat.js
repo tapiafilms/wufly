@@ -1,5 +1,8 @@
 /* ══ DRA. WUFLY — ASISTENTE VETERINARIA ══ */
 
+const ELEVENLABS_KEY     = 'sk_dc7b78b29bccad83d31fd71cb5a46c6db16d3b7f3db64cd6';
+const ELEVENLABS_VOICE   = 'kcQkGnn0HAT2JRDQ4Ljp'; // Norah
+
 let _recognition = null;
 let _micActive = false;
 const _chatPlaceholder = 'Ej: Mi perro lleva 2 días sin comer...';
@@ -66,49 +69,37 @@ function toggleMic() {
 
 document.addEventListener('DOMContentLoaded', initMic);
 
-/* Precarga voces del navegador (algunas cargan async) */
-if (window.speechSynthesis) {
-  window.speechSynthesis.getVoices();
-  window.speechSynthesis.addEventListener('voiceschanged', () => {
-    window.speechSynthesis.getVoices();
-  });
-  /* Keepalive para iOS — evita que Safari pause el speech a los 15s */
-  setInterval(() => {
-    if (window.speechSynthesis.speaking) {
-      window.speechSynthesis.pause();
-      window.speechSynthesis.resume();
-    }
-  }, 10000);
-}
 
-function drwGetVoice() {
-  const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
-  return (
-    voices.find(v => v.lang.startsWith('es') && /mónica|monica|lucía|lucia|elena|female/i.test(v.name)) ||
-    voices.find(v => v.lang === 'es-ES') ||
-    voices.find(v => v.lang.startsWith('es')) ||
-    null
-  );
-}
+async function drwSpeak(text) {
+  try {
+    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE}/stream`, {
+      method: 'POST',
+      headers: {
+        'xi-api-key': ELEVENLABS_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text,
+        model_id: 'eleven_multilingual_v2',
+        voice_settings: { stability: 0.5, similarity_boost: 0.8 },
+      }),
+    });
 
-function drwSpeak(text) {
-  if (!window.speechSynthesis) { drwSetVideo('escuchando'); return; }
-  window.speechSynthesis.cancel();
+    if (!res.ok) throw new Error(`ElevenLabs ${res.status}`);
 
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.lang = 'es-ES';
-  utt.rate = 0.92;
-  utt.pitch = 1.05;
-  utt.volume = 1.0;
-
-  const voice = drwGetVoice();
-  if (voice) utt.voice = voice;
-
-  utt.onstart  = () => drwSetVideo('hablando');
-  utt.onend    = () => drwSetVideo('escuchando');
-  utt.onerror  = () => drwSetVideo('escuchando');
-
-  window.speechSynthesis.speak(utt);
+    const buffer = await res.arrayBuffer();
+    const audioCtx = new AudioContext();
+    const audioBuffer = await audioCtx.decodeAudioData(buffer);
+    const source = audioCtx.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(audioCtx.destination);
+    source.onended = () => drwSetVideo('escuchando');
+    source.start();
+    drwSetVideo('hablando'); // cambia justo cuando el audio arranca
+  } catch (err) {
+    console.warn('[drwSpeak]', err);
+    drwSetVideo('escuchando');
+  }
 }
 
 let _typeTimer = null;
@@ -174,14 +165,6 @@ async function sendChat() {
   inp.value = '';
 
   document.getElementById('btnSend').disabled = true;
-
-  /* Desbloquear speechSynthesis en iOS sincrónicamente dentro del gesto */
-  if (window.speechSynthesis) {
-    const unlock = new SpeechSynthesisUtterance(' ');
-    unlock.volume = 0;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(unlock);
-  }
 
   drwSetBubble(msg, 'user');
 
