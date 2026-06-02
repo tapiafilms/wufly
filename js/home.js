@@ -555,11 +555,13 @@ function _initCardStack() {
 }
 
 function _stackTransform(pos, dy) {
-  // pos=0 → frente, pos=1 → segunda, etc.
-  const scale   = 1 - pos * 0.06;
+  const scale      = 1 - pos * 0.06;
   const translateY = pos * -12 + (pos === 0 ? dy : Math.max(0, dy * 0.15 * (1 - pos * 0.4)));
-  const opacity = pos >= 4 ? 0 : 1 - pos * 0.08;
-  return { scale, translateY, opacity };
+  const opacity    = pos >= 4 ? 0 : 1 - pos * 0.08;
+  // Rotación alternada: pos1 → -2°, pos2 → +2.5°, pos3 → -1.5°
+  const rotations  = [0, -2, 2.5, -1.5, 1];
+  const rotateZ    = rotations[pos] || 0;
+  return { scale, translateY, opacity, rotateZ };
 }
 
 function _renderStack(animate, dy = 0) {
@@ -571,7 +573,7 @@ function _renderStack(animate, dy = 0) {
     } else {
       el.style.transition = pos === 0 ? 'none' : 'transform 0.45s cubic-bezier(0.34,1.2,0.64,1), opacity 0.35s ease';
     }
-    el.style.transform = `translateY(${translateY}px) scale(${scale})`;
+    el.style.transform = `translateY(${translateY}px) scale(${scale}) rotate(${rotateZ}deg)`;
     el.style.opacity   = opacity;
     el.style.zIndex    = 100 - pos;
   });
