@@ -100,26 +100,11 @@ function renderHome() {
 
       <!-- ACCESO RÁPIDO — Stack drag interactivo -->
       <div style="padding:0 16px;margin-bottom:0px;">
-        <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:12px;">ACCESO RÁPIDO</div>
+        <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:12px;"></div>
         <div id="card-stack" style="position:relative;height:200px;touch-action:none;"></div>
       </div>
 
-      <!-- CAROUSEL VIDEOS -->
-      <div style="margin-bottom:20px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:10px;">
-          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">▶️ SHORTS MASCOTAS</div>
-          <a href="" target="_blank" rel="noopener" style="background:none;border:none;font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;">Canales Destacados</a>
-        </div>
-        <div id="clinicas-clip" style="overflow:hidden;">
-          <div id="clinicas-track"
-            style="display:flex;gap:12px;padding:4px 0 12px 16px;will-change:transform;transition:transform 0.65s cubic-bezier(0.25,0.46,0.45,0.94);">
-            <!-- Shorts se cargan dinámicamente -->
-          </div>
-        </div>
-        <div id="carousel-dots" style="display:flex;justify-content:center;gap:5px;margin-top:6px;">
-          ${[0,1,2].map((i) => `<div class="cdot cdot-page" data-page="${i}" style="width:${i===0?'20px':'6px'};height:6px;border-radius:100px;background:${i===0?'var(--purple)':'#D1D5DB'};transition:all 0.3s;"></div>`).join('')}
-        </div>
-      </div>
+      
 
 
       <!-- GALERÍA DE MASCOTAS DE LA COMUNIDAD -->
@@ -194,6 +179,26 @@ function renderHome() {
           </div>
         </div>
       </div>
+
+
+
+<!-- CAROUSEL VIDEOS -->
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:10px;">
+          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">▶️ SHORTS MASCOTAS</div>
+          <a href="" target="_blank" rel="noopener" style="background:none;border:none;font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;">Canales Destacados</a>
+        </div>
+        <div id="clinicas-clip" style="overflow:hidden;">
+          <div id="clinicas-track"
+            style="display:flex;gap:12px;padding:4px 0 12px 16px;will-change:transform;transition:transform 0.65s cubic-bezier(0.25,0.46,0.45,0.94);">
+            <!-- Shorts se cargan dinámicamente -->
+          </div>
+        </div>
+        <div id="carousel-dots" style="display:flex;justify-content:center;gap:5px;margin-top:6px;">
+          ${[0,1,2].map((i) => `<div class="cdot cdot-page" data-page="${i}" style="width:${i===0?'20px':'6px'};height:6px;border-radius:100px;background:${i===0?'var(--purple)':'#D1D5DB'};transition:all 0.3s;"></div>`).join('')}
+        </div>
+      </div>
+
 
       <!-- BANNER ARTE — imagen: img/banner-arte.jpg | link: onclick abajo -->
       <div style="margin:0 16px 20px;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(124,58,237,0.15);cursor:pointer;"
