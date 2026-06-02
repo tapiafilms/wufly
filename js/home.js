@@ -108,7 +108,7 @@ function renderHome() {
 
 
       <!-- GALERÍA DE MASCOTAS DE LA COMUNIDAD -->
-      <div id="pet-gallery-section" style="margin-bottom:24px;">
+      <div id="pet-gallery-section" style="margin-bottom:24px;margin-top:-5px;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:12px;">
           <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">▶️ ÚLTIMOS REGISTRADOS</div>
           <div style="font-size:11px;font-weight:600;color:var(--purple);">Comunidad Wufly</div>
@@ -161,7 +161,7 @@ function renderHome() {
               style="padding:13px 20px;border:none;border-radius:14px;background:white;color:#6D28D9;font-family:'Funnel Display',sans-serif;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.25);display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform 0.15s;white-space:nowrap;"
               onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'"
               ontouchstart="this.style.transform='scale(0.97)'" ontouchend="this.style.transform='scale(1)'">
-              <span style="font-size:18px;">🐾</span> Crear mi foto con IA
+              <span style="font-size:20px;"></span> Crear mi foto con IA
             </button>
           </div>
         </div>
