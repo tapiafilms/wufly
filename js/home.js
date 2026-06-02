@@ -99,7 +99,7 @@ function renderHome() {
       </div>
 
       <!-- ACCESO RÁPIDO — Stack drag interactivo -->
-      <div style="padding:0 16px;margin-bottom:0px;">
+      <div style="padding:0 16px;margin-top:10px;">
         <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:12px;"></div>
         <div id="card-stack" style="position:relative;height:200px;touch-action:none;"></div>
       </div>
