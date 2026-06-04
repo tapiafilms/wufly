@@ -675,4 +675,136 @@ document.addEventListener('DOMContentLoaded', () => {
   updateInfoColumn('home');
   /* Mostrar modal de ubicación tras 1.5s si aún no se ha respondido */
   setTimeout(showGeoModal, 1500);
+  /* Pull to refresh */
+  _initPullToRefresh();
 });
+
+/* ══════════════════════════════════════
+   PULL TO REFRESH
+   Solo móvil. Arrastra desde el tope de
+   cualquier sección para actualizar.
+   ══════════════════════════════════════ */
+function _initPullToRefresh() {
+  if (window.innerWidth >= 900) return; // solo móvil
+
+  /* ── Indicador visual ── */
+  const ptr = document.createElement('div');
+  ptr.id = 'ptr-indicator';
+  ptr.innerHTML = `
+    <style>
+      #ptr-indicator {
+        position:fixed;top:0;left:50%;
+        transform:translateX(-50%) translateY(-70px);
+        z-index:9998;pointer-events:none;
+        transition:transform 0.3s cubic-bezier(0.34,1.2,0.64,1);
+      }
+      #ptr-disk {
+        width:42px;height:42px;border-radius:50%;
+        background:white;
+        box-shadow:0 3px 14px rgba(124,77,204,0.28);
+        display:flex;align-items:center;justify-content:center;
+      }
+      #ptr-spinner {
+        width:20px;height:20px;border-radius:50%;
+        border:2.5px solid #e0d8f5;
+        border-top-color:var(--purple,#7C4DCC);
+      }
+      @keyframes ptr-spin { to { transform:rotate(360deg); } }
+      #ptr-spinner.spinning { animation:ptr-spin 0.65s linear infinite; }
+    </style>
+    <div id="ptr-disk"><div id="ptr-spinner"></div></div>
+  `;
+  document.body.appendChild(ptr);
+
+  const spinner  = ptr.querySelector('#ptr-spinner');
+  const THRESHOLD = 65;
+  const RESIST    = 0.38;
+  let startY = 0, pulling = false, busy = false;
+
+  /* ── Qué tab está activo ── */
+  function _activeTab() {
+    return document.querySelector('.page.active')?.id?.replace('page-', '') || 'home';
+  }
+  function _activeServiciosSub() {
+    return ['tiendas','grooming','paseadores','arte'].find(s => {
+      const el = document.getElementById('ssub-' + s);
+      return el && el.style.display !== 'none';
+    }) || 'tiendas';
+  }
+  function _activeComunidadSub() {
+    return ['adoptar','perdidos','rescate','fundaciones'].find(s => {
+      const el = document.getElementById('csub-' + s);
+      return el && el.style.display !== 'none';
+    }) || 'adoptar';
+  }
+
+  /* ── Acción de refresco por sección ── */
+  function _doRefresh() {
+    spinner.classList.add('spinning');
+    const tab = _activeTab();
+    const done = () => {
+      busy = false;
+      spinner.classList.remove('spinning');
+      ptr.style.transform = 'translateX(-50%) translateY(-70px)';
+    };
+
+    if (tab === 'home') {
+      renderHome?.();
+      setTimeout(done, 700);
+    } else if (tab === 'restaurantes') {
+      Promise.resolve(typeof iniciarGeoBusqueda === 'function' ? iniciarGeoBusqueda(true) : null)
+        .then(() => { renderClinicas?.(); done(); });
+    } else if (tab === 'servicios') {
+      const sub = _activeServiciosSub();
+      if (sub === 'grooming')   { activarBusquedaGrooming?.(); setTimeout(done, 900); }
+      else if (sub === 'tiendas')   { activarBusquedaTiendas?.(); setTimeout(done, 900); }
+      else if (sub === 'paseadores'){ cargarPaseadoresDB?.();     setTimeout(done, 900); }
+      else { renderArte?.(); setTimeout(done, 400); }
+    } else if (tab === 'comunidad') {
+      const sub = _activeComunidadSub();
+      if (sub === 'adoptar')  renderAdopcion?.();
+      if (sub === 'perdidos') renderPerdidos?.();
+      setTimeout(done, 700);
+    } else if (tab === 'alergias') {
+      Promise.resolve(typeof sincronizarPerfil === 'function' ? sincronizarPerfil() : null)
+        .then(() => done());
+    } else {
+      setTimeout(done, 400);
+    }
+  }
+
+  /* ── Listeners ── */
+  window.addEventListener('touchstart', e => {
+    if (busy || window.scrollY > 4) return;
+    startY  = e.touches[0].clientY;
+    pulling = true;
+  }, { passive: true });
+
+  window.addEventListener('touchmove', e => {
+    if (!pulling || busy) return;
+    const dy = e.touches[0].clientY - startY;
+    if (dy <= 0) { pulling = false; return; }
+    const pull = Math.min(dy * RESIST, THRESHOLD + 18);
+    ptr.style.transition = 'none';
+    ptr.style.transform  = `translateX(-50%) translateY(${pull - 36}px)`;
+    // Girar el spinner según el progreso del arrastre
+    const pct = Math.min(pull / THRESHOLD, 1);
+    spinner.style.transform = `rotate(${pct * 270}deg)`;
+  }, { passive: true });
+
+  window.addEventListener('touchend', e => {
+    if (!pulling || busy) return;
+    pulling = false;
+    const dy = e.changedTouches[0].clientY - startY;
+    spinner.style.transform = '';
+    if (dy * RESIST >= THRESHOLD) {
+      busy = true;
+      ptr.style.transition = 'transform 0.25s ease';
+      ptr.style.transform  = 'translateX(-50%) translateY(14px)';
+      _doRefresh();
+    } else {
+      ptr.style.transition = 'transform 0.3s ease';
+      ptr.style.transform  = 'translateX(-50%) translateY(-70px)';
+    }
+  }, { passive: true });
+}
