@@ -70,33 +70,36 @@ function toggleMic() {
 document.addEventListener('DOMContentLoaded', initMic);
 
 
-/* ── AudioContext singleton (los browsers bloquean múltiples instancias) ── */
-let _audioCtx = null;
-function _getAudioCtx() {
-  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  if (_audioCtx.state === 'suspended') _audioCtx.resume();
-  return _audioCtx;
+/* ── Audio element singleton — iOS requiere que .play() se llame desde
+       un gesto del usuario. Lo pre-desbloqueamos en sendChat() y luego
+       reutilizamos el mismo elemento para reproducir el audio de ElevenLabs. ── */
+let _audioEl = null;
+function _getAudioEl() {
+  if (!_audioEl) {
+    _audioEl = document.createElement('audio');
+    _audioEl.setAttribute('playsinline', '');   // iOS: no pantalla completa
+    _audioEl.setAttribute('webkit-playsinline', '');
+    document.body.appendChild(_audioEl);
+  }
+  return _audioEl;
 }
 
-/* ── Fallback: Web Speech API del navegador ── */
+/* ── Fallback: Web Speech API ── */
 function _drwSpeakFallback(text, { onStart } = {}) {
   if (!('speechSynthesis' in window)) {
-    onStart?.();
-    drwSetVideo('escuchando');
-    return;
+    onStart?.(); drwSetVideo('escuchando'); return;
   }
   window.speechSynthesis.cancel();
   const utt = new SpeechSynthesisUtterance(text);
-  utt.lang = 'es-CL';
-  utt.rate = 0.95;
+  utt.lang  = 'es-CL';
+  utt.rate  = 0.95;
   utt.pitch = 1.1;
-  // Elegir voz en español si está disponible
   const voces = window.speechSynthesis.getVoices();
-  const esVoz = voces.find(v => v.lang.startsWith('es') && v.localService);
+  const esVoz = voces.find(v => v.lang.startsWith('es'));
   if (esVoz) utt.voice = esVoz;
-  utt.onstart  = () => { onStart?.(); drwSetVideo('hablando'); };
-  utt.onend    = () => drwSetVideo('escuchando');
-  utt.onerror  = () => { onStart?.(); drwSetVideo('escuchando'); };
+  utt.onstart = () => { onStart?.(); drwSetVideo('hablando'); };
+  utt.onend   = () => drwSetVideo('escuchando');
+  utt.onerror = () => { onStart?.(); drwSetVideo('escuchando'); };
   window.speechSynthesis.speak(utt);
 }
 
@@ -117,20 +120,22 @@ async function drwSpeak(text, { onStart } = {}) {
 
     if (!res.ok) throw new Error(`ElevenLabs ${res.status}`);
 
-    const buffer = await res.arrayBuffer();
-    const audioCtx = _getAudioCtx();
-    const audioBuffer = await audioCtx.decodeAudioData(buffer.slice(0));
-    const source = audioCtx.createBufferSource();
-    source.buffer = audioBuffer;
-    source.connect(audioCtx.destination);
-    source.onended = () => drwSetVideo('escuchando');
-    source.start();
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const audio = _getAudioEl();
+
+    // Limpiar URL anterior
+    if (audio.src && audio.src.startsWith('blob:')) URL.revokeObjectURL(audio.src);
+    audio.src = url;
+
+    audio.onended = () => { drwSetVideo('escuchando'); URL.revokeObjectURL(url); };
     onStart?.();
     drwSetVideo('hablando');
+    await audio.play();
+
   } catch (err) {
     console.warn('[drwSpeak ElevenLabs]', err.message);
     _drwShowVoiceStatus(`⚠️ ElevenLabs: ${err.message} — usando voz del navegador`);
-    // Fallback al TTS del navegador
     _drwSpeakFallback(text, { onStart });
   }
 }
@@ -221,9 +226,11 @@ async function sendChat() {
 
   document.getElementById('btnSend').disabled = true;
 
-  // ── Pre-calentar audio DENTRO del gesto del usuario (obligatorio en iOS) ──
-  // Si esto se hace después de un await, iOS bloquea el audio silenciosamente.
-  try { _getAudioCtx(); } catch {}
+  // ── Pre-desbloquear audio en el gesto del usuario (obligatorio en iOS) ──
+  // iOS solo permite .play() si ocurrió dentro de un tap/click.
+  // Llamamos play() ahora (sin src) para desbloquear el elemento de audio;
+  // cuando llegue la respuesta de ElevenLabs podremos reproducirla.
+  try { _getAudioEl().play().catch(() => {}); } catch {}
   if (window.speechSynthesis) {
     const _warm = new SpeechSynthesisUtterance(' ');
     _warm.volume = 0;

@@ -491,13 +491,18 @@ function _initCarouselDots() {
    ══════════════════════════════════════ */
 
 const STACK_CARDS = [
-  { icon:'🏥', label:'Vets Cercanas',  sub:'Clínicas y veterinarias',         action:"switchTab('restaurantes')",                               grad:'linear-gradient(135deg,#3b1465,#5C2FA8)' },
-  { icon:'🩺', label:'Dra. Wufly',     sub:'Asistente veterinario IA',        action:"switchTab('drwufly')",                                    grad:'linear-gradient(135deg,#2d0f6b,#7C3AED)' },
-  { icon:'🐾', label:'Adoptar',        sub:'Mascotas que buscan hogar',       action:"switchComunidadTab('adoptar'); switchTab('comunidad')",    grad:'linear-gradient(135deg,#1a0a3c,#6D28D9)' },
-  { icon:'🎨', label:'Arte',           sub:'Retratos de tu mascota',          action:"switchServiciosTab('arte'); switchTab('servicios')",       grad:'linear-gradient(135deg,#2a0545,#7C3AED)' },
-  { icon:'✂️', label:'Grooming',       sub:'Estética y peluquería',           action:"switchServiciosTab('grooming'); switchTab('servicios')",   grad:'linear-gradient(135deg,#3d1278,#9333EA)' },
-  { icon:'🐕', label:'Paseadores',     sub:'Paseos para tu mascota',          action:"switchServiciosTab('paseadores'); switchTab('servicios')", grad:'linear-gradient(135deg,#1e0550,#8B5CF6)' },
+  { icon:'🏥', label:'Vets Cercanas',  sub:'Clínicas y veterinarias',         nav: () => switchTab('restaurantes'),                                              grad:'linear-gradient(135deg,#3b1465,#5C2FA8)' },
+  { icon:'🩺', label:'Dra. Wufly',     sub:'Asistente veterinario IA',        nav: () => switchTab('drwufly'),                                                   grad:'linear-gradient(135deg,#2d0f6b,#7C3AED)' },
+  { icon:'🐾', label:'Adoptar',        sub:'Mascotas que buscan hogar',       nav: () => { switchComunidadTab('adoptar'); switchTab('comunidad'); },              grad:'linear-gradient(135deg,#1a0a3c,#6D28D9)' },
+  { icon:'🎨', label:'Arte',           sub:'Retratos de tu mascota',          nav: () => { switchServiciosTab('arte'); switchTab('servicios'); },                 grad:'linear-gradient(135deg,#2a0545,#7C3AED)' },
+  { icon:'✂️', label:'Grooming',       sub:'Estética y peluquería',           nav: () => { switchServiciosTab('grooming'); switchTab('servicios'); },             grad:'linear-gradient(135deg,#3d1278,#9333EA)' },
+  { icon:'🐕', label:'Paseadores',     sub:'Paseos para tu mascota',          nav: () => { switchServiciosTab('paseadores'); switchTab('servicios'); },           grad:'linear-gradient(135deg,#1e0550,#8B5CF6)' },
 ];
+
+function _navFrontCard() {
+  const card = STACK_CARDS[_stackOrder[0]];
+  if (card) card.nav();
+}
 
 let _stackOrder  = []; // índices de cards, [0] = frente
 let _stackEls    = [];
@@ -542,25 +547,11 @@ function _initCardStack() {
       </div>
     `;
 
-    // Botón flecha — navega en touch y en mouse
+    // Flecha: navega directamente (solo la card del frente)
     const arrowBtn = el.querySelector('.stack-arrow-btn');
-    arrowBtn.addEventListener('touchend', e => {
-      e.stopPropagation();
-      eval(c.action);
-    }, { passive: true });
-    arrowBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      eval(c.action);
-    });
-
-    // Tap para navegar (touch — solo si no hubo drag)
-    let _tapStartY = 0;
-    el.addEventListener('touchstart', e => { _tapStartY = e.touches[0].clientY; }, { passive: true });
-    el.addEventListener('touchend', e => {
-      if (Math.abs(e.changedTouches[0].clientY - _tapStartY) < 8 && _stackOrder[0] === i) {
-        eval(c.action);
-      }
-    }, { passive: true });
+    const _arrowNav = (e) => { e.stopPropagation(); if (_stackOrder[0] === i) c.nav(); };
+    arrowBtn.addEventListener('touchend', _arrowNav, { passive: true });
+    arrowBtn.addEventListener('click',    _arrowNav);
 
     container.appendChild(el);
     _stackEls.push(el);
@@ -644,21 +635,28 @@ function _attachDrag() {
   }
 
   /* ── Touch ── */
+  let _tStartY = 0;
   container.addEventListener('touchstart', e => {
     if (!e.target.closest('#card-stack')) return;
-    _onStart(e.touches[0].clientY);
+    _tStartY = e.touches[0].clientY;
+    _onStart(_tStartY);
   }, { passive: true });
 
   container.addEventListener('touchmove', e => {
     _onMove(e.touches[0].clientY);
   }, { passive: true });
 
-  container.addEventListener('touchend', _onEnd, { passive: true });
+  container.addEventListener('touchend', e => {
+    if (e.target.closest('.stack-arrow-btn')) { _onEnd(); return; } // flecha ya navega sola
+    const wasTap = Math.abs(e.changedTouches[0].clientY - _tStartY) < 10;
+    _onEnd();
+    if (wasTap) _navFrontCard();
+  }, { passive: true });
 
   /* ── Mouse (desktop) ── */
   container.addEventListener('mousedown', e => {
     if (!e.target.closest('#card-stack')) return;
-    if (e.target.closest('.stack-arrow-btn')) return; // la flecha tiene su propio click
+    if (e.target.closest('.stack-arrow-btn')) return; // flecha ya navega sola
     e.preventDefault();
     const startY = e.clientY;
     _onStart(startY);
@@ -667,12 +665,7 @@ function _attachDrag() {
     const onMouseUp   = e => {
       const wasTap = Math.abs(e.clientY - startY) < 8;
       _onEnd();
-      // Si fue un click (sin drag), navegar la card del frente
-      if (wasTap) {
-        const frontIdx = _stackOrder[0];
-        const card = STACK_CARDS[frontIdx];
-        if (card) eval(card.action);
-      }
+      if (wasTap) _navFrontCard();
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup',   onMouseUp);
     };
