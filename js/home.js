@@ -492,11 +492,11 @@ function _initCarouselDots() {
 
 const STACK_CARDS = [
   { icon:'🏥', label:'Vets Cercanas',  sub:'Clínicas y veterinarias',         action:"switchTab('restaurantes')",                               grad:'linear-gradient(135deg,#3b1465,#5C2FA8)' },
-  { icon:'🩺', label:'Dra. Wufly',     sub:'Asistente veterinario IA',        action:"switchTab('drwufly')",                                    grad:'linear-gradient(135deg,#052e3a,#0891B2)' },
-  { icon:'🐾', label:'Adoptar',        sub:'Mascotas que buscan hogar',       action:"switchComunidadTab('adoptar'); switchTab('comunidad')",    grad:'linear-gradient(135deg,#052e1a,#059669)' },
+  { icon:'🩺', label:'Dra. Wufly',     sub:'Asistente veterinario IA',        action:"switchTab('drwufly')",                                    grad:'linear-gradient(135deg,#2d0f6b,#7C3AED)' },
+  { icon:'🐾', label:'Adoptar',        sub:'Mascotas que buscan hogar',       action:"switchComunidadTab('adoptar'); switchTab('comunidad')",    grad:'linear-gradient(135deg,#1a0a3c,#6D28D9)' },
   { icon:'🎨', label:'Arte',           sub:'Retratos de tu mascota',          action:"switchServiciosTab('arte'); switchTab('servicios')",       grad:'linear-gradient(135deg,#2a0545,#7C3AED)' },
-  { icon:'✂️', label:'Grooming',       sub:'Estética y peluquería',           action:"switchServiciosTab('grooming'); switchTab('servicios')",   grad:'linear-gradient(135deg,#2e1a05,#D97706)' },
-  { icon:'🐕', label:'Paseadores',     sub:'Paseos para tu mascota',          action:"switchServiciosTab('paseadores'); switchTab('servicios')", grad:'linear-gradient(135deg,#051a2e,#0EA5E9)' },
+  { icon:'✂️', label:'Grooming',       sub:'Estética y peluquería',           action:"switchServiciosTab('grooming'); switchTab('servicios')",   grad:'linear-gradient(135deg,#3d1278,#9333EA)' },
+  { icon:'🐕', label:'Paseadores',     sub:'Paseos para tu mascota',          action:"switchServiciosTab('paseadores'); switchTab('servicios')", grad:'linear-gradient(135deg,#1e0550,#8B5CF6)' },
 ];
 
 let _stackOrder  = []; // índices de cards, [0] = frente
@@ -532,7 +532,7 @@ function _initCardStack() {
     el.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;">
         <span style="font-size:32px;">${c.icon}</span>
-        <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;">
+        <div class="stack-arrow-btn" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;cursor:pointer;">
           <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
         </div>
       </div>
@@ -542,7 +542,13 @@ function _initCardStack() {
       </div>
     `;
 
-    // Tap para navegar
+    // Botón flecha — navega siempre (touch y mouse)
+    el.querySelector('.stack-arrow-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      eval(c.action);
+    });
+
+    // Tap para navegar (touch — solo si no hubo drag)
     let _tapStartY = 0;
     el.addEventListener('touchstart', e => { _tapStartY = e.touches[0].clientY; }, { passive: true });
     el.addEventListener('touchend', e => {
@@ -550,6 +556,12 @@ function _initCardStack() {
         eval(c.action);
       }
     }, { passive: true });
+
+    // Click para navegar (desktop — solo si no hubo drag)
+    el.addEventListener('click', e => {
+      if (e.target.closest('.stack-arrow-btn')) return; // ya lo maneja el botón
+      if (_dragCurrY === 0 && _stackOrder[0] === i) eval(c.action);
+    });
 
     container.appendChild(el);
     _stackEls.push(el);
@@ -588,31 +600,29 @@ function _attachDrag() {
   const container = document.getElementById('card-stack');
   if (!container) return;
 
-  container.addEventListener('touchstart', e => {
+  /* ── Lógica compartida start / move / end ── */
+  function _onStart(y) {
     if (_stackOrder.length === 0) return;
     const frontEl = _stackEls[_stackOrder[0]];
-    if (!e.target.closest('#card-stack')) return;
     _dragActive = true;
-    _dragStartY = e.touches[0].clientY;
+    _dragStartY = y;
     _dragCurrY  = 0;
-    _dragPrevY  = _dragStartY;
+    _dragPrevY  = y;
     _dragVel    = 0;
     frontEl.style.transition = 'none';
     frontEl.style.cursor = 'grabbing';
-  }, { passive: true });
+  }
 
-  container.addEventListener('touchmove', e => {
+  function _onMove(y) {
     if (!_dragActive) return;
-    const y = e.touches[0].clientY;
     _dragVel   = y - _dragPrevY;
     _dragPrevY = y;
     _dragCurrY = y - _dragStartY;
-    // Solo hacia abajo
     if (_dragCurrY < 0) _dragCurrY = _dragCurrY * 0.2;
     _renderStack(false, _dragCurrY);
-  }, { passive: true });
+  }
 
-  container.addEventListener('touchend', () => {
+  function _onEnd() {
     if (!_dragActive) return;
     _dragActive = false;
     const frontEl = _stackEls[_stackOrder[0]];
@@ -620,22 +630,47 @@ function _attachDrag() {
 
     const THRESHOLD = 60;
     if (_dragCurrY > THRESHOLD || _dragVel > 8) {
-      // Descartar — animar hacia abajo y rotar al final
       frontEl.style.transition = 'transform 0.4s cubic-bezier(0.4,0,1,1), opacity 0.3s ease';
       frontEl.style.transform  = `translateY(320px) scale(0.85)`;
       frontEl.style.opacity    = '0';
       setTimeout(() => {
-        // Mover al final del stack
         const dismissed = _stackOrder.shift();
         _stackOrder.push(dismissed);
         _renderStack(true, 0);
       }, 380);
     } else {
-      // Volver al lugar con rebote
       _renderStack(true, 0);
     }
     _dragCurrY = 0;
+  }
+
+  /* ── Touch ── */
+  container.addEventListener('touchstart', e => {
+    if (!e.target.closest('#card-stack')) return;
+    _onStart(e.touches[0].clientY);
   }, { passive: true });
+
+  container.addEventListener('touchmove', e => {
+    _onMove(e.touches[0].clientY);
+  }, { passive: true });
+
+  container.addEventListener('touchend', _onEnd, { passive: true });
+
+  /* ── Mouse (desktop) ── */
+  container.addEventListener('mousedown', e => {
+    if (!e.target.closest('#card-stack')) return;
+    e.preventDefault();
+    _onStart(e.clientY);
+
+    const onMouseMove = e => _onMove(e.clientY);
+    const onMouseUp   = () => {
+      _onEnd();
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup',   onMouseUp);
+    };
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup',   onMouseUp);
+  });
 }
 
 /* ── Init ── */
