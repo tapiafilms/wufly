@@ -545,15 +545,15 @@ function _initCardStack() {
       <!-- Degradado inferior: oscurece para legibilidad del texto -->
       <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 55%);"></div>
 
-      <!-- Texto + flecha (parte inferior) -->
-      <div style="position:absolute;bottom:0;left:0;right:0;padding:16px 18px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;">
-        <div style="min-width:0;">
-          <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:21px;color:white;line-height:1.15;text-shadow:0 1px 6px rgba(0,0,0,0.3);">${c.label}</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.75);margin-top:3px;">${c.sub}</div>
-        </div>
-        <div class="stack-arrow-btn" style="width:36px;height:36px;min-width:36px;border-radius:50%;background:rgba(255,255,255,0.22);display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(4px);">
-          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
-        </div>
+      <!-- Flecha (esquina superior izquierda) -->
+      <div class="stack-arrow-btn" style="position:absolute;top:14px;left:14px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.22);display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(4px);">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+      </div>
+
+      <!-- Texto (parte inferior) -->
+      <div style="position:absolute;bottom:0;left:0;right:0;padding:16px 18px;">
+        <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:21px;color:white;line-height:1.15;text-shadow:0 1px 6px rgba(0,0,0,0.3);">${c.label}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.75);margin-top:3px;">${c.sub}</div>
       </div>
     `;
 
