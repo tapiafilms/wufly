@@ -677,6 +677,8 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(showGeoModal, 1500);
   /* Pull to refresh */
   _initPullToRefresh();
+  /* Botón instalar PWA */
+  _initInstallBtn();
 });
 
 /* ══════════════════════════════════════
@@ -807,4 +809,152 @@ function _initPullToRefresh() {
       ptr.style.transform  = 'translateX(-50%) translateY(-70px)';
     }
   }, { passive: true });
+}
+
+/* ══════════════════════════════════════
+   INSTALAR PWA
+   Detecta Chrome (beforeinstallprompt)
+   e iOS Safari (navigator.standalone).
+   No aparece si ya está instalada.
+   ══════════════════════════════════════ */
+function _initInstallBtn() {
+  /* ── Ya está instalada como standalone → no mostrar ── */
+  const yaInstalada =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+  if (yaInstalada) return;
+
+  const esIOS     = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const esSafari  = /safari/i.test(navigator.userAgent) && !/chrome|crios|fxios/i.test(navigator.userAgent);
+  const esChrome  = /chrome|crios/i.test(navigator.userAgent);
+
+  let deferredPrompt = null;
+
+  /* ── Chrome/Android: capturar evento nativo ── */
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    _mostrarBtnInstalar();
+  });
+
+  /* ── iOS Safari: mostrar siempre (no hay evento nativo) ── */
+  if (esIOS && esSafari) {
+    setTimeout(_mostrarBtnInstalar, 1800); // pequeño delay para no abrumar al entrar
+  }
+
+  /* ── Ocultar si se instala ── */
+  window.addEventListener('appinstalled', () => {
+    document.getElementById('wufly-install-btn')?.remove();
+  });
+
+  function _mostrarBtnInstalar() {
+    if (document.getElementById('wufly-install-btn')) return;
+
+    const btn = document.createElement('button');
+    btn.id = 'wufly-install-btn';
+    btn.title = 'Instalar Wufly en tu dispositivo';
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      <span>Instalar</span>
+    `;
+    btn.style.cssText = `
+      position:fixed;top:55px;right:70px;z-index:200;
+      display:inline-flex;align-items:center;gap:6px;
+      background:linear-gradient(135deg,#5C2FA8,#7C4DCC);
+      color:white;border:none;border-radius:100px;
+      padding:8px 14px;font-size:12px;font-weight:700;
+      font-family:'Plus Jakarta Sans',sans-serif;
+      cursor:pointer;
+      box-shadow:0 4px 14px rgba(92,47,168,0.45);
+      animation:installPulse 2.5s ease-in-out infinite;
+    `;
+
+    /* Animación de pulso */
+    if (!document.getElementById('install-btn-style')) {
+      const s = document.createElement('style');
+      s.id = 'install-btn-style';
+      s.textContent = `
+        @keyframes installPulse {
+          0%,100% { box-shadow:0 4px 14px rgba(92,47,168,0.45); transform:scale(1); }
+          50%      { box-shadow:0 4px 22px rgba(92,47,168,0.7);  transform:scale(1.04); }
+        }
+        #wufly-install-btn:active { transform:scale(0.95)!important; animation:none!important; }
+      `;
+      document.head.appendChild(s);
+    }
+
+    btn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        /* Chrome/Android: prompt nativo */
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        if (outcome === 'accepted') btn.remove();
+      } else {
+        /* iOS Safari: instrucciones en modal */
+        _mostrarInstruccionesIOS();
+      }
+    });
+
+    document.body.appendChild(btn);
+  }
+
+  function _mostrarInstruccionesIOS() {
+    if (document.getElementById('ios-install-modal')) return;
+
+    const modal = document.createElement('div');
+    modal.id = 'ios-install-modal';
+    modal.style.cssText = `
+      position:fixed;inset:0;z-index:9999;
+      background:rgba(30,10,60,0.6);backdrop-filter:blur(4px);
+      display:flex;align-items:flex-end;justify-content:center;
+      animation:fadeIn 0.2s ease;
+    `;
+    modal.innerHTML = `
+      <div style="
+        background:white;border-radius:28px 28px 0 0;
+        padding:28px 24px 40px;width:100%;max-width:480px;
+        animation:slideUp 0.35s cubic-bezier(0.34,1.2,0.64,1);
+      ">
+        <div style="width:40px;height:4px;background:#e0d8f5;border-radius:4px;margin:0 auto 24px;"></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+          <img src="img/icono.png" style="width:48px;height:48px;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,0.15);">
+          <div>
+            <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:18px;color:#2D1B6B;">Instalar Wufly</div>
+            <div style="font-size:12px;color:#9CA3AF;margin-top:2px;">Agrégala a tu pantalla de inicio</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:24px;">
+          <div style="display:flex;align-items:center;gap:14px;background:#F8F7FF;border-radius:14px;padding:14px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#E3F2FD;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">1</div>
+            <div style="font-size:13px;color:#2D1B6B;line-height:1.5;">Toca el botón <strong>Compartir</strong> <span style="font-size:16px;">⬆️</span> en la barra inferior de Safari</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;background:#F8F7FF;border-radius:14px;padding:14px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">2</div>
+            <div style="font-size:13px;color:#2D1B6B;line-height:1.5;">Desliza y toca <strong>"Agregar a pantalla de inicio"</strong> <span style="font-size:16px;">➕</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;background:#F8F7FF;border-radius:14px;padding:14px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#F3E5F5;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">3</div>
+            <div style="font-size:13px;color:#2D1B6B;line-height:1.5;">Toca <strong>"Agregar"</strong> en la esquina superior derecha</div>
+          </div>
+        </div>
+        <button onclick="document.getElementById('ios-install-modal').remove()"
+          style="width:100%;padding:14px;border-radius:14px;border:none;
+          background:linear-gradient(135deg,#5C2FA8,#7C4DCC);color:white;
+          font-family:'Funnel Display',sans-serif;font-weight:700;font-size:15px;cursor:pointer;">
+          Entendido 👍
+        </button>
+      </div>
+      <style>
+        @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+        @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+      </style>
+    `;
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+    document.body.appendChild(modal);
+  }
 }
