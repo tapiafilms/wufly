@@ -70,6 +70,36 @@ function toggleMic() {
 document.addEventListener('DOMContentLoaded', initMic);
 
 
+/* ── AudioContext singleton (los browsers bloquean múltiples instancias) ── */
+let _audioCtx = null;
+function _getAudioCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  return _audioCtx;
+}
+
+/* ── Fallback: Web Speech API del navegador ── */
+function _drwSpeakFallback(text, { onStart } = {}) {
+  if (!('speechSynthesis' in window)) {
+    onStart?.();
+    drwSetVideo('escuchando');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'es-CL';
+  utt.rate = 0.95;
+  utt.pitch = 1.1;
+  // Elegir voz en español si está disponible
+  const voces = window.speechSynthesis.getVoices();
+  const esVoz = voces.find(v => v.lang.startsWith('es') && v.localService);
+  if (esVoz) utt.voice = esVoz;
+  utt.onstart  = () => { onStart?.(); drwSetVideo('hablando'); };
+  utt.onend    = () => drwSetVideo('escuchando');
+  utt.onerror  = () => { onStart?.(); drwSetVideo('escuchando'); };
+  window.speechSynthesis.speak(utt);
+}
+
 async function drwSpeak(text, { onStart } = {}) {
   try {
     const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE}/stream`, {
@@ -88,8 +118,8 @@ async function drwSpeak(text, { onStart } = {}) {
     if (!res.ok) throw new Error(`ElevenLabs ${res.status}`);
 
     const buffer = await res.arrayBuffer();
-    const audioCtx = new AudioContext();
-    const audioBuffer = await audioCtx.decodeAudioData(buffer);
+    const audioCtx = _getAudioCtx();
+    const audioBuffer = await audioCtx.decodeAudioData(buffer.slice(0));
     const source = audioCtx.createBufferSource();
     source.buffer = audioBuffer;
     source.connect(audioCtx.destination);
@@ -98,10 +128,33 @@ async function drwSpeak(text, { onStart } = {}) {
     onStart?.();
     drwSetVideo('hablando');
   } catch (err) {
-    console.warn('[drwSpeak]', err);
-    onStart?.(); // mostrar texto igual si falla el audio
-    drwSetVideo('escuchando');
+    console.warn('[drwSpeak ElevenLabs]', err.message);
+    _drwShowVoiceStatus(`⚠️ ElevenLabs: ${err.message} — usando voz del navegador`);
+    // Fallback al TTS del navegador
+    _drwSpeakFallback(text, { onStart });
   }
+}
+
+/* ── Badge de estado de voz (solo visible en desarrollo / diagnóstico) ── */
+function _drwShowVoiceStatus(msg) {
+  let badge = document.getElementById('drw-voice-status');
+  if (!badge) {
+    badge = document.createElement('div');
+    badge.id = 'drw-voice-status';
+    badge.style.cssText = `
+      position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+      z-index:9999;background:rgba(30,10,60,0.92);color:#f0c;
+      font-size:11px;font-family:monospace;padding:6px 12px;
+      border-radius:8px;max-width:90vw;word-break:break-all;
+      border:1px solid rgba(240,0,204,0.4);backdrop-filter:blur(4px);
+      pointer-events:none;
+    `;
+    document.body.appendChild(badge);
+  }
+  badge.textContent = msg;
+  badge.style.display = 'block';
+  clearTimeout(badge._t);
+  badge._t = setTimeout(() => { badge.style.display = 'none'; }, 8000);
 }
 
 let _typeTimer = null;
@@ -167,6 +220,15 @@ async function sendChat() {
   inp.value = '';
 
   document.getElementById('btnSend').disabled = true;
+
+  // ── Pre-calentar audio DENTRO del gesto del usuario (obligatorio en iOS) ──
+  // Si esto se hace después de un await, iOS bloquea el audio silenciosamente.
+  try { _getAudioCtx(); } catch {}
+  if (window.speechSynthesis) {
+    const _warm = new SpeechSynthesisUtterance(' ');
+    _warm.volume = 0;
+    window.speechSynthesis.speak(_warm);
+  }
 
   drwSetBubble(msg, 'user');
 
