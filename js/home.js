@@ -101,7 +101,7 @@ function renderHome() {
       <!-- ACCESO RÁPIDO — Stack drag interactivo -->
       <div style="padding:0 16px;margin-top:10px;">
         <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:12px;"></div>
-        <div id="card-stack" style="position:relative;height:200px;touch-action:none;"></div>
+        <div id="card-stack" style="position:relative;height:215px;touch-action:none;"></div>
       </div>
 
       
@@ -491,12 +491,12 @@ function _initCarouselDots() {
    ══════════════════════════════════════ */
 
 const STACK_CARDS = [
-  { icon:'🏥', label:'Vets Cercanas',  sub:'Clínicas y veterinarias',         nav: () => switchTab('restaurantes'),                                              grad:'linear-gradient(135deg,#3b1465,#5C2FA8)' },
-  { icon:'🩺', label:'Dra. Wufly',     sub:'Asistente veterinario IA',        nav: () => switchTab('drwufly'),                                                   grad:'linear-gradient(135deg,#2d0f6b,#7C3AED)' },
-  { icon:'🐾', label:'Adoptar',        sub:'Mascotas que buscan hogar',       nav: () => { switchComunidadTab('adoptar'); switchTab('comunidad'); },              grad:'linear-gradient(135deg,#1a0a3c,#6D28D9)' },
-  { icon:'🎨', label:'Arte',           sub:'Retratos de tu mascota',          nav: () => { switchServiciosTab('arte'); switchTab('servicios'); },                 grad:'linear-gradient(135deg,#2a0545,#7C3AED)' },
-  { icon:'✂️', label:'Grooming',       sub:'Estética y peluquería',           nav: () => { switchServiciosTab('grooming'); switchTab('servicios'); },             grad:'linear-gradient(135deg,#3d1278,#9333EA)' },
-  { icon:'🐕', label:'Paseadores',     sub:'Paseos para tu mascota',          nav: () => { switchServiciosTab('paseadores'); switchTab('servicios'); },           grad:'linear-gradient(135deg,#1e0550,#8B5CF6)' },
+  { label:'Vets Cercanas',  sub:'Clínicas y veterinarias',         img:'img/card-vets.jpg',       nav: () => switchTab('restaurantes'),                                              grad:'#3b1465' },
+  { label:'Dra. Wufly',     sub:'Asistente veterinario IA',        img:'img/card-dra.jpg',        nav: () => switchTab('drwufly'),                                                   grad:'#2d0f6b' },
+  { label:'Adoptar',        sub:'Mascotas que buscan hogar',       img:'img/card-adoptar.jpg',    nav: () => { switchComunidadTab('adoptar'); switchTab('comunidad'); },              grad:'#1a0a3c' },
+  { label:'Arte',           sub:'Retratos de tu mascota',          img:'img/card-arte.jpg',       nav: () => { switchServiciosTab('arte'); switchTab('servicios'); },                 grad:'#2a0545' },
+  { label:'Grooming',       sub:'Estética y peluquería',           img:'img/card-grooming.jpg',   nav: () => { switchServiciosTab('grooming'); switchTab('servicios'); },             grad:'#3d1278' },
+  { label:'Paseadores',     sub:'Paseos para tu mascota',          img:'img/card-paseadores.jpg', nav: () => { switchServiciosTab('paseadores'); switchTab('servicios'); },           grad:'#1e0550' },
 ];
 
 function _navFrontCard() {
@@ -523,11 +523,10 @@ function _initCardStack() {
     const el = document.createElement('div');
     el.style.cssText = `
       position:absolute;left:0;right:0;
-      height:160px;border-radius:22px;
+      height:185px;border-radius:22px;
       background:${c.grad};
       box-shadow:0 8px 32px rgba(0,0,0,0.35);
-      padding:20px 22px;
-      display:flex;flex-direction:column;justify-content:space-between;
+      overflow:hidden;
       will-change:transform,opacity;
       cursor:grab;
       user-select:none;
@@ -535,15 +534,26 @@ function _initCardStack() {
       touch-action:none;
     `;
     el.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:32px;">${c.icon}</span>
-        <div class="stack-arrow-btn" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <!-- Imagen de fondo (derecha) -->
+      <img src="${c.img}" alt="${c.label}"
+        style="position:absolute;top:0;right:0;width:68%;height:100%;object-fit:cover;object-position:center;"
+        onerror="this.style.display='none'">
+
+      <!-- Degradado lateral: color sólido izquierda → transparente derecha -->
+      <div style="position:absolute;inset:0;background:linear-gradient(to right, ${c.grad} 32%, ${c.grad}cc 50%, transparent 75%);"></div>
+
+      <!-- Degradado inferior: oscurece para legibilidad del texto -->
+      <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 55%);"></div>
+
+      <!-- Texto + flecha (parte inferior) -->
+      <div style="position:absolute;bottom:0;left:0;right:0;padding:16px 18px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;">
+        <div style="min-width:0;">
+          <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:21px;color:white;line-height:1.15;text-shadow:0 1px 6px rgba(0,0,0,0.3);">${c.label}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.75);margin-top:3px;">${c.sub}</div>
+        </div>
+        <div class="stack-arrow-btn" style="width:36px;height:36px;min-width:36px;border-radius:50%;background:rgba(255,255,255,0.22);display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(4px);">
           <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
         </div>
-      </div>
-      <div>
-        <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:20px;color:white;line-height:1.1;">${c.label}</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.55);margin-top:4px;">${c.sub}</div>
       </div>
     `;
 
