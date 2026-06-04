@@ -542,8 +542,13 @@ function _initCardStack() {
       </div>
     `;
 
-    // Botón flecha — navega siempre (touch y mouse)
-    el.querySelector('.stack-arrow-btn').addEventListener('click', e => {
+    // Botón flecha — navega en touch y en mouse
+    const arrowBtn = el.querySelector('.stack-arrow-btn');
+    arrowBtn.addEventListener('touchend', e => {
+      e.stopPropagation();
+      eval(c.action);
+    }, { passive: true });
+    arrowBtn.addEventListener('click', e => {
       e.stopPropagation();
       eval(c.action);
     });
@@ -556,12 +561,6 @@ function _initCardStack() {
         eval(c.action);
       }
     }, { passive: true });
-
-    // Click para navegar (desktop — solo si no hubo drag)
-    el.addEventListener('click', e => {
-      if (e.target.closest('.stack-arrow-btn')) return; // ya lo maneja el botón
-      if (_dragCurrY === 0 && _stackOrder[0] === i) eval(c.action);
-    });
 
     container.appendChild(el);
     _stackEls.push(el);
@@ -659,12 +658,21 @@ function _attachDrag() {
   /* ── Mouse (desktop) ── */
   container.addEventListener('mousedown', e => {
     if (!e.target.closest('#card-stack')) return;
+    if (e.target.closest('.stack-arrow-btn')) return; // la flecha tiene su propio click
     e.preventDefault();
-    _onStart(e.clientY);
+    const startY = e.clientY;
+    _onStart(startY);
 
     const onMouseMove = e => _onMove(e.clientY);
-    const onMouseUp   = () => {
+    const onMouseUp   = e => {
+      const wasTap = Math.abs(e.clientY - startY) < 8;
       _onEnd();
+      // Si fue un click (sin drag), navegar la card del frente
+      if (wasTap) {
+        const frontIdx = _stackOrder[0];
+        const card = STACK_CARDS[frontIdx];
+        if (card) eval(card.action);
+      }
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup',   onMouseUp);
     };
