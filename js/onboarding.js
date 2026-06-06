@@ -79,7 +79,8 @@ function showOnboardingWelcome() {
         <p class="ob-desc">Crea tu perfil para publicar en adopción, reportar mascotas perdidas, guardar recordatorios y acceder a todo personalizado para tu mascota.</p>
         <div style="display:flex;flex-direction:column;gap:10px;width:100%;margin-top:8px;">
           <button class="ob-btn-primary" onclick="iniciarOnboarding()">Crear mi perfil 🐾</button>
-          <button class="ob-btn-ghost" onclick="cerrarOnboarding()">Seguir navegando</button>
+          <button class="ob-btn-ghost" onclick="cerrarOnboarding(); abrirAuthModal('login');">Ya tengo cuenta → Iniciar sesión</button>
+          <button class="ob-btn-ghost" onclick="cerrarOnboarding()" style="opacity:0.55;font-size:13px;">Seguir navegando sin cuenta</button>
         </div>
       </div>
     </div>
