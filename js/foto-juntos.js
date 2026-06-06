@@ -453,10 +453,13 @@ async function _juntosComprimirImagen(url, maxPx = 1080, calidad = 0.78) {
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
       canvas.toBlob(b => b ? resolve(b) : reject(new Error('canvas.toBlob falló')), 'image/jpeg', calidad);
-      URL.revokeObjectURL(img.src);
     };
     img.onerror = () => reject(new Error('Error al cargar imagen en canvas'));
-    img.src = URL.createObjectURL(blob);
+    // FileReader es más robusto que createObjectURL: evita fallos de MIME y ciclo de vida del blob
+    const reader = new FileReader();
+    reader.onloadend = () => { img.src = reader.result; };
+    reader.onerror = () => reject(new Error('Error al leer el blob de imagen'));
+    reader.readAsDataURL(blob);
   });
 }
 
