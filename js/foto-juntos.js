@@ -9,9 +9,10 @@ const SUPABASE_REF_J    = 'ybnacudfqerbzpvqcjzc';
 const SUPABASE_ANON_J   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibmFjdWRmcWVyYnpwdnFjanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzYzNjksImV4cCI6MjA5MTk1MjM2OX0.pQ4PVNS1wqHvnvEPO0TYwlMS6ooDpsP7DaYXqdTbFxE';
 
 /* ── Estado interno ── */
-let _jFotoMascota = null;
-let _jSelfie      = null;
-let _jLugar       = 'beautiful beach in Patagonia';
+let _jFotoMascota   = null;
+let _jSelfie        = null;
+let _jLugar         = 'beautiful beach in Patagonia';
+let _jUrlPermanente = null; // URL ya subida a Supabase Storage (pre-upload en background)
 
 const JUNTOS_LUGARES = [
   { label: '🏖️ Playa',     prompt: 'beautiful beach in Patagonia' },
@@ -35,9 +36,10 @@ function _juntosGetTipoPet() {
 function abrirJuntos() {
   const existing = document.getElementById('juntos-modal');
   if (existing) existing.remove();
-  _jFotoMascota = null;
-  _jSelfie      = null;
-  _jLugar       = JUNTOS_LUGARES[0].prompt;
+  _jFotoMascota   = null;
+  _jSelfie        = null;
+  _jLugar         = JUNTOS_LUGARES[0].prompt;
+  _jUrlPermanente = null;
 
   // Bloquear scroll del home mientras el modal está abierto
   document.body.style.overflow = 'hidden';
@@ -339,6 +341,15 @@ async function juntosGenerar() {
     _juntosHideOverlay();
     btn.style.display = 'none'; // ocultar botón "Juntar"
 
+    // Pre-subir a Supabase Storage en background (sin bloquear UI)
+    // Así cuando el usuario presione "Publicar", la imagen ya está lista
+    _jUrlPermanente = null;
+    if (typeof currentUser !== 'undefined' && currentUser?.id) {
+      _juntosSubirStorage(imagenUrl)
+        .then(url => { _jUrlPermanente = url; })
+        .catch(err => console.warn('juntos: pre-subida falló (se reintentará al publicar):', err));
+    }
+
     resultado.style.display = 'block';
     resultado.innerHTML = `
       <!-- Imagen generada -->
@@ -453,39 +464,49 @@ async function _juntosComprimirImagen(url, maxPx = 1080, calidad = 0.78) {
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
       canvas.toBlob(b => b ? resolve(b) : reject(new Error('canvas.toBlob falló')), 'image/jpeg', calidad);
-      URL.revokeObjectURL(img.src);
     };
     img.onerror = () => reject(new Error('Error al cargar imagen en canvas'));
-    img.src = URL.createObjectURL(blob);
+    // FileReader es más robusto que createObjectURL: evita fallos de MIME y ciclo de vida del blob
+    const reader = new FileReader();
+    reader.onloadend = () => { img.src = reader.result; };
+    reader.onerror = () => reject(new Error('Error al leer el blob de imagen'));
+    reader.readAsDataURL(blob);
   });
 }
 
-/* ── Subir blob a Supabase Storage y guardar URL en fotos_juntos ── */
-async function _juntosGuardarComunidad(imagenUrl) {
-  if (typeof currentUser === 'undefined' || !currentUser?.id) {
-    console.warn('fotos_juntos: no hay usuario logueado');
-    return false;
-  }
-
-  // Leer JWT del usuario
+/* ── Obtener token JWT del usuario ── */
+function _juntosGetToken() {
   let token = SUPABASE_ANON_J;
   try {
     const v2 = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF_J}-auth-token`) || 'null');
-    if (v2?.access_token) token = v2.access_token;
-    else {
-      const v1 = JSON.parse(localStorage.getItem('supabase.auth.token') || 'null');
-      if (v1?.currentSession?.access_token) token = v1.currentSession.access_token;
-    }
+    if (v2?.access_token) return v2.access_token;
+    const v1 = JSON.parse(localStorage.getItem('supabase.auth.token') || 'null');
+    if (v1?.currentSession?.access_token) return v1.currentSession.access_token;
   } catch {}
+  return token;
+}
 
-  const headers = { 'apikey': SUPABASE_ANON_J, 'Authorization': `Bearer ${token}` };
+/* ── Descargar, comprimir y subir imagen a Supabase Storage ── */
+/* Retorna la URL pública permanente, o lanza error */
+async function _juntosSubirStorage(imagenUrl) {
+  if (typeof currentUser === 'undefined' || !currentUser?.id) throw new Error('Sin sesión');
 
-  // 1 — Comprimir imagen
-  _juntosShowOverlay('Optimizando imagen…');
-  const blob = await _juntosComprimirImagen(imagenUrl);
+  const headers = { 'apikey': SUPABASE_ANON_J, 'Authorization': `Bearer ${_juntosGetToken()}` };
 
-  // 2 — Subir a Supabase Storage (bucket: fotos-juntos)
-  _juntosShowOverlay('Subiendo a Wufly…');
+  // 1 — Comprimir (con fallback si el canvas falla)
+  let blob;
+  try {
+    blob = await _juntosComprimirImagen(imagenUrl);
+  } catch (err) {
+    console.warn('juntos: compresión falló, descargando sin comprimir:', err);
+    const proxyUrl = `${JUNTOS_WORKER_URL.replace('/api/juntar-fotos', '/api/proxy-imagen')}?url=${encodeURIComponent(imagenUrl)}`;
+    const raw = await fetch(proxyUrl);
+    if (!raw.ok) throw new Error(`Proxy fallback (${raw.status})`);
+    blob = await raw.blob();
+    if (!blob.type.startsWith('image/')) throw new Error('El proxy no devolvió una imagen válida');
+  }
+
+  // 2 — Subir a Supabase Storage
   const fileName = `${currentUser.id}_${Date.now()}.jpg`;
   const uploadRes = await fetch(
     `https://${SUPABASE_REF_J}.supabase.co/storage/v1/object/fotos-juntos/${fileName}`,
@@ -497,14 +518,30 @@ async function _juntosGuardarComunidad(imagenUrl) {
   );
   if (!uploadRes.ok) {
     const detail = await uploadRes.text().catch(() => uploadRes.status);
-    console.error('Storage upload error:', uploadRes.status, detail);
     throw new Error(`Upload (${uploadRes.status}): ${detail}`);
   }
 
-  // 3 — URL pública permanente
-  const urlPermanente = `https://${SUPABASE_REF_J}.supabase.co/storage/v1/object/public/fotos-juntos/${fileName}`;
+  return `https://${SUPABASE_REF_J}.supabase.co/storage/v1/object/public/fotos-juntos/${fileName}`;
+}
 
-  // 4 — Guardar en tabla fotos_juntos
+/* ── Guardar URL en tabla fotos_juntos (ya asume imagen subida a Storage) ── */
+async function _juntosGuardarComunidad(imagenUrlFalai) {
+  if (typeof currentUser === 'undefined' || !currentUser?.id) {
+    console.warn('fotos_juntos: no hay usuario logueado');
+    return false;
+  }
+
+  const headers = { 'apikey': SUPABASE_ANON_J, 'Authorization': `Bearer ${_juntosGetToken()}` };
+
+  // 1 — Usar URL pre-subida si ya está lista; si no, subir ahora como fallback
+  let urlPermanente = _jUrlPermanente;
+  if (!urlPermanente) {
+    _juntosShowOverlay('Optimizando imagen…');
+    urlPermanente = await _juntosSubirStorage(imagenUrlFalai);
+  }
+
+  // 2 — Guardar en tabla fotos_juntos
+  _juntosShowOverlay('Subiendo a Wufly…');
   const insertRes = await fetch(
     `https://${SUPABASE_REF_J}.supabase.co/rest/v1/fotos_juntos`,
     {

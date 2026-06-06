@@ -138,10 +138,15 @@ export default {
           'Content-Type':  'application/json',
           'apikey':        env.SUPABASE_SERVICE_KEY,
           'Authorization': `Bearer ${env.SUPABASE_SERVICE_KEY}`,
-          'Prefer':        'return=minimal,resolution=ignore-duplicates',
+          'Prefer':        'return=minimal,resolution=merge-duplicates',
           'on_conflict':   'endpoint',
         },
-        body: JSON.stringify({ endpoint: sub.endpoint, p256dh: sub.keys.p256dh, auth: sub.keys.auth }),
+        body: JSON.stringify({
+          endpoint: sub.endpoint,
+          p256dh:   sub.keys.p256dh,
+          auth:     sub.keys.auth,
+          user_id:  sub.user_id || null,  // asociar suscripción al usuario
+        }),
       });
       return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json', ...CORS } });
     }
@@ -279,6 +284,63 @@ export default {
       });
     }
 
+    /* POST /api/portrait-transform — transformar retrato con IA (Portrait Experience) */
+    if (url.pathname === '/api/portrait-transform' && request.method === 'POST') {
+      const { imageUrl, sessionId } = await request.json();
+      if (!imageUrl) return new Response(JSON.stringify({ error: 'Falta imageUrl' }), { status: 400, headers: { 'Content-Type': 'application/json', ...CORS } });
+
+      const prompt = `The image shows a PERSON — transform them into a premium Pixar 3D animated character that is instantly and unmistakably recognizable as that same person: preserve their exact face structure, hair color and style, eye color, skin tone, facial hair and any distinctive features, faithfully translated into Pixar art style. Render quality like Coco, Up or Soul. The character should have big expressive Pixar eyes, smooth subsurface scattering skin, detailed hair grooming. Improve posture naturally: confident and charismatic stance, relaxed shoulders. IMPORTANT: always give the character a warm, genuine, joyful smile and happy expression regardless of the expression in the original photo — the character must look happy, energetic and celebratory. Preserve and enhance original clothing with premium quality. Background: elegant outdoor corporate event at night, warm golden string lights, purple and blue accent lighting, guests socializing in the background, bokeh, luxury cocktail atmosphere. Cinematic Pixar lighting with warm key light on face, soft rim light, golden highlights. Mood: celebration, success, innovation. Ultra high quality, 8K Pixar feature film render.`;
+
+      const falRes = await fetch('https://queue.fal.run/fal-ai/flux-pro/kontext', {
+        method: 'POST',
+        headers: { 'Authorization': `Key ${env.FAL_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_url: imageUrl,
+          prompt,
+          num_images: 1,
+          guidance_scale: 3.5,
+          safety_tolerance: '2',
+          output_format: 'jpeg',
+          aspect_ratio: '3:4',
+        }),
+      });
+
+      if (!falRes.ok) {
+        const detail = await falRes.text();
+        return new Response(JSON.stringify({ error: 'fal.ai error', detail }), { status: 502, headers: { 'Content-Type': 'application/json', ...CORS } });
+      }
+
+      const falData = await falRes.json();
+      return new Response(JSON.stringify({
+        requestId:   falData.request_id,
+        statusUrl:   falData.status_url,
+        responseUrl: falData.response_url,
+        sessionId,
+      }), { headers: { 'Content-Type': 'application/json', ...CORS } });
+    }
+
+    /* GET /api/portrait-status?id=xxx — consultar estado del job de retrato */
+    if (url.pathname === '/api/portrait-status' && request.method === 'GET') {
+      const statusUrl   = url.searchParams.get('statusUrl');
+      const responseUrl = url.searchParams.get('responseUrl');
+      if (!statusUrl || !responseUrl) return new Response(JSON.stringify({ error: 'Faltan parámetros' }), { status: 400, headers: { 'Content-Type': 'application/json', ...CORS } });
+
+      const FAL_HEADERS = { 'Authorization': `Key ${env.FAL_API_KEY}` };
+      const statusRes  = await fetch(statusUrl, { headers: FAL_HEADERS });
+      let statusData;
+      try { statusData = await statusRes.json(); } catch { return new Response(JSON.stringify({ status: 'IN_QUEUE' }), { headers: { 'Content-Type': 'application/json', ...CORS } }); }
+
+      if (statusData.status === 'COMPLETED') {
+        const resultRes = await fetch(responseUrl, { headers: FAL_HEADERS });
+        let result;
+        try { result = await resultRes.json(); } catch { return new Response(JSON.stringify({ status: 'COMPLETED', imageUrl: null }), { headers: { 'Content-Type': 'application/json', ...CORS } }); }
+        const imageUrl = result?.images?.[0]?.url ?? result?.image?.url ?? null;
+        return new Response(JSON.stringify({ status: 'COMPLETED', imageUrl }), { headers: { 'Content-Type': 'application/json', ...CORS } });
+      }
+
+      return new Response(JSON.stringify({ status: statusData.status ?? 'IN_QUEUE' }), { headers: { 'Content-Type': 'application/json', ...CORS } });
+    }
+
     /* GET /api/proxy-imagen?url=... — descargar imagen de fal.ai sin CORS */
     if (url.pathname === '/api/proxy-imagen' && request.method === 'GET') {
       const imgUrl = url.searchParams.get('url');
@@ -324,29 +386,45 @@ export default {
           );
           const vData = await vRes.json();
 
-          const short = (vData.items || []).find(v => {
-            const dur = v.contentDetails.duration; // ISO 8601 ej: PT45S, PT1M30S
+          const shorts = (vData.items || []).filter(v => {
+            const dur = v.contentDetails.duration;
             const m = dur.match(/PT(?:(\d+)M)?(?:(\d+)S)?/);
             if (!m) return false;
             const mins = parseInt(m[1] || '0');
             const secs = parseInt(m[2] || '0');
-            return mins < 3 || (mins === 3 && secs === 0); // ≤ 3 minutos
-          });
+            return mins < 3 || (mins === 3 && secs === 0);
+          }).slice(0, 3); // máximo 3 por canal
 
-          if (!short) return null;
-          return {
-            videoId:   short.id,
-            titulo:    short.snippet.title,
+          if (!shorts.length) return [];
+          return shorts.map(s => ({
+            videoId:   s.id,
+            titulo:    s.snippet.title,
             canal:     ch.nombre,
-            thumbnail: short.snippet.thumbnails?.high?.url
-                    || short.snippet.thumbnails?.medium?.url
-                    || short.snippet.thumbnails?.default?.url,
-          };
+            thumbnail: `https://wufly-push.pablo77tapia.workers.dev/api/thumb?id=${s.id}`,
+          }));
         } catch { return null; }
       }));
 
-      return new Response(JSON.stringify(results.filter(Boolean)), {
+      const shorts = results.flat().filter(Boolean);
+      return new Response(JSON.stringify(shorts), {
         headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=1800', ...CORS },
+      });
+    }
+
+    /* GET /api/thumb?id=VIDEO_ID — proxy de thumbnail YouTube */
+    if (url.pathname === '/api/thumb' && request.method === 'GET') {
+      const id = url.searchParams.get('id');
+      if (!id) return new Response('Falta id', { status: 400, headers: CORS });
+      const thumbUrl = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+      const r = await fetch(thumbUrl);
+      if (!r.ok) return new Response('No encontrado', { status: 404, headers: CORS });
+      const buf = await r.arrayBuffer();
+      return new Response(buf, {
+        headers: {
+          'Content-Type': 'image/jpeg',
+          'Cache-Control': 'public, max-age=86400',
+          ...CORS,
+        },
       });
     }
 
@@ -412,6 +490,111 @@ export default {
       return new Response(JSON.stringify({ total, hoy: hoyN, n7d, n30d, porDia }), {
         headers: { 'Content-Type': 'application/json', ...CORS },
       });
+    }
+
+    /* POST /subscribe — guardar suscripción CON user_id (versión extendida) */
+    /* Ya manejado arriba, pero si llega aquí con user_id en body lo procesamos */
+
+    /* POST /push-user — enviar push a un usuario específico por user_id */
+    if (url.pathname === '/push-user') {
+      const { user_id, payload } = await request.json();
+      if (!user_id || !payload) return new Response(JSON.stringify({ error: 'Faltan parámetros' }), { status: 400, headers: { 'Content-Type': 'application/json', ...CORS } });
+
+      const sbRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/push_subscriptions?user_id=eq.${user_id}&select=*`,
+        { headers: { 'apikey': env.SUPABASE_SERVICE_KEY, 'Authorization': `Bearer ${env.SUPABASE_SERVICE_KEY}` } }
+      );
+      const subs = await sbRes.json();
+      if (!Array.isArray(subs) || subs.length === 0)
+        return new Response(JSON.stringify({ sent: 0 }), { headers: { 'Content-Type': 'application/json', ...CORS } });
+
+      const results = await Promise.allSettled(subs.map(s => sendPush(s, payload)));
+      const sent = results.filter(r => r.status === 'fulfilled' && !r.value?.expired).length;
+      return new Response(JSON.stringify({ sent }), { headers: { 'Content-Type': 'application/json', ...CORS } });
+    }
+
+    /* POST /api/encuentro/pixar — generar foto Pixar del encuentro con fal.ai */
+    if (url.pathname === '/api/encuentro/pixar') {
+      const { fotoUrl, encuentroId } = await request.json();
+      if (!fotoUrl) return new Response(JSON.stringify({ error: 'Falta fotoUrl' }), { status: 400, headers: { 'Content-Type': 'application/json', ...CORS } });
+
+      const prompt = `Pixar 3D animated movie style, render quality like Coco or Up. The photo shows two dogs that just met during a walk. Transform BOTH dogs into Pixar-style animated characters that look EXACTLY like the ones in the photo — same breed, fur color, markings, size and distinctive features. Show both Pixar dogs joyfully playing together, facing each other with tails wagging in a moment of pure happiness. Background: a magical vibrant park with golden sunlight, lush green grass, colorful wildflowers, warm cinematic lighting. The mood is pure joy and friendship. Both dogs must be clearly visible and prominent. Ultra high quality, 8K Pixar feature film render.`;
+
+      const falRes = await fetch('https://queue.fal.run/fal-ai/flux-pro/kontext', {
+        method: 'POST',
+        headers: { 'Authorization': `Key ${env.FAL_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_url:        fotoUrl,
+          prompt,
+          num_images:       1,
+          guidance_scale:   3.5,
+          safety_tolerance: '2',
+          output_format:    'jpeg',
+          aspect_ratio:     '1:1',
+        }),
+      });
+
+      if (!falRes.ok) {
+        const detail = await falRes.text();
+        return new Response(JSON.stringify({ error: 'fal.ai error', detail }), { status: 502, headers: { 'Content-Type': 'application/json', ...CORS } });
+      }
+
+      const falData = await falRes.json();
+      return new Response(JSON.stringify({
+        requestId:   falData.request_id,
+        statusUrl:   falData.status_url,
+        responseUrl: falData.response_url,
+        encuentroId,
+      }), { headers: { 'Content-Type': 'application/json', ...CORS } });
+    }
+
+    /* POST /api/encuentro/completar — otorgar premium a ambos usuarios (service role) */
+    if (url.pathname === '/api/encuentro/completar') {
+      const { encuentroId, pixarUrl, token } = await request.json();
+      if (!encuentroId || !pixarUrl) return new Response(JSON.stringify({ error: 'Faltan parámetros' }), { status: 400, headers: { 'Content-Type': 'application/json', ...CORS } });
+
+      const h = { 'apikey': env.SUPABASE_SERVICE_KEY, 'Authorization': `Bearer ${env.SUPABASE_SERVICE_KEY}`, 'Content-Type': 'application/json' };
+
+      // Verify the encuentro exists
+      const encRes = await fetch(`${SUPABASE_URL}/rest/v1/encuentros?id=eq.${encuentroId}&select=user1_id,user2_id,nombre1,nombre2,estado`, { headers: h });
+      const encData = await encRes.json();
+      if (!Array.isArray(encData) || encData.length === 0)
+        return new Response(JSON.stringify({ error: 'Encuentro no encontrado' }), { status: 404, headers: { 'Content-Type': 'application/json', ...CORS } });
+
+      const enc = encData[0];
+
+      // Update encuentro as completed
+      await fetch(`${SUPABASE_URL}/rest/v1/encuentros?id=eq.${encuentroId}`, {
+        method: 'PATCH',
+        headers: { ...h, 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ pixar_url: pixarUrl, estado: 'completado', updated_at: new Date().toISOString() }),
+      });
+
+      // Grant premium to BOTH users using service role (bypasses RLS)
+      const now = new Date().toISOString();
+      for (const userId of [enc.user1_id, enc.user2_id]) {
+        await fetch(`${SUPABASE_URL}/rest/v1/wufly_premium`, {
+          method: 'POST',
+          headers: { ...h, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+          body: JSON.stringify({ user_id: userId, premium: true, fecha_premio: now, encuentros: 1 }),
+        });
+      }
+
+      // Notify both users
+      for (const [userId, nombre] of [[enc.user1_id, enc.nombre2], [enc.user2_id, enc.nombre1]]) {
+        const subRes = await fetch(`${SUPABASE_URL}/rest/v1/push_subscriptions?user_id=eq.${userId}&select=*`, { headers: h });
+        const subs = await subRes.json();
+        if (Array.isArray(subs)) {
+          await Promise.allSettled(subs.map(s => sendPush(s, {
+            title: '🎉 ¡Encuentro Canino completado!',
+            body:  `¡Tú y ${nombre} son Premium Wufly! Abre la app para ver tu foto Pixar.`,
+            icon:  '/img/icono.png',
+            url:   '/',
+          })));
+        }
+      }
+
+      return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json', ...CORS } });
     }
 
     return new Response('Not Found', { status: 404 });

@@ -28,6 +28,10 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+
+<!-- Leaflet — mapa de paseos -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </head>
 <body>
 
@@ -1002,6 +1006,8 @@
   <input type="file" id="paseoCamaraInput" accept="image/*" capture="environment" style="display:none;" onchange="enviarFotoPaseo(this)">
 </div>
 
+<script defer src="js/mapa-paseos.js"></script>
+<script defer src="js/encuentro.js"></script>
 <script defer src="js/paseador-mode.js"></script>
 
 </body>

@@ -60,10 +60,13 @@ async function activarNotificaciones() {
         applicationServerKey: _vapidKey(),
       });
     }
+    // Incluir user_id para poder enviar push dirigido (Encuentro Canino)
+    const subData = sub.toJSON();
+    const userId  = (typeof currentUser !== 'undefined' && currentUser?.id) ? currentUser.id : null;
     await fetch(`${PUSH_WORKER_URL}/subscribe`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(sub.toJSON()),
+      body: JSON.stringify({ ...subData, user_id: userId }),
     });
     localStorage.setItem('wufly_push_subscribed', '1');
   } catch (e) {

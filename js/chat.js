@@ -1,5 +1,8 @@
 /* ══ DRA. WUFLY — ASISTENTE VETERINARIA ══ */
 
+const ELEVENLABS_KEY     = 'sk_dc7b78b29bccad83d31fd71cb5a46c6db16d3b7f3db64cd6';
+const ELEVENLABS_VOICE   = 'kcQkGnn0HAT2JRDQ4Ljp'; // Norah
+
 let _recognition = null;
 let _micActive = false;
 const _chatPlaceholder = 'Ej: Mi perro lleva 2 días sin comer...';
@@ -66,49 +69,97 @@ function toggleMic() {
 
 document.addEventListener('DOMContentLoaded', initMic);
 
-/* Precarga voces del navegador (algunas cargan async) */
-if (window.speechSynthesis) {
-  window.speechSynthesis.getVoices();
-  window.speechSynthesis.addEventListener('voiceschanged', () => {
-    window.speechSynthesis.getVoices();
-  });
-  /* Keepalive para iOS — evita que Safari pause el speech a los 15s */
-  setInterval(() => {
-    if (window.speechSynthesis.speaking) {
-      window.speechSynthesis.pause();
-      window.speechSynthesis.resume();
-    }
-  }, 10000);
+
+/* ── Audio element singleton — iOS requiere que .play() se llame desde
+       un gesto del usuario. Lo pre-desbloqueamos en sendChat() y luego
+       reutilizamos el mismo elemento para reproducir el audio de ElevenLabs. ── */
+let _audioEl = null;
+function _getAudioEl() {
+  if (!_audioEl) {
+    _audioEl = document.createElement('audio');
+    _audioEl.setAttribute('playsinline', '');   // iOS: no pantalla completa
+    _audioEl.setAttribute('webkit-playsinline', '');
+    document.body.appendChild(_audioEl);
+  }
+  return _audioEl;
 }
 
-function drwGetVoice() {
-  const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
-  return (
-    voices.find(v => v.lang.startsWith('es') && /mónica|monica|lucía|lucia|elena|female/i.test(v.name)) ||
-    voices.find(v => v.lang === 'es-ES') ||
-    voices.find(v => v.lang.startsWith('es')) ||
-    null
-  );
-}
-
-function drwSpeak(text) {
-  if (!window.speechSynthesis) { drwSetVideo('escuchando'); return; }
+/* ── Fallback: Web Speech API ── */
+function _drwSpeakFallback(text, { onStart } = {}) {
+  if (!('speechSynthesis' in window)) {
+    onStart?.(); drwSetVideo('escuchando'); return;
+  }
   window.speechSynthesis.cancel();
-
   const utt = new SpeechSynthesisUtterance(text);
-  utt.lang = 'es-ES';
-  utt.rate = 0.92;
-  utt.pitch = 1.05;
-  utt.volume = 1.0;
-
-  const voice = drwGetVoice();
-  if (voice) utt.voice = voice;
-
-  utt.onstart  = () => drwSetVideo('hablando');
-  utt.onend    = () => drwSetVideo('escuchando');
-  utt.onerror  = () => drwSetVideo('escuchando');
-
+  utt.lang  = 'es-CL';
+  utt.rate  = 0.95;
+  utt.pitch = 1.1;
+  const voces = window.speechSynthesis.getVoices();
+  const esVoz = voces.find(v => v.lang.startsWith('es'));
+  if (esVoz) utt.voice = esVoz;
+  utt.onstart = () => { onStart?.(); drwSetVideo('hablando'); };
+  utt.onend   = () => drwSetVideo('escuchando');
+  utt.onerror = () => { onStart?.(); drwSetVideo('escuchando'); };
   window.speechSynthesis.speak(utt);
+}
+
+async function drwSpeak(text, { onStart } = {}) {
+  try {
+    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE}/stream`, {
+      method: 'POST',
+      headers: {
+        'xi-api-key': ELEVENLABS_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text,
+        model_id: 'eleven_multilingual_v2',
+        voice_settings: { stability: 0.5, similarity_boost: 0.8 },
+      }),
+    });
+
+    if (!res.ok) throw new Error(`ElevenLabs ${res.status}`);
+
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const audio = _getAudioEl();
+
+    // Limpiar URL anterior
+    if (audio.src && audio.src.startsWith('blob:')) URL.revokeObjectURL(audio.src);
+    audio.src = url;
+
+    audio.onended = () => { drwSetVideo('escuchando'); URL.revokeObjectURL(url); };
+    onStart?.();
+    drwSetVideo('hablando');
+    await audio.play();
+
+  } catch (err) {
+    console.warn('[drwSpeak ElevenLabs]', err.message);
+    _drwShowVoiceStatus(`⚠️ ElevenLabs: ${err.message} — usando voz del navegador`);
+    _drwSpeakFallback(text, { onStart });
+  }
+}
+
+/* ── Badge de estado de voz (solo visible en desarrollo / diagnóstico) ── */
+function _drwShowVoiceStatus(msg) {
+  let badge = document.getElementById('drw-voice-status');
+  if (!badge) {
+    badge = document.createElement('div');
+    badge.id = 'drw-voice-status';
+    badge.style.cssText = `
+      position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+      z-index:9999;background:rgba(30,10,60,0.92);color:#f0c;
+      font-size:11px;font-family:monospace;padding:6px 12px;
+      border-radius:8px;max-width:90vw;word-break:break-all;
+      border:1px solid rgba(240,0,204,0.4);backdrop-filter:blur(4px);
+      pointer-events:none;
+    `;
+    document.body.appendChild(badge);
+  }
+  badge.textContent = msg;
+  badge.style.display = 'block';
+  clearTimeout(badge._t);
+  badge._t = setTimeout(() => { badge.style.display = 'none'; }, 8000);
 }
 
 let _typeTimer = null;
@@ -175,12 +226,15 @@ async function sendChat() {
 
   document.getElementById('btnSend').disabled = true;
 
-  /* Desbloquear speechSynthesis en iOS sincrónicamente dentro del gesto */
+  // ── Pre-desbloquear audio en el gesto del usuario (obligatorio en iOS) ──
+  // iOS solo permite .play() si ocurrió dentro de un tap/click.
+  // Llamamos play() ahora (sin src) para desbloquear el elemento de audio;
+  // cuando llegue la respuesta de ElevenLabs podremos reproducirla.
+  try { _getAudioEl().play().catch(() => {}); } catch {}
   if (window.speechSynthesis) {
-    const unlock = new SpeechSynthesisUtterance(' ');
-    unlock.volume = 0;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(unlock);
+    const _warm = new SpeechSynthesisUtterance(' ');
+    _warm.volume = 0;
+    window.speechSynthesis.speak(_warm);
   }
 
   drwSetBubble(msg, 'user');
@@ -224,8 +278,7 @@ REGLAS ESTRICTAS:
     const data = await res.json();
     const text = data.content.map(i => i.text || '').join('');
 
-    drwSetBubble(text, 'doc');
-    drwSpeak(text);
+    drwSpeak(text, { onStart: () => drwSetBubble(text, 'doc') });
 
   } catch (e) {
     clearTimeout(timeoutId);

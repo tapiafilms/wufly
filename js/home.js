@@ -63,7 +63,7 @@ function renderHome() {
         min-height:430px;
         padding:0;
         text-align:center;
-        margin-bottom:20px;
+        margin-bottom:40px;
         position:relative;
         overflow:hidden;
         background:#4C1D95;
@@ -98,69 +98,20 @@ function renderHome() {
         </div>
       </div>
 
-      <!-- ACCESO RÁPIDO -->
-      <div style="padding:0 16px;margin-bottom:20px;">
-        <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:12px;">ACCESO RÁPIDO</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-
-          <!-- Vets -->
-          <button onclick="switchTab('restaurantes')"
-            style="height:80px;border:none;cursor:pointer;border-radius:16px;background:linear-gradient(135deg,#5C2FA8,#7C4DCC);box-shadow:0 4px 14px rgba(92,47,168,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0;transition:transform 0.15s;"
-            onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(0.96)'" ontouchend="this.style.transform='scale(1)'">
-            <span style="font-size:28px;line-height:1;">🏥</span>
-            <span style="font-size:11px;font-weight:700;color:white;">Vets Cercanas</span>
-          </button>
-
-          <!-- Dr. Wufly -->
-          <button onclick="switchTab('drwufly')"
-            style="height:80px;border:none;cursor:pointer;border-radius:16px;background:linear-gradient(135deg,#0891B2,#06B6D4);box-shadow:0 4px 14px rgba(8,145,178,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0;transition:transform 0.15s;"
-            onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(0.96)'" ontouchend="this.style.transform='scale(1)'">
-            <span style="font-size:28px;line-height:1;">🩺</span>
-            <span style="font-size:11px;font-weight:700;color:white;">Dr. Wufly</span>
-          </button>
-
-          <!-- Adoptar -->
-          <button onclick="switchComunidadTab('adoptar'); switchTab('comunidad')"
-            style="height:80px;border:none;cursor:pointer;border-radius:16px;background:linear-gradient(135deg,#059669,#10B981);box-shadow:0 4px 14px rgba(5,150,105,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0;transition:transform 0.15s;"
-            onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(0.96)'" ontouchend="this.style.transform='scale(1)'">
-            <span style="font-size:28px;line-height:1;">🐾</span>
-            <span style="font-size:11px;font-weight:700;color:white;">Adoptar</span>
-          </button>
-
-          <!-- Arte -->
-          <button onclick="switchServiciosTab('arte'); switchTab('servicios')"
-            style="height:80px;border:none;cursor:pointer;border-radius:16px;background:linear-gradient(135deg,#7C3AED,#C026D3);box-shadow:0 4px 14px rgba(124,58,237,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0;transition:transform 0.15s;"
-            onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(0.96)'" ontouchend="this.style.transform='scale(1)'">
-            <span style="font-size:28px;line-height:1;">🎨</span>
-            <span style="font-size:11px;font-weight:700;color:white;">Arte</span>
-          </button>
-
-        </div>
+      <!-- ACCESO RÁPIDO — Stack drag interactivo -->
+      <div style="padding:0 16px;margin-top:10px;">
+        <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;margin-bottom:12px;"></div>
+        <div id="card-stack" style="position:relative;height:215px;touch-action:none;"></div>
       </div>
 
-      <!-- CAROUSEL VIDEOS -->
-      <div style="margin-bottom:20px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:10px;">
-          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">▶️ VIDEOS WUFLY</div>
-          <a href="https://www.youtube.com/@wufly" target="_blank" rel="noopener" style="background:none;border:none;font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;">Ver canal →</a>
-        </div>
-        <div id="clinicas-clip" style="overflow:hidden;">
-          <div id="clinicas-track"
-            style="display:flex;gap:12px;padding:4px 0 12px 16px;will-change:transform;transition:transform 0.65s cubic-bezier(0.25,0.46,0.45,0.94);">
-            <!-- Shorts se cargan dinámicamente -->
-          </div>
-        </div>
-        <div id="carousel-dots" style="display:flex;justify-content:center;gap:5px;margin-top:6px;">
-          ${VIDEOS_WUFLY.map((_, i) => `<div class="cdot${i===0?' cdot-active':''}" style="width:${i===0?'20px':'6px'};height:6px;border-radius:100px;background:${i===0?'var(--purple)':'#D1D5DB'};transition:all 0.3s;"></div>`).join('')}
-        </div>
-      </div>
+      
 
 
       <!-- GALERÍA DE MASCOTAS DE LA COMUNIDAD -->
-      <div id="pet-gallery-section" style="margin-bottom:24px;">
+      <div id="pet-gallery-section" style="margin-bottom:24px;margin-top:-7px;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:12px;">
-          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">🐾 MASCOTAS DE LA COMUNIDAD</div>
-          <div style="font-size:11px;font-weight:600;color:var(--purple);">Últimas registradas</div>
+          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">▶️ ÚLTIMOS REGISTRADOS</div>
+          <div style="font-size:11px;font-weight:600;color:var(--purple);">Comunidad Wufly</div>
         </div>
         <div
           id="pet-gallery-grid"
@@ -193,24 +144,24 @@ function renderHome() {
           box-shadow:0 8px 28px rgba(109,40,217,0.38);
           padding:22px 18px 20px;
           position:relative;
+          min-height:180px;
         ">
-          <!-- Destellos decorativos -->
-          <div style="position:absolute;top:-20px;right:-20px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none;"></div>
-          <div style="position:absolute;bottom:-30px;left:-10px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.05);pointer-events:none;"></div>
+          <!-- Imagen de fondo con blend mode screen -->
+          <div style="position:absolute;inset:0;background-image:url('img/bg-juntos.png');background-size:contain;background-repeat:no-repeat;background-position:right center;mix-blend-mode:screen;opacity:0.9;pointer-events:none;"></div>
 
-          <div style="position:relative;z-index:1;">
-            <div style="font-size:32px;margin-bottom:10px;">✨</div>
+          <div style="position:relative;z-index:1;max-width:55%;">
+            <div style="font-size:28px;margin-bottom:8px;">✨</div>
             <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:20px;color:white;line-height:1.2;margin-bottom:6px;">
               Juntos — IA
             </div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.8);line-height:1.5;margin-bottom:18px;">
-              Toma una foto de tu mascota y una selfie. La IA los une en un lugar mágico.
+            <div style="font-size:13px;color:rgba(255,255,255,0.9);line-height:1.5;margin-bottom:18px;">
+              Toma una foto de tu mascota y una selfie.<br>La IA los une en un lugar mágico.
             </div>
             <button onclick="abrirJuntos()"
-              style="width:100%;padding:14px;border:none;border-radius:14px;background:white;color:#6D28D9;font-family:'Funnel Display',sans-serif;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;gap:8px;transition:transform 0.15s;"
+              style="padding:13px 20px;border:none;border-radius:14px;background:white;color:#6D28D9;font-family:'Funnel Display',sans-serif;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.25);display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform 0.15s;white-space:nowrap;"
               onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'"
               ontouchstart="this.style.transform='scale(0.97)'" ontouchend="this.style.transform='scale(1)'">
-              <span style="font-size:18px;">🐾</span> Crear mi foto con IA
+              <span style="font-size:20px;"></span>Crear mi foto con IA
             </button>
           </div>
         </div>
@@ -220,7 +171,7 @@ function renderHome() {
       <!-- CARRUSEL FOTOS JUNTOS -->
       <div id="juntos-carousel-section" style="display:none;margin-bottom:20px;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:10px;">
-          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">✨ MOMENTOS DE LA COMUNIDAD</div>
+          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">▶️ MOMENTOS DE LA COMUNIDAD</div>
         </div>
         <div style="overflow:hidden;padding:4px 0 10px;">
           <div id="juntos-track"
@@ -228,6 +179,51 @@ function renderHome() {
           </div>
         </div>
       </div>
+
+
+
+<!-- PERRITOS PASEANDO -->
+      <div style="margin:0 16px 24px;">
+        <div onclick="abrirMapaPaseos()" style="
+          border-radius:22px;
+          background:linear-gradient(135deg,#0F172A,#1E3A5F,#1D4ED8);
+          box-shadow:0 8px 28px rgba(29,78,216,0.35);
+          padding:20px 18px;
+          cursor:pointer;
+          display:flex;
+          align-items:center;
+          gap:16px;
+          position:relative;
+          overflow:hidden;
+        ">
+          <div style="font-size:52px;flex-shrink:0;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));">🐾</div>
+          <div style="flex:1;">
+            <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:18px;color:white;line-height:1.2;margin-bottom:5px;">Perritos paseando cerca</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.5;">Mira en tiempo real qué perritos de la comunidad están paseando ahora mismo cerca tuyo.</div>
+          </div>
+          <div style="flex-shrink:0;background:rgba(255,255,255,0.18);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+          </div>
+        </div>
+      </div>
+
+<!-- CAROUSEL VIDEOS -->
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:10px;">
+          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">▶️ SHORTS MASCOTAS</div>
+          <a href="" target="_blank" rel="noopener" style="background:none;border:none;font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;">Canales Destacados</a>
+        </div>
+        <div id="clinicas-clip" style="overflow:hidden;">
+          <div id="clinicas-track"
+            style="display:flex;gap:12px;padding:4px 0 12px 16px;will-change:transform;transition:transform 0.65s cubic-bezier(0.25,0.46,0.45,0.94);">
+            <!-- Shorts se cargan dinámicamente -->
+          </div>
+        </div>
+        <div id="carousel-dots" style="display:flex;justify-content:center;gap:5px;margin-top:6px;">
+          ${[0,1,2].map((i) => `<div class="cdot cdot-page" data-page="${i}" style="width:${i===0?'20px':'6px'};height:6px;border-radius:100px;background:${i===0?'var(--purple)':'#D1D5DB'};transition:all 0.3s;"></div>`).join('')}
+        </div>
+      </div>
+
 
       <!-- BANNER ARTE — imagen: img/banner-arte.jpg | link: onclick abajo -->
       <div style="margin:0 16px 20px;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(124,58,237,0.15);cursor:pointer;"
@@ -249,6 +245,7 @@ function renderHome() {
   // Cargar Shorts dinámicos y luego inicializar dots
   _cargarShorts().then(() => setTimeout(_initCarouselDots, 50));
   setTimeout(_initCarouselDots, 50);
+  setTimeout(_initCardStack, 80);
 
   // Forzar play del video hero (iOS ignora autoplay en elementos creados con innerHTML)
   setTimeout(() => {
@@ -304,10 +301,13 @@ async function _cargarShorts() {
 
   if (!_shortsData.length) return;
 
-  track.innerHTML = _shortsData.map(v => `
+  track.innerHTML = _shortsData.map(v => {
+    const thumb = v.thumbnail || `https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg`;
+    return `
     <div onclick="abrirShort('${v.videoId}')"
-      style="flex:0 0 52%;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,0.22);position:relative;aspect-ratio:9/16;background:#0d0620;">
-      <img src="${v.thumbnail}" alt="${v.titulo.replace(/"/g,'')}"
+      style="flex:0 0 30%;min-width:110px;border-radius:14px;overflow:hidden;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.22);position:relative;aspect-ratio:9/16;background:#1a0a3c;">
+      <img src="${thumb}" alt="${v.titulo.replace(/"/g,'')}"
+        onerror="this.src='https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg'"
         style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;">
       <!-- Overlay -->
       <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 40%,rgba(0,0,0,0.78) 100%);pointer-events:none;"></div>
@@ -323,34 +323,125 @@ async function _cargarShorts() {
         <div style="font-size:10px;color:rgba(255,255,255,0.7);">📺 ${v.canal}</div>
       </div>
     </div>
-  `).join('');
+  `;}).join('');
 
   // Reiniciar dots con nuevo total
   _initCarouselDots();
 }
 
+let _shortIdx = 0;
+
 function abrirShort(id) {
+  _shortIdx = _shortsData.findIndex(v => v.videoId === id);
+  if (_shortIdx < 0) _shortIdx = 0;
+  _renderShortModal();
+}
+
+function _renderShortModal() {
+  const v = _shortsData[_shortIdx];
+  if (!v) return;
+
   const prev = document.getElementById('yt-modal-overlay');
   if (prev) prev.remove();
 
+  const total = _shortsData.length;
   const overlay = document.createElement('div');
   overlay.id = 'yt-modal-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn 0.2s ease;';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9999;
+    background:rgba(0,0,0,0.95);
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  `;
+
   overlay.innerHTML = `
-    <div style="width:100%;max-width:360px;">
-      <div style="position:relative;aspect-ratio:9/16;border-radius:18px;overflow:hidden;background:#000;box-shadow:0 20px 60px rgba(0,0,0,0.7);">
-        <iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0&loop=1&playlist=${id}"
-          frameborder="0" allow="autoplay; encrypted-media; fullscreen"
-          allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;"></iframe>
+    <!-- Botón cerrar — bajado para evitar notch/batería iPhone -->
+    <button onclick="document.getElementById('yt-modal-overlay').remove()"
+      style="position:absolute;top:56px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.15);color:white;font-size:18px;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;">✕</button>
+
+    <!-- Contador -->
+    <div style="position:absolute;top:62px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.4);font-size:12px;font-weight:600;z-index:10;">${_shortIdx + 1} / ${total}</div>
+
+    <!-- Contenedor deslizable -->
+    <div id="short-slider" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;will-change:transform;">
+      <div style="width:min(308px, 79vw);position:relative;">
+        <div style="position:relative;aspect-ratio:9/16;border-radius:20px;overflow:hidden;background:#111;box-shadow:0 20px 60px rgba(0,0,0,0.8);">
+          <!-- Skeleton loading -->
+          <div id="short-skeleton" style="position:absolute;inset:0;z-index:3;background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+            <div style="width:52px;height:52px;border:3px solid rgba(255,255,255,0.1);border-top-color:rgba(255,255,255,0.6);border-radius:50%;animation:adminSpin 0.8s linear infinite;"></div>
+            <div style="width:60%;height:8px;border-radius:99px;background:rgba(255,255,255,0.08);"></div>
+            <div style="width:40%;height:8px;border-radius:99px;background:rgba(255,255,255,0.05);"></div>
+          </div>
+          <iframe id="short-iframe"
+            src="https://www.youtube.com/embed/${v.videoId}?autoplay=1&mute=1&playsinline=1&rel=0"
+            frameborder="0" allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+            allowfullscreen
+            onload="document.getElementById('short-skeleton')?.remove()"
+            style="position:absolute;inset:0;width:100%;height:100%;z-index:2;"></iframe>
+          <!-- Franjas laterales para swipe (no bloquean el centro del video) -->
+          <div id="short-swipe-layer" style="position:absolute;inset:0;z-index:5;pointer-events:none;">
+            <div style="position:absolute;left:0;top:0;width:18%;height:100%;pointer-events:auto;"></div>
+            <div style="position:absolute;right:0;top:0;width:18%;height:100%;pointer-events:auto;"></div>
+          </div>
+        </div>
       </div>
-      <button onclick="document.getElementById('yt-modal-overlay').remove()"
-        style="display:block;margin:14px auto 0;padding:10px 28px;border-radius:100px;border:none;background:rgba(255,255,255,0.12);color:white;font-size:14px;font-weight:600;cursor:pointer;">
-        ✕ Cerrar
-      </button>
     </div>
   `;
+
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+  // Swipe con animación fluida — funciona sobre el iframe y el overlay
+  let _tx = 0, _startX = 0, _startY = 0, _dragging = false, _isSwiping = false;
+  const slider = () => overlay.querySelector('#short-slider');
+
+  const onStart = e => {
+    _startX = e.touches[0].clientX;
+    _startY = e.touches[0].clientY;
+    _tx = 0; _dragging = true; _isSwiping = false;
+    const s = slider(); if (s) s.style.transition = 'none';
+  };
+  const onMove = e => {
+    if (!_dragging) return;
+    const dx = e.touches[0].clientX - _startX;
+    const dy = e.touches[0].clientY - _startY;
+    if (!_isSwiping && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) _isSwiping = true;
+    if (!_isSwiping) return;
+    _tx = dx;
+    const s = slider(); if (s) s.style.transform = `translateX(${_tx * 0.4}px)`;
+  };
+  const onEnd = () => {
+    _dragging = false;
+    const s = slider(); if (!s) return;
+    if (_isSwiping && Math.abs(_tx) > 60) {
+      const dir = _tx < 0 ? 1 : -1;
+      const next = _shortIdx + dir;
+      if (next >= 0 && next < total) {
+        s.style.transition = 'transform 0.22s ease';
+        s.style.transform = `translateX(${dir < 0 ? '100%' : '-100%'})`;
+        setTimeout(() => { _shortIdx = next; _renderShortModal(); }, 200);
+        return;
+      }
+    }
+    s.style.transition = 'transform 0.3s ease';
+    s.style.transform = 'translateX(0)';
+  };
+
+  // Escuchar en overlay y en la capa sobre el iframe
+  [overlay, overlay.querySelector('#short-swipe-layer')].forEach(el => {
+    if (!el) return;
+    el.addEventListener('touchstart', onStart, { passive: true });
+    el.addEventListener('touchmove', onMove, { passive: true });
+    el.addEventListener('touchend', onEnd, { passive: true });
+  });
+
   document.body.appendChild(overlay);
+}
+
+function _navShort(dir) {
+  const next = _shortIdx + dir;
+  if (next < 0 || next >= _shortsData.length) return;
+  _shortIdx = next;
+  _renderShortModal();
 }
 
 // Mantener función por compatibilidad
@@ -363,20 +454,22 @@ let _touchStartY = 0;
 let _swipeLocked  = false; // true cuando el gesto es claramente horizontal
 
 /* Mueve el track al slide idx usando CSS transition */
-function _goToSlide(idx) {
+const SHORTS_PER_PAGE = 3;
+
+function _goToSlide(pageIdx) {
   const track = document.getElementById('clinicas-track');
   if (!track) return;
   const card = track.querySelector('div');
   if (!card) return;
-  const step = card.offsetWidth + 12; // ancho tarjeta + gap
-  track.style.transform = `translateX(-${idx * step}px)`;
-  _carouselIdx = idx;
-  _updateDots(idx);
+  const step = card.offsetWidth + 12;
+  track.style.transform = `translateX(-${pageIdx * SHORTS_PER_PAGE * step}px)`;
+  _carouselIdx = pageIdx;
+  _updateDots(pageIdx);
 }
 
-function _updateDots(idx) {
+function _updateDots(pageIdx) {
   document.querySelectorAll('.cdot').forEach((d, i) => {
-    const active = i === idx;
+    const active = i === pageIdx;
     d.style.width      = active ? '20px' : '6px';
     d.style.background = active ? 'var(--purple)' : '#D1D5DB';
   });
@@ -389,7 +482,7 @@ function _updateDots(idx) {
 function _initCarouselDots() {
   const clip  = document.getElementById('clinicas-clip');
   if (!clip) return;
-  const total = _shortsData.length || 3;
+  const totalPages = Math.ceil((_shortsData.length || 9) / SHORTS_PER_PAGE);
   _carouselIdx = 0;
 
   clip.addEventListener('touchstart', e => {
@@ -409,12 +502,211 @@ function _initCarouselDots() {
     if (!_swipeLocked) return;
     const dx = e.changedTouches[0].clientX - _touchStartX;
     if (Math.abs(dx) > 40) {
-      if (dx < 0) _carouselIdx = Math.min(_carouselIdx + 1, total - 1);
+      if (dx < 0) _carouselIdx = Math.min(_carouselIdx + 1, totalPages - 1);
       else        _carouselIdx = Math.max(_carouselIdx - 1, 0);
       _goToSlide(_carouselIdx);
     }
     _swipeLocked = false;
   }, { passive: true });
+}
+
+
+/* ══════════════════════════════════════
+   ACCESO RÁPIDO — Stack drag interactivo
+   ══════════════════════════════════════ */
+
+const STACK_CARDS = [
+  { label:'Vets Cercanas',  sub:'Clínicas y veterinarias',         img:'img/card-vets.jpg',       nav: () => switchTab('restaurantes'),                                              grad:'#3b1465' },
+  { label:'Dra. Wufly',     sub:'Asistente veterinario IA',        img:'img/card-dra.jpg',        nav: () => switchTab('drwufly'),                                                   grad:'#2d0f6b' },
+  { label:'Adoptar',        sub:'Mascotas que buscan hogar',       img:'img/card-adoptar.jpg',    nav: () => { switchComunidadTab('adoptar'); switchTab('comunidad'); },              grad:'#1a0a3c' },
+  { label:'Arte',           sub:'Retratos de tu mascota',          img:'img/card-arte.jpg',       nav: () => { switchServiciosTab('arte'); switchTab('servicios'); },                 grad:'#2a0545' },
+  { label:'Grooming',       sub:'Estética y peluquería',           img:'img/card-grooming.jpg',   nav: () => { switchServiciosTab('grooming'); switchTab('servicios'); },             grad:'#3d1278' },
+  { label:'Paseadores',     sub:'Paseos para tu mascota',          img:'img/card-paseadores.jpg', nav: () => { switchServiciosTab('paseadores'); switchTab('servicios'); },           grad:'#1e0550' },
+];
+
+function _navFrontCard() {
+  const card = STACK_CARDS[_stackOrder[0]];
+  if (card) card.nav();
+}
+
+let _stackOrder  = []; // índices de cards, [0] = frente
+let _stackEls    = [];
+let _dragActive  = false;
+let _dragStartY  = 0;
+let _dragCurrY   = 0;
+let _dragVel     = 0;
+let _dragPrevY   = 0;
+
+function _initCardStack() {
+  const container = document.getElementById('card-stack');
+  if (!container) return;
+  container.innerHTML = '';
+  _stackEls = [];
+  _stackOrder = STACK_CARDS.map((_, i) => i);
+
+  STACK_CARDS.forEach((c, i) => {
+    const el = document.createElement('div');
+    el.style.cssText = `
+      position:absolute;left:0;right:0;
+      height:185px;border-radius:22px;
+      background:${c.grad};
+      box-shadow:0 8px 32px rgba(0,0,0,0.35);
+      overflow:hidden;
+      will-change:transform,opacity;
+      cursor:grab;
+      user-select:none;
+      -webkit-user-select:none;
+      touch-action:none;
+    `;
+    el.innerHTML = `
+      <!-- Imagen de fondo (derecha) -->
+      <img src="${c.img}" alt="${c.label}"
+        style="position:absolute;top:0;right:0;width:68%;height:100%;object-fit:cover;object-position:center;"
+        onerror="this.style.display='none'">
+
+      <!-- Degradado lateral: color sólido izquierda → transparente derecha -->
+      <div style="position:absolute;inset:0;background:linear-gradient(to right, ${c.grad} 32%, ${c.grad}cc 50%, transparent 75%);"></div>
+
+      <!-- Degradado inferior: oscurece para legibilidad del texto -->
+      <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 55%);"></div>
+
+      <!-- Flecha (esquina superior izquierda) -->
+      <div class="stack-arrow-btn" style="position:absolute;top:14px;left:14px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.22);display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(4px);">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+      </div>
+
+      <!-- Texto (parte inferior) -->
+      <div style="position:absolute;bottom:0;left:0;right:0;padding:16px 18px;">
+        <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:21px;color:white;line-height:1.15;text-shadow:0 1px 6px rgba(0,0,0,0.3);">${c.label}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.75);margin-top:3px;">${c.sub}</div>
+      </div>
+    `;
+
+    // Flecha: navega directamente (solo la card del frente)
+    const arrowBtn = el.querySelector('.stack-arrow-btn');
+    const _arrowNav = (e) => { e.stopPropagation(); if (_stackOrder[0] === i) c.nav(); };
+    arrowBtn.addEventListener('touchend', _arrowNav, { passive: true });
+    arrowBtn.addEventListener('click',    _arrowNav);
+
+    container.appendChild(el);
+    _stackEls.push(el);
+  });
+
+  _renderStack(false);
+  _attachDrag();
+}
+
+function _stackTransform(pos, dy) {
+  const scale      = 1 - pos * 0.06;
+  const translateY = pos * -12 + (pos === 0 ? dy : Math.max(0, dy * 0.15 * (1 - pos * 0.4)));
+  const opacity    = pos >= 4 ? 0 : 1 - pos * 0.08;
+  // Rotación alternada: pos1 → -2°, pos2 → +2.5°, pos3 → -1.5°
+  const rotations  = [0, -2, 2.5, -1.5, 1];
+  const rotateZ    = rotations[pos] || 0;
+  return { scale, translateY, opacity, rotateZ };
+}
+
+function _renderStack(animate, dy = 0) {
+  _stackOrder.forEach((cardIdx, pos) => {
+    const el = _stackEls[cardIdx];
+    const { scale, translateY, opacity, rotateZ } = _stackTransform(pos, dy);
+    if (animate) {
+      el.style.transition = 'transform 0.45s cubic-bezier(0.34,1.2,0.64,1), opacity 0.35s ease';
+    } else {
+      el.style.transition = pos === 0 ? 'none' : 'transform 0.45s cubic-bezier(0.34,1.2,0.64,1), opacity 0.35s ease';
+    }
+    el.style.transform = `translateY(${translateY}px) scale(${scale}) rotate(${rotateZ}deg)`;
+    el.style.opacity   = opacity;
+    el.style.zIndex    = 100 - pos;
+  });
+}
+
+function _attachDrag() {
+  const container = document.getElementById('card-stack');
+  if (!container) return;
+
+  /* ── Lógica compartida start / move / end ── */
+  function _onStart(y) {
+    if (_stackOrder.length === 0) return;
+    const frontEl = _stackEls[_stackOrder[0]];
+    _dragActive = true;
+    _dragStartY = y;
+    _dragCurrY  = 0;
+    _dragPrevY  = y;
+    _dragVel    = 0;
+    frontEl.style.transition = 'none';
+    frontEl.style.cursor = 'grabbing';
+  }
+
+  function _onMove(y) {
+    if (!_dragActive) return;
+    _dragVel   = y - _dragPrevY;
+    _dragPrevY = y;
+    _dragCurrY = y - _dragStartY;
+    if (_dragCurrY < 0) _dragCurrY = _dragCurrY * 0.2;
+    _renderStack(false, _dragCurrY);
+  }
+
+  function _onEnd() {
+    if (!_dragActive) return;
+    _dragActive = false;
+    const frontEl = _stackEls[_stackOrder[0]];
+    frontEl.style.cursor = 'grab';
+
+    const THRESHOLD = 60;
+    if (_dragCurrY > THRESHOLD || _dragVel > 8) {
+      frontEl.style.transition = 'transform 0.4s cubic-bezier(0.4,0,1,1), opacity 0.3s ease';
+      frontEl.style.transform  = `translateY(320px) scale(0.85)`;
+      frontEl.style.opacity    = '0';
+      setTimeout(() => {
+        const dismissed = _stackOrder.shift();
+        _stackOrder.push(dismissed);
+        _renderStack(true, 0);
+      }, 380);
+    } else {
+      _renderStack(true, 0);
+    }
+    _dragCurrY = 0;
+  }
+
+  /* ── Touch ── */
+  let _tStartY = 0;
+  container.addEventListener('touchstart', e => {
+    if (!e.target.closest('#card-stack')) return;
+    _tStartY = e.touches[0].clientY;
+    _onStart(_tStartY);
+  }, { passive: true });
+
+  container.addEventListener('touchmove', e => {
+    _onMove(e.touches[0].clientY);
+  }, { passive: true });
+
+  container.addEventListener('touchend', e => {
+    if (e.target.closest('.stack-arrow-btn')) { _onEnd(); return; } // flecha ya navega sola
+    const wasTap = Math.abs(e.changedTouches[0].clientY - _tStartY) < 10;
+    _onEnd();
+    if (wasTap) _navFrontCard();
+  }, { passive: true });
+
+  /* ── Mouse (desktop) ── */
+  container.addEventListener('mousedown', e => {
+    if (!e.target.closest('#card-stack')) return;
+    if (e.target.closest('.stack-arrow-btn')) return; // flecha ya navega sola
+    e.preventDefault();
+    const startY = e.clientY;
+    _onStart(startY);
+
+    const onMouseMove = e => _onMove(e.clientY);
+    const onMouseUp   = e => {
+      const wasTap = Math.abs(e.clientY - startY) < 8;
+      _onEnd();
+      if (wasTap) _navFrontCard();
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup',   onMouseUp);
+    };
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup',   onMouseUp);
+  });
 }
 
 /* ── Init ── */

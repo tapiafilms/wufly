@@ -33,9 +33,12 @@ function renderGrooming() {
         <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:17px;color:var(--text);margin-bottom:8px;">
           Wufly no encontró ningún lugar cercano a ti
         </div>
-        <div style="font-size:13px;line-height:1.6;color:var(--text-muted);max-width:260px;margin:0 auto;">
+        <div style="font-size:13px;line-height:1.6;color:var(--text-muted);max-width:260px;margin:0 auto 20px;">
           Activa tu ubicación o amplía la zona de búsqueda para ver peluquerías caninas cerca tuyo.
         </div>
+        <button onclick="activarBusquedaGrooming()" style="display:inline-flex;align-items:center;gap:8px;background:var(--purple);color:white;border:none;border-radius:100px;padding:12px 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+          📍 Actualizar ubicación
+        </button>
       </div>`;
     return;
   }
@@ -93,6 +96,17 @@ function setFilterGrooming(el, val) {
   document.querySelectorAll('#page-servicios .sub-filter-grooming .filter-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
   renderGrooming();
+}
+
+/* ══ ACTUALIZAR UBICACIÓN ══ */
+function activarBusquedaGrooming() {
+  const list = document.getElementById('groomingList');
+  if (list) list.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:12px;color:var(--text-muted);"><div style="width:28px;height:28px;border:3px solid var(--purple-light);border-top-color:var(--purple);border-radius:50%;animation:spin 0.7s linear infinite;"></div><span style="font-size:13px;">Buscando cerca de ti...</span></div>';
+  if (typeof iniciarGeoBusqueda === 'function') {
+    iniciarGeoBusqueda(true).then(() => renderGrooming());
+  } else {
+    renderGrooming();
+  }
 }
 
 /* ══ INIT ══ */
