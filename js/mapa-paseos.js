@@ -193,6 +193,9 @@ function _mpIniciarMapa(nombrePerro) {
 
       // Refrescar markers de otros perritos cada 30s
       _mpRefresh = setInterval(() => _mpCargarPerritos(), 30 * 1000);
+
+      // Iniciar detección de Encuentro Canino
+      if (typeof _ecIniciar === 'function') _ecIniciar();
     },
     () => {
       _mpMap.setView([-33.45, -70.65], 13);
@@ -315,6 +318,9 @@ function cerrarMapaPaseos() {
   if (_mpTimer)   { clearInterval(_mpTimer);   _mpTimer   = null; }
   if (_mpRefresh) { clearInterval(_mpRefresh); _mpRefresh = null; }
   if (_mpMap)     { _mpMap.remove();           _mpMap     = null; }
+
+  // Detener detección de encuentros (el poll continúa si hay encuentro activo)
+  if (typeof _ecDetener === 'function') _ecDetener();
 
   _mpUserMarker = null;
   _mpDogMarkers = [];
