@@ -141,8 +141,9 @@ async function _mpAbrirMapa(nombrePerro) {
   try {
     await _mpCargarLeaflet();
     _mpIniciarMapa(nombrePerro);
-  } catch {
-    _mpSetSubtitulo('No se pudo cargar el mapa. Revisa tu conexión.');
+  } catch (err) {
+    console.error('[mapa-paseos] error al iniciar:', err);
+    _mpSetSubtitulo(`Error: ${err?.message || 'No se pudo cargar el mapa'}`);
   }
 }
 
@@ -151,7 +152,14 @@ async function _mpAbrirMapa(nombrePerro) {
    ══════════════════════════════════════ */
 function _mpIniciarMapa(nombrePerro) {
   const container = document.getElementById('mp-map');
-  if (!container || !window.L) return;
+  if (!container || !window.L) {
+    console.error('[mapa-paseos] container o L no disponible', { container: !!container, L: !!window.L });
+    throw new Error(window.L ? 'Contenedor del mapa no encontrado' : 'Leaflet no cargó');
+  }
+
+  // Forzar altura explícita para que Leaflet pueda inicializar
+  container.style.height = (window.innerHeight * 0.55) + 'px';
+  container.style.flex   = 'none';
 
   _mpMap = L.map('mp-map', { zoomControl: true, attributionControl: false });
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(_mpMap);
