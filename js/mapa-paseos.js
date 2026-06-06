@@ -32,20 +32,16 @@ function _mpToken() {
   return _MP_ANON;
 }
 
-/* ── Cargar Leaflet CSS + JS si no están cargados ── */
+/* ── Leaflet se carga en index.html — esta función solo verifica que esté listo ── */
 function _mpCargarLeaflet() {
   if (window.L) return Promise.resolve();
+  // Esperar hasta 5s por si aún está cargando
   return new Promise((resolve, reject) => {
-    const link = document.createElement('link');
-    link.rel  = 'stylesheet';
-    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';
-    document.head.appendChild(link);
-
-    const script = document.createElement('script');
-    script.src     = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
-    script.onload  = resolve;
-    script.onerror = () => reject(new Error('No se pudo cargar Leaflet'));
-    document.head.appendChild(script);
+    let intentos = 0;
+    const check = setInterval(() => {
+      if (window.L) { clearInterval(check); resolve(); }
+      else if (++intentos > 50) { clearInterval(check); reject(new Error('Leaflet no disponible')); }
+    }, 100);
   });
 }
 
