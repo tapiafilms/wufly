@@ -769,7 +769,13 @@ function _initPullToRefresh() {
       setTimeout(done, 700);
     } else if (tab === 'alergias') {
       Promise.resolve(typeof sincronizarPerfil === 'function' ? sincronizarPerfil() : null)
-        .then(() => done());
+        .then(() => {
+          // Aplicar tema premium si corresponde
+          if (typeof _perfilAplicarPremium === 'function' && localStorage.getItem('wufly_premium') === '1') {
+            _perfilAplicarPremium();
+          }
+          done();
+        });
     } else {
       setTimeout(done, 400);
     }

@@ -66,13 +66,18 @@ function cancelarEdicion() {
 function renderPerfilUI(p) {
   if (!p) return;
 
+  const esPremium = localStorage.getItem('wufly_premium') === '1';
+
   // Pill nombre mascota
   const pillNombre = document.getElementById('perfilMascotaNombre');
   if (pillNombre) pillNombre.textContent = p.nombreMascota || 'Mi mascota';
 
   // Nombre dueño
   const nombreDueno = document.getElementById('perfilNombreDueno');
-  if (nombreDueno) nombreDueno.textContent = p.nombre ? `Hola, ${p.nombre} 👋` : 'Hola 👋';
+  if (nombreDueno) {
+    nombreDueno.textContent = p.nombre ? `Hola, ${p.nombre} 👋` : 'Hola 👋';
+    nombreDueno.style.color = esPremium ? 'white' : '';
+  }
 
   // Subtítulo
   const subtitulo = document.getElementById('perfilSubtitulo');
@@ -81,6 +86,7 @@ function renderPerfilUI(p) {
     const especie = especieEmoji[p.tipomascota] || '🐾';
     const edad = edadLabel[p.edadmascota] || '';
     subtitulo.textContent = `${especie} ${nombre}${edad ? ' · ' + edad : ''}`;
+    subtitulo.style.color = esPremium ? 'rgba(255,255,255,0.55)' : '';
   }
 
   // Badge especie
@@ -106,37 +112,83 @@ function renderPerfilUI(p) {
   }
 
   // Contenido card según modo
-  renderCardContenido(p, perfilModoEdicion);
+  renderCardContenido(p, perfilModoEdicion, esPremium);
+
+  // Aplicar tema oscuro si es premium
+  if (esPremium) _perfilAplicarPremium();
+}
+
+/* ── Tema oscuro Premium ── */
+function _perfilAplicarPremium() {
+  const hero = document.getElementById('perfilHero');
+  const card = document.getElementById('perfilCard');
+
+  if (hero) {
+    hero.style.background = 'linear-gradient(160deg, #0a0015 0%, #1a0a3c 50%, #0D0520 100%)';
+    // Logo premium en el hero
+    if (!document.getElementById('hero-logo-premium')) {
+      const logoEl = document.createElement('img');
+      logoEl.id  = 'hero-logo-premium';
+      logoEl.src = 'img/logo-premium.png';
+      logoEl.alt = 'Wufly Premium';
+      logoEl.style.cssText = 'position:absolute;top:22px;left:50%;transform:translateX(-50%);height:42px;z-index:10;filter:drop-shadow(0 2px 14px rgba(0,0,0,0.6));pointer-events:none;';
+      hero.appendChild(logoEl);
+    }
+  }
+
+  if (card) {
+    card.style.background  = '#0D0520';
+    card.style.boxShadow   = '0 -4px 20px rgba(0,0,0,0.4)';
+    // Botón editar
+    const btnEdit = card.querySelector('button[onclick="activarEdicion()"]');
+    if (btnEdit) {
+      btnEdit.style.borderColor = 'rgba(255,255,255,0.15)';
+      btnEdit.style.background  = 'rgba(255,255,255,0.07)';
+    }
+    // Botón cerrar sesión
+    const btnSalir = card.querySelector('button[onclick="cerrarSesion()"]');
+    if (btnSalir) {
+      btnSalir.style.background   = 'rgba(220,38,38,0.12)';
+      btnSalir.style.borderColor  = 'rgba(252,165,165,0.3)';
+    }
+  }
 }
 
 /* ── Render contenido card (lectura o edición) ── */
-function renderCardContenido(p, edicion) {
+function renderCardContenido(p, edicion, dark = false) {
   const wrap = document.getElementById('perfilCardContenido');
   if (!wrap) return;
+
+  const sectionBg  = dark ? 'rgba(255,255,255,0.07)' : 'var(--bg)';
+  const textColor  = dark ? 'white'                  : 'var(--text)';
+  const mutedColor = dark ? 'rgba(255,255,255,0.45)' : 'var(--text-muted)';
+  const inputBg    = dark ? 'rgba(255,255,255,0.06)' : 'white';
+  const inputBorder= dark ? 'rgba(255,255,255,0.15)' : 'var(--border-md)';
+  const inputColor = dark ? 'white'                  : 'var(--text)';
 
   if (edicion) {
     // ── MODO EDICIÓN ──
     wrap.innerHTML = `
       <div style="display:flex;flex-direction:column;gap:14px;">
 
-        <div style="background:var(--bg);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;">
-          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">DUEÑO</div>
+        <div style="background:${sectionBg};border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;">
+          <div style="font-size:11px;font-weight:700;color:${mutedColor};letter-spacing:0.07em;">DUEÑO</div>
           <input type="text" id="editNombreDueno" value="${p.nombre || ''}" placeholder="Tu nombre..."
-            style="border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
+            style="border:1.5px solid ${inputBorder};border-radius:var(--r-xs);padding:10px 12px;font-size:14px;color:${inputColor};outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:${inputBg};">
         </div>
 
-        <div style="background:var(--bg);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;">
-          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">MASCOTA</div>
+        <div style="background:${sectionBg};border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;">
+          <div style="font-size:11px;font-weight:700;color:${mutedColor};letter-spacing:0.07em;">MASCOTA</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
             <div>
-              <label style="font-size:11px;font-weight:600;color:var(--text-muted);">NOMBRE</label>
+              <label style="font-size:11px;font-weight:600;color:${mutedColor};">NOMBRE</label>
               <input type="text" id="editNombreMascota" value="${p.nombreMascota || ''}" placeholder="Nombre..."
-                style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
+                style="width:100%;margin-top:4px;border:1.5px solid ${inputBorder};border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:${inputColor};outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:${inputBg};">
             </div>
             <div>
-              <label style="font-size:11px;font-weight:600;color:var(--text-muted);">ESPECIE</label>
+              <label style="font-size:11px;font-weight:600;color:${mutedColor};">ESPECIE</label>
               <select id="editEspecie"
-                style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
+                style="width:100%;margin-top:4px;border:1.5px solid ${inputBorder};border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:${inputColor};outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:${inputBg};">
                 <option value="perro" ${p.tipomascota==='perro'?'selected':''}>🐕 Perro</option>
                 <option value="gato"  ${p.tipomascota==='gato'?'selected':''}>🐈 Gato</option>
                 <option value="otro"  ${p.tipomascota==='otro'?'selected':''}>🐾 Otro</option>
@@ -144,9 +196,9 @@ function renderCardContenido(p, edicion) {
             </div>
           </div>
           <div>
-            <label style="font-size:11px;font-weight:600;color:var(--text-muted);">EDAD</label>
+            <label style="font-size:11px;font-weight:600;color:${mutedColor};">EDAD</label>
             <select id="editEdad"
-              style="width:100%;margin-top:4px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
+              style="width:100%;margin-top:4px;border:1.5px solid ${inputBorder};border-radius:var(--r-xs);padding:10px 12px;font-size:13px;color:${inputColor};outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:${inputBg};">
               <option value="cachorro" ${p.edadmascota==='cachorro'?'selected':''}>🍼 Cachorro — menos de 1 año</option>
               <option value="joven"    ${p.edadmascota==='joven'?'selected':''}>⚡ Joven — 1 a 3 años</option>
               <option value="adulto"   ${p.edadmascota==='adulto'?'selected':''}>🌟 Adulto — 3 a 8 años</option>
@@ -155,14 +207,14 @@ function renderCardContenido(p, edicion) {
           </div>
         </div>
 
-        <div style="background:var(--bg);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;">
-          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">CONDICIONES DE SALUD</div>
+        <div style="background:${sectionBg};border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;">
+          <div style="font-size:11px;font-weight:700;color:${mutedColor};letter-spacing:0.07em;">CONDICIONES DE SALUD</div>
           <div id="saludChipsEdit" style="display:flex;flex-wrap:wrap;gap:8px;">
             ${saludOpciones.map(s => {
               const sel = (p.salud || []).includes(s.val);
               return `<div class="salud-chip ${sel ? 'selected' : ''}" data-val="${s.val}" onclick="toggleSaludChip(this)"
                 style="display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;border:1.5px solid;
-                ${sel ? 'background:#5DD6A8;color:#1a3a2a;border-color:#5DD6A8;' : 'background:white;color:var(--text-muted);border-color:var(--border-md);'}">
+                ${sel ? 'background:#5DD6A8;color:#1a3a2a;border-color:#5DD6A8;' : `background:${inputBg};color:${mutedColor};border-color:${inputBorder};`}">
                 ${s.emoji} ${s.val}
               </div>`;
             }).join('')}
@@ -170,7 +222,7 @@ function renderCardContenido(p, edicion) {
         </div>
 
         <div style="display:flex;gap:10px;margin-top:4px;">
-          <button class="btn-ghost" onclick="cancelarEdicion()" style="flex:1;">Cancelar</button>
+          <button class="btn-ghost" onclick="cancelarEdicion()" style="flex:1;${dark?'color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.15);':''}">Cancelar</button>
           <button id="btnGuardarPerfil" class="btn-primary" onclick="guardarPerfilEdits()" style="flex:2;">Guardar cambios</button>
         </div>
       </div>`;
@@ -179,47 +231,47 @@ function renderCardContenido(p, edicion) {
     // ── MODO LECTURA ──
     const tieneData = p.nombre || p.nombreMascota;
     const salud = (p.salud || []).filter(s => s !== 'Saludable');
+    const saludBg    = dark ? 'rgba(93,214,168,0.15)' : 'var(--mint-light)';
+    const saludColor = dark ? '#5DD6A8'               : 'var(--mint-dark)';
 
     wrap.innerHTML = tieneData ? `
       <div style="display:flex;flex-direction:column;gap:12px;">
 
-        <div style="background:var(--bg);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">DUEÑO</div>
-          </div>
-          <div style="font-size:15px;font-weight:600;color:var(--text);">${p.nombre || '—'}</div>
+        <div style="background:${sectionBg};border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:11px;font-weight:700;color:${mutedColor};letter-spacing:0.07em;">DUEÑO</div>
+          <div style="font-size:15px;font-weight:600;color:${textColor};">${p.nombre || '—'}</div>
         </div>
 
-        <div style="background:var(--bg);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;">
-          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">MASCOTA</div>
+        <div style="background:${sectionBg};border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:11px;font-weight:700;color:${mutedColor};letter-spacing:0.07em;">MASCOTA</div>
           <div style="display:flex;align-items:center;gap:10px;">
             <span style="font-size:28px;">${especieEmoji[p.tipomascota] || '🐾'}</span>
             <div>
-              <div style="font-family:'Funnel Display',sans-serif;font-size:18px;font-weight:700;color:var(--text);">${p.nombreMascota || '—'}</div>
-              <div style="font-size:12px;color:var(--text-muted);margin-top:1px;">${edadLabel[p.edadmascota] || ''}</div>
+              <div style="font-family:'Funnel Display',sans-serif;font-size:18px;font-weight:700;color:${textColor};">${p.nombreMascota || '—'}</div>
+              <div style="font-size:12px;color:${mutedColor};margin-top:1px;">${edadLabel[p.edadmascota] || ''}</div>
             </div>
           </div>
         </div>
 
         ${salud.length > 0 ? `
-        <div style="background:var(--bg);border-radius:14px;padding:14px;">
-          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:8px;">CONDICIONES DE SALUD</div>
+        <div style="background:${sectionBg};border-radius:14px;padding:14px;">
+          <div style="font-size:11px;font-weight:700;color:${mutedColor};letter-spacing:0.07em;margin-bottom:8px;">CONDICIONES DE SALUD</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px;">
             ${salud.map(s => {
               const op = saludOpciones.find(x => x.val === s);
-              return `<span style="font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;background:var(--mint-light);color:var(--mint-dark);">${op ? op.emoji : '•'} ${s}</span>`;
+              return `<span style="font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;background:${saludBg};color:${saludColor};">${op ? op.emoji : '•'} ${s}</span>`;
             }).join('')}
           </div>
         </div>` : `
-        <div style="background:var(--bg);border-radius:14px;padding:14px;">
-          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:4px;">CONDICIONES DE SALUD</div>
-          <div style="font-size:13px;color:var(--text-hint);">✅ Sin condiciones especiales</div>
+        <div style="background:${sectionBg};border-radius:14px;padding:14px;">
+          <div style="font-size:11px;font-weight:700;color:${mutedColor};letter-spacing:0.07em;margin-bottom:4px;">CONDICIONES DE SALUD</div>
+          <div style="font-size:13px;color:${mutedColor};">✅ Sin condiciones especiales</div>
         </div>`}
 
       </div>` : `
-      <div style="text-align:center;padding:20px;color:var(--text-muted);">
+      <div style="text-align:center;padding:20px;color:${mutedColor};">
         <div style="font-size:36px;margin-bottom:8px;">🐾</div>
-        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Completa tu perfil</div>
+        <div style="font-size:14px;font-weight:600;color:${textColor};margin-bottom:4px;">Completa tu perfil</div>
         <div style="font-size:12px;margin-bottom:16px;">La IA usará esta info para personalizar cada consulta</div>
         <button class="btn-primary" onclick="activarEdicion()">Completar perfil</button>
       </div>`;
