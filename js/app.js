@@ -690,28 +690,25 @@ function _initLogoStars() {
   overlay.style.cssText = 'position:absolute;inset:0;z-index:10;pointer-events:none;overflow:hidden;border-radius:50px;';
   container.appendChild(overlay);
 
-  // 24 estrellas distribuidas en el overlay
+  // 24 estrellas — sin opacity:0 inline para no interferir con la animación
+  const stars = [];
   for (let i = 0; i < 24; i++) {
     const star     = document.createElement('div');
-    const size     = (Math.random() * 2 + 1).toFixed(1);       // 1–3px
+    const size     = (Math.random() * 2 + 1.2).toFixed(1);
     const delay    = (Math.random() * 4).toFixed(2);
     const duration = (Math.random() * 2 + 1.8).toFixed(2);
-    const x        = (Math.random() * 90 + 5).toFixed(1);
-    const y        = (Math.random() * 80 + 10).toFixed(1);
-    star.style.cssText = [
-      'position:absolute',
-      `width:${size}px`,
-      `height:${size}px`,
-      'border-radius:50%',
-      'background:white',
-      `left:${x}%`,
-      `top:${y}%`,
-      'opacity:0',
-      'pointer-events:none',
-      `animation:logoStarPulse ${duration}s ${delay}s ease-in-out infinite`,
-    ].join(';');
+    const x        = (Math.random() * 88 + 6).toFixed(1);
+    const y        = (Math.random() * 76 + 12).toFixed(1);
+    star.style.cssText = `position:absolute;width:${size}px;height:${size}px;border-radius:50%;background:white;left:${x}%;top:${y}%;pointer-events:none;`;
     overlay.appendChild(star);
+    stars.push({ el: star, duration, delay });
   }
+  // Aplicar animación tras un frame para garantizar que el browser haya pintado
+  requestAnimationFrame(() => {
+    stars.forEach(({ el, duration, delay }) => {
+      el.style.animation = `logoStarPulse ${duration}s ${delay}s ease-in-out infinite`;
+    });
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
