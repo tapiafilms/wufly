@@ -203,7 +203,15 @@ function renderHome() {
             <source src="img/paseo.mp4" type="video/mp4">
           </video>
           <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgb(18 42 100/85%) 40%,rgb(34 91 250/55%) 100%);z-index:1;"></div>
-          <div style="font-size:52px;flex-shrink:0;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));position:relative;z-index:2;">🐾</div>
+          <div style="flex-shrink:0;position:relative;z-index:2;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="width:52px;height:52px;">
+              <ellipse cx="20" cy="30" rx="10" ry="13" fill="#569ff5"/>
+              <ellipse cx="42" cy="18" rx="10" ry="13" fill="#569ff5"/>
+              <ellipse cx="64" cy="18" rx="10" ry="13" fill="#569ff5"/>
+              <ellipse cx="82" cy="30" rx="10" ry="13" fill="#569ff5"/>
+              <path d="M50 42 C28 42 15 58 18 72 C21 85 35 90 50 90 C65 90 79 85 82 72 C85 58 72 42 50 42Z" fill="#569ff5"/>
+            </svg>
+          </div>
           <div style="flex:1;position:relative;z-index:2;">
             <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:18px;color:white;line-height:1.2;margin-bottom:5px;">Perritos paseando cerca</div>
             <div style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.5;">Mira en tiempo real qué perritos de la comunidad están paseando ahora mismo cerca tuyo.</div>

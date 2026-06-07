@@ -676,7 +676,8 @@ function _initLogoStars() {
     || document.querySelector('.app-topbar div[style*="3b1465"]');
   if (!container || container.dataset.starsInit) return;
   container.dataset.starsInit = '1';
-  container.style.overflow = 'hidden'; // asegurar overflow hidden
+  container.style.overflow  = 'hidden';
+  container.style.isolation = 'isolate'; // crear stacking context para que z-index funcione
 
   // Keyframe
   if (!document.getElementById('logo-star-kf')) {
