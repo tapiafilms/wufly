@@ -6,7 +6,7 @@
    - Imágenes                           → Cache First
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'wufly-v55';
+const CACHE_NAME = 'wufly-v56';
 const API_HOST = 'divine-waterfall-d1dfsin-gluten-life.pablo77tapia.workers.dev';
 
 const STATIC_ASSETS = [
@@ -39,6 +39,10 @@ const STATIC_ASSETS = [
   '/js/home.js',
   '/js/companion.js',
   '/js/paseador-mode.js',
+  '/js/leaflet.min.js',
+  '/css/leaflet.min.css',
+  '/js/mapa-paseos.js',
+  '/js/encuentro.js',
   'https://fonts.googleapis.com/css2?family=Funnel+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap',
 ];
 
