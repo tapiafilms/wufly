@@ -6,7 +6,7 @@
    - Imágenes                           → Cache First
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'wufly-v56';
+const CACHE_NAME = 'wufly-v57';
 const API_HOST = 'divine-waterfall-d1dfsin-gluten-life.pablo77tapia.workers.dev';
 
 const STATIC_ASSETS = [
@@ -92,6 +92,9 @@ self.addEventListener('fetch', event => {
 
   // fal.ai — URLs efímeras, nunca cachear
   if (url.hostname.endsWith('fal.media') || url.hostname.endsWith('fal.ai')) return;
+
+  // OpenStreetMap tiles — pasar directo, el SW no puede cachearlos (CSP)
+  if (url.hostname.endsWith('.tile.openstreetmap.org') || url.hostname === 'tile.openstreetmap.org') return;
 
   // API calls → Network First (con fallback a cache)
   if (url.hostname === API_HOST) {
