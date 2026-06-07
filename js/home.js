@@ -186,7 +186,7 @@ function renderHome() {
       <div style="margin:0 16px 24px;">
         <div onclick="abrirMapaPaseos()" style="
           border-radius:22px;
-          background:#0F172A;
+          background:#1D4ED8;
           box-shadow:0 8px 28px rgba(29,78,216,0.35);
           padding:20px 18px;
           cursor:pointer;
@@ -202,7 +202,7 @@ function renderHome() {
             oncanplay="this.style.opacity='0.45'">
             <source src="img/paseo.mp4" type="video/mp4">
           </video>
-          <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(15,23,42,0.85) 40%,rgba(29,78,216,0.55) 100%);z-index:1;"></div>
+          <div style="position:absolute;inset:0;background:rgba(29,78,216,0.45);z-index:1;"></div>
           <div style="font-size:52px;flex-shrink:0;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));position:relative;z-index:2;">🐾</div>
           <div style="flex:1;position:relative;z-index:2;">
             <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:18px;color:white;line-height:1.2;margin-bottom:5px;">Perritos paseando cerca</div>

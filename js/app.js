@@ -684,7 +684,7 @@ function _initLogoStars() {
     s.id = 'logo-star-kf';
     s.textContent = `@keyframes logoStarPulse {
       0%,100% { opacity:0; transform:scale(0.2); }
-      50%      { opacity:1; transform:scale(1); }
+      50%      { opacity:0.35; transform:scale(1); }
     }`;
     document.head.appendChild(s);
   }
