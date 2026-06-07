@@ -123,17 +123,9 @@ function _perfilAplicarPremium() {
   const hero = document.getElementById('perfilHero');
   const card = document.getElementById('perfilCard');
 
-  // Hero oscuro con logo premium arriba
+  // Hero oscuro
   if (hero) {
     hero.style.background = 'linear-gradient(160deg, #0a0015 0%, #1a0a3c 50%, #0D0520 100%)';
-    if (!document.getElementById('hero-logo-premium')) {
-      const logoEl = document.createElement('img');
-      logoEl.id  = 'hero-logo-premium';
-      logoEl.src = 'img/logo-premium.png';
-      logoEl.alt = 'Wufly Premium';
-      logoEl.style.cssText = 'position:absolute;top:22px;left:50%;transform:translateX(-50%);height:42px;z-index:10;filter:drop-shadow(0 2px 14px rgba(0,0,0,0.6));pointer-events:none;';
-      hero.appendChild(logoEl);
-    }
   }
 
   // Card oscura
