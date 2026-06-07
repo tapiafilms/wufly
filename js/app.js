@@ -691,7 +691,7 @@ function _initLogoStars() {
 
   // Overlay sobre todo el contenedor (encima del logo, pointer-events:none)
   const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:absolute;inset:0;z-index:10;pointer-events:none;overflow:hidden;border-radius:50px;';
+  overlay.style.cssText = 'position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;border-radius:50px;';
   container.appendChild(overlay);
 
   // 24 estrellas — sin opacity:0 inline para no interferir con la animación
