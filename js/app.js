@@ -669,44 +669,48 @@ function geoModalRechazar() {
    ESTRELLAS PALPITANTES EN LOGO
    ══════════════════════════════════════ */
 function _initLogoStars() {
-  if (localStorage.getItem('wufly_premium') !== '1') return; // solo premium
+  if (localStorage.getItem('wufly_premium') !== '1') return;
   const container = document.getElementById('logo-container');
   if (!container || container.dataset.starsInit) return;
   container.dataset.starsInit = '1';
 
-  // Inyectar keyframe una sola vez
+  // Keyframe
   if (!document.getElementById('logo-star-kf')) {
     const s = document.createElement('style');
     s.id = 'logo-star-kf';
     s.textContent = `@keyframes logoStarPulse {
-      0%,100% { opacity:0; transform:scale(0.3); }
-      50%      { opacity:0.85; transform:scale(1); }
+      0%,100% { opacity:0; transform:scale(0.2); }
+      50%      { opacity:1; transform:scale(1); }
     }`;
     document.head.appendChild(s);
   }
 
-  // Crear 22 estrellas con posición, tamaño y timing aleatorios
-  for (let i = 0; i < 22; i++) {
-    const star = document.createElement('div');
-    const size     = (Math.random() * 1.6 + 0.7).toFixed(1);  // 0.7–2.3px
-    const delay    = (Math.random() * 4).toFixed(2);            // 0–4s
-    const duration = (Math.random() * 2 + 1.6).toFixed(2);     // 1.6–3.6s
-    const x        = (Math.random() * 92 + 4).toFixed(1);      // 4%–96%
-    const y        = (Math.random() * 80 + 10).toFixed(1);     // 10%–90%
+  // Overlay sobre todo el contenedor (encima del logo, pointer-events:none)
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:absolute;inset:0;z-index:10;pointer-events:none;overflow:hidden;border-radius:50px;';
+  container.appendChild(overlay);
+
+  // 24 estrellas distribuidas en el overlay
+  for (let i = 0; i < 24; i++) {
+    const star     = document.createElement('div');
+    const size     = (Math.random() * 2 + 1).toFixed(1);       // 1–3px
+    const delay    = (Math.random() * 4).toFixed(2);
+    const duration = (Math.random() * 2 + 1.8).toFixed(2);
+    const x        = (Math.random() * 90 + 5).toFixed(1);
+    const y        = (Math.random() * 80 + 10).toFixed(1);
     star.style.cssText = [
       'position:absolute',
       `width:${size}px`,
       `height:${size}px`,
       'border-radius:50%',
-      'background:rgba(255,255,255,0.92)',
+      'background:white',
       `left:${x}%`,
       `top:${y}%`,
       'opacity:0',
       'pointer-events:none',
-      'z-index:1',
       `animation:logoStarPulse ${duration}s ${delay}s ease-in-out infinite`,
     ].join(';');
-    container.appendChild(star);
+    overlay.appendChild(star);
   }
 }
 
