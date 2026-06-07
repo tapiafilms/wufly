@@ -653,7 +653,12 @@ function _ecActualizarBadgePremium() {
     setTimeout(() => {
       logo.src = 'img/logo-premium.png';
       logo.style.opacity = '1';
+      // Activar estrellas ahora que el usuario es premium
+      if (typeof _initLogoStars === 'function') _initLogoStars();
     }, 400);
+  } else {
+    // Ya tiene logo premium, activar estrellas directamente
+    if (typeof _initLogoStars === 'function') _initLogoStars();
   }
 }
 

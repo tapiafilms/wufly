@@ -665,6 +665,51 @@ function geoModalRechazar() {
   } catch (_) {}
 })();
 
+/* ══════════════════════════════════════
+   ESTRELLAS PALPITANTES EN LOGO
+   ══════════════════════════════════════ */
+function _initLogoStars() {
+  if (localStorage.getItem('wufly_premium') !== '1') return; // solo premium
+  const container = document.getElementById('logo-container');
+  if (!container || container.dataset.starsInit) return;
+  container.dataset.starsInit = '1';
+
+  // Inyectar keyframe una sola vez
+  if (!document.getElementById('logo-star-kf')) {
+    const s = document.createElement('style');
+    s.id = 'logo-star-kf';
+    s.textContent = `@keyframes logoStarPulse {
+      0%,100% { opacity:0; transform:scale(0.3); }
+      50%      { opacity:0.85; transform:scale(1); }
+    }`;
+    document.head.appendChild(s);
+  }
+
+  // Crear 22 estrellas con posición, tamaño y timing aleatorios
+  for (let i = 0; i < 22; i++) {
+    const star = document.createElement('div');
+    const size     = (Math.random() * 1.6 + 0.7).toFixed(1);  // 0.7–2.3px
+    const delay    = (Math.random() * 4).toFixed(2);            // 0–4s
+    const duration = (Math.random() * 2 + 1.6).toFixed(2);     // 1.6–3.6s
+    const x        = (Math.random() * 92 + 4).toFixed(1);      // 4%–96%
+    const y        = (Math.random() * 80 + 10).toFixed(1);     // 10%–90%
+    star.style.cssText = [
+      'position:absolute',
+      `width:${size}px`,
+      `height:${size}px`,
+      'border-radius:50%',
+      'background:rgba(255,255,255,0.92)',
+      `left:${x}%`,
+      `top:${y}%`,
+      'opacity:0',
+      'pointer-events:none',
+      'z-index:1',
+      `animation:logoStarPulse ${duration}s ${delay}s ease-in-out infinite`,
+    ].join(';');
+    container.appendChild(star);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   injectProfileStyles();
   buildAllergyGrid();
@@ -673,6 +718,8 @@ document.addEventListener('DOMContentLoaded', () => {
   updateAllergyBanner();
   renderProfileSummary();
   updateInfoColumn('home');
+  /* Estrellas en logo */
+  setTimeout(_initLogoStars, 300);
   /* Mostrar modal de ubicación tras 1.5s si aún no se ha respondido */
   setTimeout(showGeoModal, 1500);
   /* Pull to refresh */
