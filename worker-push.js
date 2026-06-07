@@ -206,7 +206,17 @@ export default {
         pez:     'small, the person holds a fishbowl or the fish swims nearby in water',
       }[tipoPet] || 'appropriately sized relative to the person';
 
-      const prompt = `Pixar 3D animated movie style, render quality like Coco or Up. The FIRST image is a reference photo of a PERSON — transform them into a Pixar character that is instantly and unmistakably recognizable as that same person: preserve their exact face structure, hair color and style, eye color, skin tone and any distinctive features, faithfully translated into Pixar art style. The SECOND image is a reference photo of their ${petWord} — transform it into a Pixar-style ${petWord} that looks exactly like the one in the photo, same breed, fur color, size and markings. IMPORTANT: the ${petWord} must be rendered at its REALISTIC SIZE relative to the person — it is ${sizeHint}. Generate a single magical scene where this Pixar-style person is joyfully interacting with their Pixar-style ${petWord} on ${lugarSafe}, rendered as a breathtaking magical world with vibrant colors, cinematic Pixar lighting, rich details and an epic sense of wonder. Ultra high quality, 8K render.`;
+      const prompt = `Pixar 3D animated movie style, render quality like Coco or Up.
+
+STRICT RULES — follow exactly:
+
+RULE 1 — THE PERSON (first image): Transform them into a fully HUMAN Pixar character. They must keep their complete human anatomy: human face, human hands, human feet, human legs, human body. Do NOT give them paws, claws, fur, tails, animal ears, snouts, or any animal feature whatsoever. Preserve their exact face structure, hair color and style, skin tone, eye color and distinctive features translated faithfully into Pixar art style. They are 100% human.
+
+RULE 2 — THE ${petWord.toUpperCase()} (second image): Transform it into a Pixar-style ${petWord} that looks exactly like the one in the photo — same breed, fur color, size and markings. The ${petWord} must be rendered at REALISTIC SIZE relative to the person: ${sizeHint}.
+
+RULE 3 — THE SCENE: Generate one single magical scene where the fully human Pixar character joyfully interacts with their Pixar ${petWord} on ${lugarSafe}. The human has zero animal features. The ${petWord} has zero human features. No mixing or blending of anatomy between them.
+
+Vibrant colors, cinematic Pixar lighting, rich background details, ultra high quality, 8K render.`;
 
       // Enviar a la cola de fal.ai (no bloquea — devuelve request_id de inmediato)
       const falRes = await fetch('https://queue.fal.run/fal-ai/flux-pro/kontext/multi', {
