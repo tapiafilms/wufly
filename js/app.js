@@ -665,56 +665,6 @@ function geoModalRechazar() {
   } catch (_) {}
 })();
 
-/* ══════════════════════════════════════
-   ESTRELLAS PALPITANTES EN LOGO
-   ══════════════════════════════════════ */
-function _initLogoStars() {
-  if (localStorage.getItem('wufly_premium') !== '1') return;
-  // Buscar por ID o por fallback (querySelector del contenedor del logo)
-  const container = document.getElementById('logo-container')
-    || document.querySelector('.app-topbar div[style*="#3b1465"]')
-    || document.querySelector('.app-topbar div[style*="3b1465"]');
-  if (!container || container.dataset.starsInit) return;
-  container.dataset.starsInit = '1';
-  container.style.overflow  = 'hidden';
-  container.style.isolation = 'isolate'; // crear stacking context para que z-index funcione
-
-  // Keyframe
-  if (!document.getElementById('logo-star-kf')) {
-    const s = document.createElement('style');
-    s.id = 'logo-star-kf';
-    s.textContent = `@keyframes logoStarPulse {
-      0%,100% { opacity:0; transform:scale(0.2); }
-      50%      { opacity:0.35; transform:scale(1); }
-    }`;
-    document.head.appendChild(s);
-  }
-
-  // Overlay sobre todo el contenedor (encima del logo, pointer-events:none)
-  const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;border-radius:50px;';
-  container.appendChild(overlay);
-
-  // 24 estrellas — sin opacity:0 inline para no interferir con la animación
-  const stars = [];
-  for (let i = 0; i < 24; i++) {
-    const star     = document.createElement('div');
-    const size     = (Math.random() * 2 + 1.2).toFixed(1);
-    const delay    = (Math.random() * 4).toFixed(2);
-    const duration = (Math.random() * 2 + 1.8).toFixed(2);
-    const x        = (Math.random() * 88 + 6).toFixed(1);
-    const y        = (Math.random() * 76 + 12).toFixed(1);
-    star.style.cssText = `position:absolute;width:${size}px;height:${size}px;border-radius:50%;background:white;left:${x}%;top:${y}%;pointer-events:none;`;
-    overlay.appendChild(star);
-    stars.push({ el: star, duration, delay });
-  }
-  // Aplicar animación tras un frame para garantizar que el browser haya pintado
-  requestAnimationFrame(() => {
-    stars.forEach(({ el, duration, delay }) => {
-      el.style.animation = `logoStarPulse ${duration}s ${delay}s ease-in-out infinite`;
-    });
-  });
-}
 
 document.addEventListener('DOMContentLoaded', () => {
   injectProfileStyles();
@@ -724,8 +674,6 @@ document.addEventListener('DOMContentLoaded', () => {
   updateAllergyBanner();
   renderProfileSummary();
   updateInfoColumn('home');
-  /* Estrellas en logo */
-  setTimeout(_initLogoStars, 300);
   /* Mostrar modal de ubicación tras 1.5s si aún no se ha respondido */
   setTimeout(showGeoModal, 1500);
   /* Pull to refresh */
