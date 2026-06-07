@@ -98,10 +98,10 @@ async function _mpAbrirMapa(nombrePerro) {
 
   const modal = document.createElement('div');
   modal.id = 'mp-modal';
-  modal.style.cssText = 'position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,0.55);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s ease;';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,0.55);display:flex;align-items:flex-end;justify-content:center;animation:mpFadeIn 0.3s ease;';
 
   modal.innerHTML = `
-    <div style="background:white;border-radius:28px 28px 0 0;width:100%;max-width:480px;height:88vh;display:flex;flex-direction:column;overflow:hidden;">
+    <div id="mp-sheet" style="background:white;border-radius:28px 28px 0 0;width:100%;max-width:480px;height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:mpSlideUp 0.42s cubic-bezier(0.32,0.72,0,1);">
 
       <!-- Handle + header -->
       <div style="padding:14px 20px 10px;flex-shrink:0;">
@@ -128,11 +128,17 @@ async function _mpAbrirMapa(nombrePerro) {
     </div>
   `;
 
-  // Keyframe para el pulso
+  // Keyframes
   if (!document.getElementById('mp-styles')) {
     const s = document.createElement('style');
     s.id = 'mp-styles';
-    s.textContent = `@keyframes mpPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`;
+    s.textContent = `
+      @keyframes mpPulse    { 0%,100%{opacity:1} 50%{opacity:0.4} }
+      @keyframes mpFadeIn   { from{opacity:0} to{opacity:1} }
+      @keyframes mpFadeOut  { from{opacity:1} to{opacity:0} }
+      @keyframes mpSlideUp  { from{transform:translateY(100%)} to{transform:translateY(0)} }
+      @keyframes mpSlideDown{ from{transform:translateY(0)} to{transform:translateY(105%)} }
+    `;
     document.head.appendChild(s);
   }
 
@@ -332,9 +338,10 @@ function cerrarMapaPaseos() {
 
   const modal = document.getElementById('mp-modal');
   if (modal) {
-    modal.style.transition = 'opacity 0.2s ease';
-    modal.style.opacity = '0';
-    setTimeout(() => { modal.remove(); document.body.style.overflow = ''; }, 200);
+    const sheet = document.getElementById('mp-sheet');
+    if (sheet) sheet.style.animation = 'mpSlideDown 0.38s cubic-bezier(0.32,0.72,0,1) forwards';
+    modal.style.animation = 'mpFadeOut 0.38s ease forwards';
+    setTimeout(() => { modal.remove(); document.body.style.overflow = ''; }, 380);
   }
 }
 
