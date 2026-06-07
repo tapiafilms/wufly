@@ -242,12 +242,14 @@
         <div id="perfilSubtitulo" style="font-size:12px;color:var(--text-muted);margin-top:2px;">Tu mascota y tú</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <div id="perfilEspecieBadge" style="font-size:22px;"></div>
-        <!-- Botón editar -->
-        <button onclick="activarEdicion()"
-          style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border-md);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;">
-          <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--purple);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        </button>
+        <!-- Normal: badge especie + botón editar -->
+        <div id="perfilDerechaDefault" style="display:flex;align-items:center;gap:8px;">
+          <div id="perfilEspecieBadge" style="font-size:22px;"></div>
+        </div>
+        <!-- Premium: logo premium -->
+        <div id="perfilDerechaPremium" style="display:none;">
+          <img src="img/logo-premium.png" alt="Premium" style="height:36px;width:auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4));">
+        </div>
       </div>
     </div>
 
@@ -257,9 +259,6 @@
     <!-- Contenido dinámico (lectura o edición) -->
     <div id="perfilCardContenido" style="padding:0 20px 16px;"></div>
 
-
-    <!-- Sección paseador -->
-    <div id="paseadorSection"></div>
 
     <!-- Botón cerrar sesión -->
     <div style="padding:0 20px 8px;">

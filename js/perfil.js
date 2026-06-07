@@ -123,9 +123,9 @@ function _perfilAplicarPremium() {
   const hero = document.getElementById('perfilHero');
   const card = document.getElementById('perfilCard');
 
+  // Hero oscuro con logo premium arriba
   if (hero) {
     hero.style.background = 'linear-gradient(160deg, #0a0015 0%, #1a0a3c 50%, #0D0520 100%)';
-    // Logo premium en el hero
     if (!document.getElementById('hero-logo-premium')) {
       const logoEl = document.createElement('img');
       logoEl.id  = 'hero-logo-premium';
@@ -136,22 +136,23 @@ function _perfilAplicarPremium() {
     }
   }
 
+  // Card oscura
   if (card) {
-    card.style.background  = '#0D0520';
-    card.style.boxShadow   = '0 -4px 20px rgba(0,0,0,0.4)';
-    // Botón editar
-    const btnEdit = card.querySelector('button[onclick="activarEdicion()"]');
-    if (btnEdit) {
-      btnEdit.style.borderColor = 'rgba(255,255,255,0.15)';
-      btnEdit.style.background  = 'rgba(255,255,255,0.07)';
-    }
-    // Botón cerrar sesión
+    card.style.background = '#0D0520';
+    card.style.boxShadow  = '0 -4px 20px rgba(0,0,0,0.4)';
+    // Botón cerrar sesión — estilo oscuro
     const btnSalir = card.querySelector('button[onclick="cerrarSesion()"]');
     if (btnSalir) {
-      btnSalir.style.background   = 'rgba(220,38,38,0.12)';
-      btnSalir.style.borderColor  = 'rgba(252,165,165,0.3)';
+      btnSalir.style.background  = 'rgba(220,38,38,0.12)';
+      btnSalir.style.borderColor = 'rgba(252,165,165,0.3)';
     }
   }
+
+  // Mostrar logo premium en header, ocultar badge/botón editar
+  const derechaDefault = document.getElementById('perfilDerechaDefault');
+  const derechaPremium = document.getElementById('perfilDerechaPremium');
+  if (derechaDefault) derechaDefault.style.display = 'none';
+  if (derechaPremium) derechaPremium.style.display = 'block';
 }
 
 /* ── Render contenido card (lectura o edición) ── */

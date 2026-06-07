@@ -123,6 +123,11 @@ function renderAuthBanner() {
   if (!banner) return;
 
   if (currentUser) {
+    const esPremium = localStorage.getItem('wufly_premium') === '1';
+    const textClr   = esPremium ? 'rgba(255,255,255,0.9)' : 'var(--mint-dark)';
+    const btnBg     = esPremium ? 'rgba(255,255,255,0.1)'  : 'white';
+    const btnBorder = esPremium ? 'rgba(255,255,255,0.2)'  : 'var(--border-md)';
+    const btnColor  = esPremium ? 'rgba(255,255,255,0.85)' : 'var(--text-muted)';
     banner.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
         <div style="display:flex;align-items:center;gap:10px;">
@@ -130,17 +135,23 @@ function renderAuthBanner() {
             ${currentUser.email.charAt(0).toUpperCase()}
           </div>
           <div>
-            <div style="font-size:12px;font-weight:700;color:var(--mint-dark);">☁️ Sincronizado</div>
-            <div style="font-size:11px;color:var(--mint-dark);opacity:0.8;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${currentUser.email}</div>
+            <div style="font-size:12px;font-weight:700;color:${textClr};">☁️ Sincronizado</div>
+            <div style="font-size:11px;color:${textClr};opacity:0.7;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${currentUser.email}</div>
           </div>
         </div>
-        <button onclick="cerrarSesion()"
-          style="font-size:11px;font-weight:700;color:var(--text-muted);background:white;border:1.5px solid var(--border-md);border-radius:100px;padding:6px 12px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;flex-shrink:0;">
-          Salir
-        </button>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button onclick="activarEdicion()"
+            style="font-size:11px;font-weight:700;color:${btnColor};background:${btnBg};border:1.5px solid ${btnBorder};border-radius:100px;padding:6px 12px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+            Editar perfil
+          </button>
+          <button onclick="cerrarSesion()"
+            style="font-size:11px;font-weight:700;color:${btnColor};background:${btnBg};border:1.5px solid ${btnBorder};border-radius:100px;padding:6px 12px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+            Salir
+          </button>
+        </div>
       </div>`;
-    banner.style.background    = 'var(--mint-light)';
-    banner.style.borderColor   = 'rgba(93,214,168,0.35)';
+    banner.style.background    = esPremium ? '#0b1941' : 'var(--mint-light)';
+    banner.style.borderColor   = esPremium ? 'rgba(255,255,255,0.08)' : 'rgba(93,214,168,0.35)';
   } else {
     banner.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
