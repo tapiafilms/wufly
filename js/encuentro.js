@@ -677,6 +677,16 @@ async function _ecVerificarPremium() {
   } catch {}
 }
 
+/* ── Verificar premium al cargar la app (con espera a que auth esté listo) ── */
+document.addEventListener('DOMContentLoaded', () => {
+  // Si ya está en localStorage, aplicar inmediatamente
+  if (localStorage.getItem('wufly_premium') === '1') {
+    _ecActualizarBadgePremium();
+  }
+  // Verificar contra Supabase una vez que el usuario esté autenticado
+  setTimeout(_ecVerificarPremium, 2500);
+});
+
 /* ══════════════════════════════════════
    HELPERS
    ══════════════════════════════════════ */
