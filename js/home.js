@@ -204,7 +204,7 @@ function renderHome() {
           </video>
           <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgb(18 42 100/85%) 40%,rgb(34 91 250/55%) 100%);z-index:1;"></div>
           <div style="flex-shrink:0;position:relative;z-index:2;">
-            <img src="img/icono.png" alt="Wufly" style="width:52px;height:52px;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));">
+            <img src="img/icono.png" alt="Wufly" style="width:52px;height:52px;object-fit:contain;border-radius:10px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));">
           </div>
           <div style="flex:1;position:relative;z-index:2;">
             <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:18px;color:white;line-height:1.2;margin-bottom:5px;">Perritos paseando cerca</div>
