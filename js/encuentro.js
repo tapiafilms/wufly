@@ -645,19 +645,16 @@ async function _ecCompartir(url) {
    PREMIUM — BADGE EN UI
    ══════════════════════════════════════ */
 function _ecActualizarBadgePremium() {
-  if (document.getElementById('ec-premium-badge')) return;
-  const badge = document.createElement('div');
-  badge.id = 'ec-premium-badge';
-  badge.style.cssText = `
-    position:fixed;top:16px;right:70px;z-index:600;
-    background:linear-gradient(135deg,#F59E0B,#D97706);
-    border-radius:20px;padding:4px 10px;
-    display:flex;align-items:center;gap:4px;
-    box-shadow:0 2px 8px rgba(217,119,6,0.4);
-    cursor:default;
-  `;
-  badge.innerHTML = `<span style="font-size:12px;">✨</span><span style="font-size:10px;font-weight:800;color:white;font-family:'Funnel Display',sans-serif;">Premium</span>`;
-  document.body.appendChild(badge);
+  // Cambiar logo a versión premium con fade
+  const logo = document.getElementById('wufly-logo');
+  if (logo && !logo.src.includes('logo-premium')) {
+    logo.style.transition = 'opacity 0.4s ease';
+    logo.style.opacity = '0';
+    setTimeout(() => {
+      logo.src = 'img/logo-premium.png';
+      logo.style.opacity = '1';
+    }, 400);
+  }
 }
 
 async function _ecVerificarPremium() {

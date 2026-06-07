@@ -186,7 +186,7 @@ function renderHome() {
       <div style="margin:0 16px 24px;">
         <div onclick="abrirMapaPaseos()" style="
           border-radius:22px;
-          background:linear-gradient(135deg,#0F172A,#1E3A5F,#1D4ED8);
+          background:#0F172A;
           box-shadow:0 8px 28px rgba(29,78,216,0.35);
           padding:20px 18px;
           cursor:pointer;
@@ -195,13 +195,20 @@ function renderHome() {
           gap:16px;
           position:relative;
           overflow:hidden;
+          min-height:90px;
         ">
-          <div style="font-size:52px;flex-shrink:0;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));">🐾</div>
-          <div style="flex:1;">
+          <video autoplay muted loop playsinline
+            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transition:opacity 1s ease;"
+            oncanplay="this.style.opacity='0.45'">
+            <source src="img/paseo.mp4" type="video/mp4">
+          </video>
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(15,23,42,0.85) 40%,rgba(29,78,216,0.55) 100%);z-index:1;"></div>
+          <div style="font-size:52px;flex-shrink:0;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));position:relative;z-index:2;">🐾</div>
+          <div style="flex:1;position:relative;z-index:2;">
             <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:18px;color:white;line-height:1.2;margin-bottom:5px;">Perritos paseando cerca</div>
             <div style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.5;">Mira en tiempo real qué perritos de la comunidad están paseando ahora mismo cerca tuyo.</div>
           </div>
-          <div style="flex-shrink:0;background:rgba(255,255,255,0.18);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;">
+          <div style="flex-shrink:0;background:rgba(255,255,255,0.18);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;">
             <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
           </div>
         </div>
