@@ -670,9 +670,13 @@ function geoModalRechazar() {
    ══════════════════════════════════════ */
 function _initLogoStars() {
   if (localStorage.getItem('wufly_premium') !== '1') return;
-  const container = document.getElementById('logo-container');
+  // Buscar por ID o por fallback (querySelector del contenedor del logo)
+  const container = document.getElementById('logo-container')
+    || document.querySelector('.app-topbar div[style*="#3b1465"]')
+    || document.querySelector('.app-topbar div[style*="3b1465"]');
   if (!container || container.dataset.starsInit) return;
   container.dataset.starsInit = '1';
+  container.style.overflow = 'hidden'; // asegurar overflow hidden
 
   // Keyframe
   if (!document.getElementById('logo-star-kf')) {
