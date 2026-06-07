@@ -227,8 +227,11 @@ async function _ecPollEstados() {
         _ecMostrarPantallaFoto(enc);
       }
 
-      // Completado → mostrar celebración
+      // Completado → otorgar premium local y mostrar celebración
       if (_ecEncuentro.estado === 'completado' && !document.getElementById('ec-celebracion')) {
+        // Marcar premium en este dispositivo (independiente de quién tomó la foto)
+        localStorage.setItem('wufly_premium', '1');
+        _ecActualizarBadgePremium();
         _ecMostrarCelebracion(enc);
       }
 
