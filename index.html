@@ -23,6 +23,9 @@
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="img/icono.png">
 
+<!-- Preload splash logo para que aparezca al instante -->
+<link rel="preload" as="image" href="img/logo.png">
+
 <!-- SEO / Open Graph -->
 <meta name="description" content="Encuentra veterinarias, adopta mascotas, reporta perdidos y consulta a un asistente veterinario con IA.">
 
@@ -34,6 +37,27 @@
 <script src="js/leaflet.min.js"></script>
 </head>
 <body>
+
+<!-- ===== SPLASH SCREEN (iOS PWA) ===== -->
+<div id="wufly-splash" style="
+  position:fixed;inset:0;z-index:99999;
+  background:#7C4DCC;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .35s ease;
+">
+  <img src="img/logo.png" alt="Wufly"
+    style="width:180px;max-width:55vw;object-fit:contain;"
+    onerror="this.style.display='none'">
+</div>
+<script>
+  (function(){
+    var s=document.getElementById('wufly-splash');
+    function hide(){s.style.opacity='0';setTimeout(function(){s.remove()},360);}
+    if(document.readyState==='complete'){hide();}
+    else{window.addEventListener('load',hide);}
+  })();
+</script>
+<!-- ===== /SPLASH SCREEN ===== -->
 
 <!-- DESKTOP LAYOUT WRAPPER -->
 <div class="desktop-layout">
@@ -78,8 +102,8 @@
 
   <!-- Topbar con logo y botón de cuenta -->
   <div class="app-topbar">
-    <div style="background: #3b1465;padding:15px 25px;display:flex;align-items:center;position:absolute;border-radius:50px;margin-top:50px;margin-left:10px;">
-      <button onclick="window.location.reload()" style="background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;" title="Actualizar app">
+    <div id="logo-container" style="background:#3b1465;padding:15px 25px;display:flex;align-items:center;position:absolute;border-radius:50px;margin-top:50px;margin-left:10px;overflow:hidden;">
+      <button onclick="window.location.reload()" style="background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;position:relative;z-index:2;" title="Actualizar app">
         <img id="wufly-logo" src="img/logo.png" alt="Wufly" style="height:40px;width:auto;object-fit:contain;">
       </button>
     </div>
