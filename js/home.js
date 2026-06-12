@@ -86,16 +86,16 @@ function renderHome() {
         <div style="position:absolute;inset:0;background:linear-gradient(to bottom, rgba(30,10,70,0.25) 0%, rgba(76,29,149,0.65) 60%, rgba(50,10,100,0.85) 100%);z-index:2;border-radius:0 0 28px 28px;"></div>
 
         <!-- URGENTE — deslizable desde la izquierda como una sola unidad -->
-        <div id="urgente-widget" style="position:absolute;left:0;top:42%;z-index:10;display:none;transform:translateY(-50%) translateX(calc(-100% + 26px));transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);">
+        <div id="urgente-widget" style="position:absolute;left:0;top:60%;z-index:10;display:none;transform:translateY(-50%) translateX(calc(-100% + 26px));transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);">
           <div style="display:flex;align-items:stretch;background:rgba(255,255,255,0.97);border-radius:0 20px 20px 0;box-shadow:4px 4px 28px rgba(0,0,0,0.25);overflow:hidden;">
             <!-- Contenido — toca para abrir link -->
-            <div onclick="abrirUrgenteLink()" style="padding:16px 12px 16px 18px;width:232px;cursor:pointer;">
+            <div onclick="abrirUrgenteLink()" style="padding:16px 12px 16px 18px;width:400px;cursor:pointer;text-align: left;">
               <div id="urgente-fecha" style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:15px;color:#4C1D95;margin-bottom:8px;line-height:1.2;"></div>
-              <div id="urgente-desc" style="font-size:13px;color:#1F2937;line-height:1.55;"></div>
+              <div id="urgente-desc" style="font-size:13px;color:#1F2937;line-height:16px;"></div>
             </div>
             <!-- URGENTE label — toca para abrir/cerrar -->
-            <div onclick="toggleUrgente()" style="width:26px;display:flex;align-items:center;justify-content:center;padding:10px 0;border-left:1px solid rgba(0,0,0,0.07);background:rgba(254,226,226,0.5);cursor:pointer;flex-shrink:0;">
-              <span style="writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);font-size:10px;font-weight:800;color:#DC2626;letter-spacing:0.13em;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;">URGENTE</span>
+            <div onclick="toggleUrgente()" style="width:26px;display:flex;align-items:center;justify-content:center;padding:10px 0;border-left:1px solid rgba(0,0,0,0.07);cursor:pointer;flex-shrink:0;">
+              <span style="writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);font-size:16px;font-weight:800;color:#3b1465;letter-spacing:0em;font-family:'Funnel Display',sans-serif;white-space:nowrap;">URGENTE</span>
             </div>
           </div>
         </div>
@@ -104,7 +104,7 @@ function renderHome() {
         <div style="position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:482px;padding:0 20px 28px;">
           ${_avatarHome}
           ${heroFoto
-            ? `<div style="width:82px;height:82px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.85);box-shadow:0 4px 16px rgba(0,0,0,0.35);margin-bottom:10px;"><img src="${heroFoto}" style="width:100%;height:100%;object-fit:cover;" alt="mascota"></div>`
+            ? `<div style="width:82px;display:none;height:82px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.85);box-shadow:0 4px 16px rgba(0,0,0,0.35);margin-bottom:10px;"><img src="${heroFoto}" style="width:100%;height:100%;object-fit:cover;" alt="mascota"></div>`
             : heroMediaEmoji}
           <div style="margin-top:14px;">
             <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:24px;color:white;line-height:1.2;text-shadow:0 2px 8px rgba(0,0,0,0.35);">${saludo}${nombre}!</div>
