@@ -6,8 +6,10 @@
    - Imágenes                           → Cache First
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'wufly-v59';
-const API_HOST = 'divine-waterfall-d1dfsin-gluten-life.pablo77tapia.workers.dev';
+const CACHE_NAME = 'wufly-v61';
+const API_HOST         = 'divine-waterfall-d1dfsin-gluten-life.pablo77tapia.workers.dev';
+const SUPABASE_HOST    = 'ybnacudfqerbzpvqcjzc.supabase.co';
+const PUSH_WORKER_HOST = 'wufly-push.pablo77tapia.workers.dev';
 
 const STATIC_ASSETS = [
   '/',
@@ -43,6 +45,9 @@ const STATIC_ASSETS = [
   '/css/leaflet.min.css',
   '/js/mapa-paseos.js',
   '/js/encuentro.js',
+  '/js/notificaciones.js',
+  '/js/foto-juntos.js',
+  '/js/pet-gallery.js',
   'https://fonts.googleapis.com/css2?family=Funnel+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap',
 ];
 
@@ -96,8 +101,10 @@ self.addEventListener('fetch', event => {
   // OpenStreetMap tiles — pasar directo, el SW no puede cachearlos (CSP)
   if (url.hostname.endsWith('.tile.openstreetmap.org') || url.hostname === 'tile.openstreetmap.org') return;
 
-  // API calls → Network First (con fallback a cache)
-  if (url.hostname === API_HOST) {
+  // APIs dinámicas → Network First (nunca servir datos cacheados)
+  if (url.hostname === API_HOST ||
+      url.hostname === SUPABASE_HOST ||
+      url.hostname === PUSH_WORKER_HOST) {
     event.respondWith(networkFirst(request));
     return;
   }

@@ -857,6 +857,26 @@
 
 <!-- PWA: Service Worker registration -->
 <script>
+  /* ── ?reset: limpia TODO y recarga limpio. Uso: añadir ?reset a la URL ── */
+  (async function() {
+    if (!location.search.includes('reset')) return;
+    // Limpiar localStorage y sessionStorage
+    localStorage.clear();
+    sessionStorage.clear();
+    // Desregistrar todos los SW activos
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+    // Borrar todos los cachés del SW
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    // Recargar sin el parámetro para no entrar en loop
+    location.replace(location.pathname);
+  })();
+
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js').then(reg => {
@@ -873,15 +893,15 @@
           }
         }
 
-        // SW ya estaba esperando al cargar la página → aplicar inmediatamente
-        if (reg.waiting) applyUpdate();
+        // SW ya estaba esperando al cargar la página → mostrar banner
+        if (reg.waiting) showBanner();
 
-        // SW nuevo encontrado durante la sesión → aplicar al instalar
+        // SW nuevo encontrado durante la sesión → mostrar banner al instalarse
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing;
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              applyUpdate();
+              showBanner();
             }
           });
         });
@@ -890,11 +910,14 @@
         reg.update();
 
         // Al activarse el nuevo SW, recargar
+        let reloading = false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (reloading) return;
+          reloading = true;
           window.location.reload();
         });
 
-        btn.addEventListener('click', applyUpdate);
+        btn.addEventListener('click', () => { applyUpdate(); });
       }).catch(err => console.warn('[Wufly SW] Error:', err));
     });
   }
@@ -915,8 +938,19 @@
   const tabParam = urlParams.get('tab');
   if (tabParam) {
     window.addEventListener('DOMContentLoaded', () => {
-      const valid = ['home','restaurantes','drwufly','comunidad','servicios','alergias'];
-      if (valid.includes(tabParam)) switchTab(tabParam);
+      const tabMap = {
+        home: () => switchTab('home'),
+        restaurantes: () => switchTab('restaurantes'),
+        drwufly: () => switchTab('drwufly'),
+        comunidad: () => switchTab('comunidad'),
+        servicios: () => switchTab('servicios'),
+        alergias: () => switchTab('alergias'),
+        // Sub-tabs de comunidad (usados en shortcuts del manifest)
+        adoptar:   () => { switchTab('comunidad'); switchComunidadTab('adoptar'); },
+        perdidos:  () => { switchTab('comunidad'); switchComunidadTab('perdidos'); },
+        rescate:   () => { switchTab('comunidad'); switchComunidadTab('rescate'); },
+      };
+      if (tabMap[tabParam]) tabMap[tabParam]();
     });
   }
 </script>
