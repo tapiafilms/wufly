@@ -182,6 +182,20 @@ function renderHome() {
 
 
 
+<!-- MASCOTAS DEL DÍA -->
+      <div id="mascotas-dia-section" style="margin:0 16px 24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">🐾 MASCOTAS DEL DÍA</div>
+          <div style="font-size:11px;font-weight:600;color:var(--purple);">Agente Wufly</div>
+        </div>
+        <div id="mascotas-dia-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <!-- Skeleton perdido -->
+          <div style="border-radius:18px;overflow:hidden;background:linear-gradient(110deg,#FEF3C7 30%,#FDE68A 50%,#FEF3C7 70%);background-size:200% 100%;animation:shimmer 1.4s infinite;aspect-ratio:3/4;"></div>
+          <!-- Skeleton adopción -->
+          <div style="border-radius:18px;overflow:hidden;background:linear-gradient(110deg,#EDE9FE 30%,#DDD6FE 50%,#EDE9FE 70%);background-size:200% 100%;animation:shimmer 1.4s 0.15s infinite;aspect-ratio:3/4;"></div>
+        </div>
+      </div>
+
 <!-- PERRITOS PASEANDO -->
       <div style="margin:0 16px 24px;">
         <div onclick="abrirMapaPaseos()" style="
@@ -280,6 +294,9 @@ function renderHome() {
       if (typeof cargarCarruselJuntos === 'function') cargarCarruselJuntos();
     }, 800);
   }
+
+  // Mascotas del Día (agente IA)
+  setTimeout(cargarMascotasDelDia, 300);
 
   // Detectar región y recargar clínicas/tiendas si corresponde
   Promise.all([
@@ -722,3 +739,119 @@ function _attachDrag() {
 document.addEventListener('DOMContentLoaded', () => {
   renderHome(); // renderHome() ya llama _initCarouselDots internamente
 });
+
+/* ══════════════════════════════════════
+   MASCOTAS DEL DÍA — Agente IA Wufly
+   Muestra el perdido y adopción más
+   recientes generados por el agente.
+   ══════════════════════════════════════ */
+
+async function cargarMascotasDelDia() {
+  const grid = document.getElementById('mascotas-dia-grid');
+  if (!grid) return;
+
+  const headers = {
+    'apikey': SUPABASE_ANON,
+    'Authorization': `Bearer ${SUPABASE_ANON}`,
+    'Content-Type': 'application/json',
+  };
+
+  try {
+    const [resPerdido, resAdopcion] = await Promise.all([
+      fetch(`${SUPABASE_URL}/rest/v1/perdidos?select=*&user_id=is.null&order=created_at.desc&limit=1`, { headers }),
+      fetch(`${SUPABASE_URL}/rest/v1/adopciones?select=*&user_id=is.null&order=created_at.desc&limit=1`, { headers }),
+    ]);
+
+    const [perdidos, adopciones] = await Promise.all([resPerdido.json(), resAdopcion.json()]);
+    const perdido  = Array.isArray(perdidos)  && perdidos.length  ? perdidos[0]  : null;
+    const adopcion = Array.isArray(adopciones) && adopciones.length ? adopciones[0] : null;
+
+    if (!perdido && !adopcion) {
+      grid.closest('#mascotas-dia-section').style.display = 'none';
+      return;
+    }
+
+    grid.innerHTML = [
+      perdido  ? _renderCardPerdido(perdido)   : '',
+      adopcion ? _renderCardAdopcion(adopcion) : '',
+    ].join('');
+
+  } catch (e) {
+    // Si falla, ocultar silenciosamente
+    const section = document.getElementById('mascotas-dia-section');
+    if (section) section.style.display = 'none';
+  }
+}
+
+function _imgGenericaUrl(id) {
+  const num = ((id % 6) + 6) % 6 + 1; // 1-6, siempre positivo
+  return `img/generica-${num}.jpg`;
+}
+
+function _renderCardPerdido(p) {
+  const foto = p.foto_url || _imgGenericaUrl(p.id);
+  const especie = p.especie || 'Mascota';
+  const ubicacion = p.ubicacion || '';
+  const fecha = p.fecha_extravio ? new Date(p.fecha_extravio).toLocaleDateString('es-CL', { day:'numeric', month:'short' }) : '';
+  const desc = (p.descripcion || '').slice(0, 72) + ((p.descripcion || '').length > 72 ? '…' : '');
+
+  return `
+    <div style="border-radius:18px;overflow:hidden;background:#FFFBEB;box-shadow:0 4px 16px rgba(234,179,8,0.18);display:flex;flex-direction:column;position:relative;">
+      <!-- Foto -->
+      <div style="position:relative;aspect-ratio:1/1;overflow:hidden;flex-shrink:0;">
+        <img src="${foto}" alt="${especie}"
+          onerror="this.src='${_imgGenericaUrl(p.id)}'"
+          style="width:100%;height:100%;object-fit:cover;display:block;">
+        <!-- Badge -->
+        <div style="position:absolute;top:8px;left:8px;background:#F59E0B;border-radius:8px;padding:3px 8px;font-size:10px;font-weight:800;color:white;letter-spacing:0.04em;display:flex;align-items:center;gap:3px;">🐾 PERDIDO</div>
+      </div>
+      <!-- Info -->
+      <div style="padding:10px 11px 12px;flex:1;display:flex;flex-direction:column;gap:5px;">
+        <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:15px;color:#92400E;line-height:1.2;">${especie}</div>
+        ${fecha ? `<div style="font-size:10px;color:#B45309;font-weight:600;">📅 ${fecha}</div>` : ''}
+        ${ubicacion ? `<div style="font-size:10px;color:#78716C;line-height:1.3;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;">📍 ${ubicacion}</div>` : ''}
+        ${desc ? `<div style="font-size:11px;color:#57534E;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${desc}</div>` : ''}
+        ${p.link ? `
+        <a href="${p.link}" target="_blank" rel="noopener"
+          style="margin-top:auto;padding-top:6px;display:inline-flex;align-items:center;justify-content:center;gap:5px;background:#F59E0B;border-radius:10px;padding:8px 10px;font-size:11px;font-weight:800;color:white;text-decoration:none;text-align:center;">
+          Ver publicación →
+        </a>` : ''}
+      </div>
+    </div>`;
+}
+
+function _renderCardAdopcion(a) {
+  const foto = a.foto_url || _imgGenericaUrl(a.id);
+  const nombre = a.nombre || a.especie || 'Mascota';
+  const ciudad = a.ciudad || '';
+  const edad = a.edad || '';
+  const tamano = a.tamano || '';
+  const desc = (a.descripcion || '').slice(0, 72) + ((a.descripcion || '').length > 72 ? '…' : '');
+
+  return `
+    <div style="border-radius:18px;overflow:hidden;background:#F5F3FF;box-shadow:0 4px 16px rgba(109,40,217,0.14);display:flex;flex-direction:column;position:relative;">
+      <!-- Foto -->
+      <div style="position:relative;aspect-ratio:1/1;overflow:hidden;flex-shrink:0;">
+        <img src="${foto}" alt="${nombre}"
+          onerror="this.src='${_imgGenericaUrl(a.id)}'"
+          style="width:100%;height:100%;object-fit:cover;display:block;">
+        <!-- Badge -->
+        <div style="position:absolute;top:8px;left:8px;background:#7C3AED;border-radius:8px;padding:3px 8px;font-size:10px;font-weight:800;color:white;letter-spacing:0.04em;display:flex;align-items:center;gap:3px;">💙 ADOPCIÓN</div>
+      </div>
+      <!-- Info -->
+      <div style="padding:10px 11px 12px;flex:1;display:flex;flex-direction:column;gap:5px;">
+        <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:15px;color:#4C1D95;line-height:1.2;">${nombre}</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+          ${edad    ? `<span style="font-size:10px;background:#EDE9FE;color:#5B21B6;border-radius:6px;padding:2px 6px;font-weight:700;">${edad}</span>` : ''}
+          ${tamano  ? `<span style="font-size:10px;background:#EDE9FE;color:#5B21B6;border-radius:6px;padding:2px 6px;font-weight:700;">${tamano}</span>` : ''}
+        </div>
+        ${ciudad ? `<div style="font-size:10px;color:#6D28D9;font-weight:600;">📍 ${ciudad}</div>` : ''}
+        ${desc ? `<div style="font-size:11px;color:#4B5563;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${desc}</div>` : ''}
+        ${a.link ? `
+        <a href="${a.link}" target="_blank" rel="noopener"
+          style="margin-top:auto;padding-top:6px;display:inline-flex;align-items:center;justify-content:center;gap:5px;background:#7C3AED;border-radius:10px;padding:8px 10px;font-size:11px;font-weight:800;color:white;text-decoration:none;text-align:center;">
+          Ver publicación →
+        </a>` : ''}
+      </div>
+    </div>`;
+}
