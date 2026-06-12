@@ -208,9 +208,12 @@ async function renderPerdidoFeed() {
     const fechaStr = p.fecha_extravio
       ? new Date(p.fecha_extravio + 'T12:00:00').toLocaleDateString('es-CL', { day: 'numeric', month: 'long' })
       : '';
-    const fotoHtml = p.foto_url
-      ? `<img src="${escHTMLPerdidos(p.foto_url)}" alt="" onclick="abrirLightbox('${escHTMLPerdidos(p.foto_url)}')" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;cursor:pointer;">`
-      : `<div style="width:100%;height:90px;background:linear-gradient(135deg,#FAF0EE,#FEF3E8);border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:44px;">${iconMapP[p.especie] || '🐾'}</div>`;
+    const FOTOS_DEFAULT_P = [
+      '/img/perdido-1.jpg','/img/perdido-2.jpg','/img/perdido-3.jpg',
+      '/img/perdido-4.jpg','/img/perdido-5.jpg','/img/perdido-6.jpg',
+    ];
+    const fotoSrcP = p.foto_url || FOTOS_DEFAULT_P[Math.floor(Math.random() * FOTOS_DEFAULT_P.length)];
+    const fotoHtml = `<img src="${escHTMLPerdidos(fotoSrcP)}" alt="" onclick="abrirLightbox('${escHTMLPerdidos(fotoSrcP)}')" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;cursor:pointer;" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:160px;background:linear-gradient(135deg,#FAF0EE,#FEF3E8);border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:44px;\\'>${iconMapP[p.especie] || '🐾'}</div>'">`;
     const wspClean = (p.wsp || '').replace(/\D/g, '');
     const tieneWsp = wspClean.length >= 7;
     const tieneLink = !!(p.link || '').trim();

@@ -60,9 +60,12 @@ async function renderAdopFeed() {
     const ts = new Date(a.created_at);
     const diasAtras = Math.floor((Date.now() - ts.getTime()) / 86400000);
     const fechaStr = diasAtras === 0 ? 'Hoy' : diasAtras === 1 ? 'Ayer' : `Hace ${diasAtras} días`;
-    const fotoHtml = a.foto_url
-      ? `<img src="${escHTML(a.foto_url)}" alt="${escHTML(a.nombre)}" onclick="abrirLightbox('${escHTML(a.foto_url)}')" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;cursor:pointer;">`
-      : `<div style="width:100%;height:120px;background:var(--purple-light);border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:52px;">${iconMap[a.especie] || '🐾'}</div>`;
+    const FOTOS_DEFAULT = [
+      '/img/adopcion-1.jpg','/img/adopcion-2.jpg','/img/adopcion-3.jpg',
+      '/img/adopcion-4.jpg','/img/adopcion-5.jpg','/img/adopcion-6.jpg',
+    ];
+    const fotoSrc = a.foto_url || FOTOS_DEFAULT[Math.floor(Math.random() * FOTOS_DEFAULT.length)];
+    const fotoHtml = `<img src="${escHTML(fotoSrc)}" alt="${escHTML(a.nombre)}" onclick="abrirLightbox('${escHTML(fotoSrc)}')" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;cursor:pointer;" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:160px;background:var(--purple-light);border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:52px;\\'>${iconMap[a.especie] || '🐾'}</div>'">`;
     const wspClean = (a.wsp || '').replace(/\D/g, '');
     const tieneWsp = wspClean.length >= 7;
     const tieneLink = !!(a.link || '').trim();
