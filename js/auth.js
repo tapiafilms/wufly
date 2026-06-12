@@ -29,6 +29,13 @@ db.auth.onAuthStateChange(async (event, session) => {
   } else if (event === 'SIGNED_OUT') {
     localStorage.removeItem('wufly_session_email');
     localStorage.removeItem('wufly_avatar');
+    localStorage.removeItem('wufly_profile_v1');
+    localStorage.removeItem('wufly_premium');
+    localStorage.removeItem('wufly_companion');
+    localStorage.removeItem('wufly_companion_date');
+    localStorage.removeItem('wufly_geo_granted');
+    localStorage.removeItem('wufly_push_asked');
+    localStorage.removeItem('wufly_push_subscribed');
   }
   renderAuthBanner();
   if (currentUser && event === 'SIGNED_IN') {
@@ -359,6 +366,12 @@ async function cerrarSesion() {
   localStorage.removeItem('wufly_session_email');
   localStorage.removeItem('wufly_avatar');
   localStorage.removeItem('wufly_profile_v1');
+  localStorage.removeItem('wufly_premium');
+  localStorage.removeItem('wufly_companion');
+  localStorage.removeItem('wufly_companion_date');
+  localStorage.removeItem('wufly_geo_granted');
+  localStorage.removeItem('wufly_push_asked');
+  localStorage.removeItem('wufly_push_subscribed');
   currentUser = null;
   renderAuthBanner();
   _actualizarBotonesPublicar();
