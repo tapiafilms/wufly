@@ -1,6 +1,5 @@
 /* ══════════════════════════════════════
    PASEADORES DE PERROS — WUFLY
-   Viña del Mar · Valparaíso · Concón
    ══════════════════════════════════════ */
 
 let paseadoresData   = [];

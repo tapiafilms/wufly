@@ -436,7 +436,7 @@ function _mostrarBannerSinCobertura() {
         <div style="font-size:36px;flex-shrink:0;">🌎</div>
         <div>
           <div style="font-family:'Funnel Display',sans-serif;font-size:16px;font-weight:700;color:white;line-height:1.3;">Llegando pronto a tu ciudad</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px;line-height:1.5;">Wufly aún no tiene cobertura en tu región, pero estamos expandiéndonos. ¡Pronto estaremos cerca de ti!</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px;line-height:1.5;">Seguimos sumando clínicas verificadas en todo Chile. ¡Pronto habrá más cerca de ti!</div>
         </div>
       </div>
       <button onclick="this.closest('#wufly-geo-banner').remove()" style="background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.8);border:1.5px solid rgba(255,255,255,0.2);border-radius:10px;padding:11px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Entendido 🐾</button>

@@ -34,12 +34,12 @@ const INFO_COLUMN_CONTENT = {
     <div class="info-card">
       <div class="info-card-tag">🐾 Bienvenido a Wufly</div>
       <h2>Todo para el cuidado de tu mascota</h2>
-      <p>La plataforma de mascotas más completa de Viña del Mar, Valparaíso y Concón.</p>
+      <p>La plataforma de mascotas más completa de Chile.</p>
       <div class="info-card-divider"></div>
       <div class="info-stat-row">
         <div class="info-stat"><div class="info-stat-num">11</div><div class="info-stat-label">Veterinarias</div></div>
         <div class="info-stat"><div class="info-stat-num">10</div><div class="info-stat-label">Tiendas</div></div>
-        <div class="info-stat"><div class="info-stat-num">3</div><div class="info-stat-label">Ciudades</div></div>
+        <div class="info-stat"><div class="info-stat-num">🇨🇱</div><div class="info-stat-label">Nacional</div></div>
       </div>
     </div>
     <div class="info-card">
@@ -195,7 +195,7 @@ const INFO_COLUMN_CONTENT = {
     <div class="info-card">
       <div class="info-card-tag">🎨 Arte de mascotas</div>
       <h2>Inmortaliza a tu compañero</h2>
-      <p>Artistas verificados en Viña del Mar ofrecen retratos en óleo, acuarela, lápiz y arte digital.</p>
+      <p>Artistas verificados en todo Chile ofrecen retratos en óleo, acuarela, lápiz y arte digital.</p>
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;">
         <span class="info-tag-pill">🖼️ Óleo</span>
         <span class="info-tag-pill">🎨 Acuarela</span>

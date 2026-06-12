@@ -483,7 +483,7 @@ const _fabIntenciones = [
   {
     keywords: ['adopt', 'hogar', 'rescata'],
     titulo:   'Adoptar',
-    desc:     'Mascotas que buscan un hogar en Viña, Valpo y Concón.',
+    desc:     'Mascotas que buscan un hogar en todo Chile.',
     ir: () => { switchComunidadTab('adoptar'); switchTab('comunidad'); },
   },
   {
@@ -495,7 +495,7 @@ const _fabIntenciones = [
   {
     keywords: ['vet', 'clínica', 'clinica', 'urgencia', 'hospital', 'médico', 'medico', 'doctor'],
     titulo:   'Clínicas Veterinarias',
-    desc:     '11 clínicas verificadas en Viña del Mar, Valparaíso y Concón.',
+    desc:     'Clínicas veterinarias verificadas en todo Chile.',
     ir: () => switchTab('restaurantes'),
   },
   {

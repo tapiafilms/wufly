@@ -33,7 +33,7 @@ const vitrinas = [
       { nombre: 'Correa retráctil 5m', precio: '$12.500', desc: 'Resistente hasta 40kg, con freno de seguridad.', emoji: '🦮' },
       { nombre: 'Antiparasitario Frontline', precio: '$15.990', desc: 'Pipeta mensual contra pulgas y garrapatas.', emoji: '💊' },
     ],
-    promptExtra: 'Tienes alimentos de las marcas Royal Canin, Acana, Hills, Eukanuba, Proplan y Purina. También accesorios, correas, camas y productos de higiene. Entregas a domicilio disponibles dentro de Viña del Mar.',
+    promptExtra: 'Tienes alimentos de las marcas Royal Canin, Acana, Hills, Eukanuba, Proplan y Purina. También accesorios, correas, camas y productos de higiene. Entregas a domicilio disponibles a nivel nacional.',
   },
   {
     id: 'petlandia-vitrina',

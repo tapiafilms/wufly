@@ -9,7 +9,7 @@ const artistas = [
     nombre: 'Tapiah',
     handle: '@soytapiah',
     tecnica: 'ÓLEO · HIPERREALISMO',
-    ciudad: 'Viña del Mar',
+    ciudad: 'Chile',
     avatar: '👩‍🎨',
     descripcion: 'Especialista en retratos hiperrealistas con Lápices de Colores y Carboncillo. Cada obra captura la personalidad única de tu mascota con un nivel de detalle increíble. Trabajos enmarcados y con certificado de autenticidad.',
     tags: ['Carboncillo', 'Hiperrealismo', 'Enmarcado', 'Certificado'],
