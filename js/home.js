@@ -89,7 +89,7 @@ function renderHome() {
         <div id="urgente-widget" style="position:absolute;left:0;top:60%;z-index:10;display:none;transform:translateY(-50%) translateX(calc(-100% + 26px));transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);">
           <div style="display:flex;align-items:stretch;background:rgba(255,255,255,0.97);border-radius:0 20px 20px 0;box-shadow:4px 4px 28px rgba(0,0,0,0.25);overflow:hidden;">
             <!-- Contenido — toca para abrir link -->
-            <div onclick="abrirUrgenteLink()" style="padding:16px 12px 16px 18px;width:400px;cursor:pointer;text-align: left;">
+            <div onclick="abrirUrgenteLink()" style="padding:16px 12px 16px 18px;width:377px;cursor:pointer;text-align: left;">
               <div id="urgente-fecha" style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:15px;color:#4C1D95;margin-bottom:8px;line-height:1.2;"></div>
               <div id="urgente-desc" style="font-size:13px;color:#1F2937;line-height:16px;"></div>
             </div>
