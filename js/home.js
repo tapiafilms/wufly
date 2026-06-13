@@ -104,10 +104,10 @@ function renderHome() {
         <div style="position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:482px;padding:0 20px 28px;">
           ${_avatarHome}
           ${heroFoto
-            ? `<div style="width:82px;display:none;height:82px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.85);box-shadow:0 4px 16px rgba(0,0,0,0.35);margin-bottom:10px;"><img src="${heroFoto}" style="width:100%;height:100%;object-fit:cover;" alt="mascota"></div>`: heroMediaEmoji}
+            ? `<div style="width:82px;display:none;height:82px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.85);box-shadow:0 4px 16px rgba(0,0,0,0.35);margin-bottom:10px;"><img src="${heroFoto}" style="width:100%;height:100%;object-fit:cover;" alt="mascota"></div>`: ''}
           <!-- Últimos registrados sobre el video -->
           <div style="width:100%;padding:0 4px;">
-            <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);letter-spacing:0.08em;margin-bottom:8px;text-align:left;">▶️ ÚLTIMOS REGISTRADOS</div>
+            <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);letter-spacing:0.08em;margin-bottom:8px;text-align:right;">ÚLTIMOS REGISTRADOS</div>
             <div id="hero-pet-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;">
               <div style="aspect-ratio:1/1;border-radius:14px;background:rgba(255,255,255,0.15);animation:shimmer 1.4s infinite;"></div>
               <div style="aspect-ratio:1/1;border-radius:14px;background:rgba(255,255,255,0.15);animation:shimmer 1.4s 0.1s infinite;"></div>
