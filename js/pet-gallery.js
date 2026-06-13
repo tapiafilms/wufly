@@ -39,6 +39,9 @@ async function cargarFotosMascotas() {
     }
 
     _renderGalleryGrid(container, data);
+
+    const heroGrid = document.getElementById('hero-pet-grid');
+    if (heroGrid) _renderGalleryGrid(heroGrid, data);
   } catch (err) {
     console.warn('PetGallery: no se pudo cargar:', err.message);
     _ocultarGaleriaSection();
