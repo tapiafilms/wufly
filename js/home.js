@@ -109,10 +109,10 @@ function renderHome() {
           <div style="width:100%;padding:0 4px;">
             <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);letter-spacing:0.08em;margin-bottom:8px;text-align:right;">ÚLTIMOS REGISTRADOS</div>
             <div id="hero-pet-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;">
-              <div style="aspect-ratio:1/1;border-radius:14px;background:rgba(255,255,255,0.15);animation:shimmer 1.4s infinite;"></div>
-              <div style="aspect-ratio:1/1;border-radius:14px;background:rgba(255,255,255,0.15);animation:shimmer 1.4s 0.1s infinite;"></div>
-              <div style="aspect-ratio:1/1;border-radius:14px;background:rgba(255,255,255,0.15);animation:shimmer 1.4s 0.2s infinite;"></div>
-              <div style="aspect-ratio:1/1;border-radius:14px;background:rgba(255,255,255,0.15);animation:shimmer 1.4s 0.3s infinite;"></div>
+              <div style="aspect-ratio:1/1;border-radius:14px;background:rgba(255,255,255,0.15);border:1px solid #fff;animation:shimmer 1.4s infinite;"></div>
+              <div style="aspect-ratio:1/1;border-radius:14px;background:rgba(255,255,255,0.15);border:1px solid #fff;animation:shimmer 1.4s 0.1s infinite;"></div>
+              <div style="aspect-ratio:1/1;border-radius:14px;background:rgba(255,255,255,0.15);border:1px solid #fff;animation:shimmer 1.4s 0.2s infinite;"></div>
+              <div style="aspect-ratio:1/1;border-radius:14px;background:rgba(255,255,255,0.15);border:1px solid #fff;animation:shimmer 1.4s 0.3s infinite;"></div>
             </div>
           </div>
         </div>
@@ -128,7 +128,7 @@ function renderHome() {
 
 
       <!-- GALERÍA DE MASCOTAS DE LA COMUNIDAD -->
-      <div id="pet-gallery-section" style="margin-bottom:24px;margin-top:-7px;">
+      <div id="pet-gallery-section" style="display:none;margin-bottom:24px;margin-top:-7px;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:12px;">
           <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">▶️ ÚLTIMOS REGISTRADOS</div>
           <div style="font-size:11px;font-weight:600;color:var(--purple);">Comunidad Wufly</div>
