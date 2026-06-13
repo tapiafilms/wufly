@@ -231,9 +231,9 @@ function renderHome() {
             <div style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.5;">Mira en tiempo real qué perritos de la comunidad están paseando ahora mismo cerca tuyo.</div>
           </div>
           <div style="flex-shrink:0;position:relative;z-index:2;width:36px;height:36px;">
-            <span style="position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,0.18);animation:pulse-ring 2s ease-out infinite;"></span>
-            <span style="position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,0.12);animation:pulse-ring 2s ease-out 0.6s infinite;"></span>
-            <span style="position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,0.07);animation:pulse-ring 2s ease-out 1.2s infinite;"></span>
+            <span style="position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,0.35);animation:pulse-ring 1.8s ease-out infinite;"></span>
+            <span style="position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,0.25);animation:pulse-ring 1.8s ease-out 0.6s infinite;"></span>
+            <span style="position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,0.15);animation:pulse-ring 1.8s ease-out 1.2s infinite;"></span>
             <div style="position:relative;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;">
               <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
             </div>
