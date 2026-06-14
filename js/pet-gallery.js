@@ -70,7 +70,7 @@ function _renderGalleryGrid(container, mascotas) {
           overflow:hidden;
           aspect-ratio:1/1;
           cursor:pointer;
-          border:3px solid #ffffff85;
+          border:3px solid #ffffff47;
           box-shadow:0 4px 16px rgba(92,47,168,0.18);
           transition:transform 0.15s, box-shadow 0.15s;
           animation:petThumbIn 0.35s ease both;
