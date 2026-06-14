@@ -86,7 +86,7 @@ function renderHome() {
         <div style="position:absolute;inset:0;background:linear-gradient(to bottom, rgba(30,10,70,0.25) 0%, rgba(76,29,149,0.65) 60%, rgba(50,10,100,0.85) 100%);z-index:2;border-radius:0 0 28px 28px;"></div>
 
         <!-- URGENTE — deslizable desde la izquierda como una sola unidad -->
-        <div id="urgente-widget" style="position:absolute;left:0;top:60%;z-index:10;display:none;transform:translateY(-50%) translateX(calc(-100% + 26px));transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);">
+        <div id="urgente-widget" style="position:absolute;left:0;top:51%;z-index:10;display:none;transform:translateY(-50%) translateX(calc(-100% + 26px));transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);">
           <div style="display:flex;align-items:stretch;background:rgba(255,255,255,0.97);border-radius:0 20px 20px 0;box-shadow:4px 4px 28px rgba(0,0,0,0.25);overflow:hidden;">
             <!-- Contenido — toca para abrir link -->
             <div onclick="abrirUrgenteLink()" style="padding:16px 12px 16px 18px;width:350px;cursor:pointer;text-align: left;">
