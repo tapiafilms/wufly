@@ -17,18 +17,21 @@ const CORS = {
 
 // ── Subir imagen base64 a fal.ai Storage y devolver URL pública ──────────
 async function falUploadBase64(dataUrl, falApiKey) {
-  // dataUrl: "data:image/jpeg;base64,/9j/4AAQ..."
   const [header, b64] = dataUrl.split(',');
   const mime = header.match(/:(.*?);/)?.[1] || 'image/jpeg';
   const binary = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-  const res = await fetch('https://storage.fal.run/upload', {
+  console.log(`[falUpload] mime=${mime} size=${binary.length}`);
+  const res = await fetch('https://fal.run/storage/upload', {
     method: 'POST',
     headers: { 'Authorization': `Key ${falApiKey}`, 'Content-Type': mime },
     body: binary,
   });
-  if (!res.ok) throw new Error(`fal storage upload error ${res.status}`);
-  const data = await res.json();
-  return data.url; // URL pública CDN de fal.ai
+  const resText = await res.text();
+  console.log(`[falUpload] status=${res.status} body=${resText.slice(0, 300)}`);
+  if (!res.ok) throw new Error(`fal storage upload error ${res.status}: ${resText.slice(0, 200)}`);
+  const data = JSON.parse(resText);
+  console.log(`[falUpload] url=${data.url}`);
+  return data.url;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────
