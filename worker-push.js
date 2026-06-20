@@ -21,10 +21,15 @@ async function falUploadBase64(dataUrl, falApiKey) {
   const mime = header.match(/:(.*?);/)?.[1] || 'image/jpeg';
   const binary = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
   console.log(`[falUpload] mime=${mime} size=${binary.length}`);
-  const res = await fetch('https://fal.run/storage/upload', {
+
+  const blob = new Blob([binary], { type: mime });
+  const form = new FormData();
+  form.append('file', blob, 'image.jpg');
+
+  const res = await fetch('https://rest.alpha.fal.ai/storage/upload', {
     method: 'POST',
-    headers: { 'Authorization': `Key ${falApiKey}`, 'Content-Type': mime },
-    body: binary,
+    headers: { 'Authorization': `Key ${falApiKey}` }, // NO poner Content-Type — FormData lo setea con boundary
+    body: form,
   });
   const resText = await res.text();
   console.log(`[falUpload] status=${res.status} body=${resText.slice(0, 300)}`);
