@@ -6,6 +6,8 @@
    - Imágenes                           → Cache First
    ══════════════════════════════════════════════════ */
 
+// ⚠️ IMPORTANTE: incrementar este número manualmente cada vez que se haga deploy
+// para que los usuarios reciban los archivos actualizados y no versiones cacheadas.
 const CACHE_NAME = 'wufly-v62';
 const API_HOST         = 'divine-waterfall-d1dfsin-gluten-life.pablo77tapia.workers.dev';
 const SUPABASE_HOST    = 'ybnacudfqerbzpvqcjzc.supabase.co';

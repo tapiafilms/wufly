@@ -245,7 +245,7 @@ function renderHome() {
       <div style="margin-bottom:20px;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:10px;">
           <div style="font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:0.07em;">▶️ SHORTS MASCOTAS</div>
-          <a href="" target="_blank" rel="noopener" style="background:none;border:none;font-size:12px;font-weight:700;color:var(--purple);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;">Canales Destacados</a>
+          <span style="font-size:12px;font-weight:700;color:var(--purple);font-family:'Plus Jakarta Sans',sans-serif;">Canales Destacados</span>
         </div>
         <div id="clinicas-clip" style="overflow:hidden;">
           <div id="clinicas-track"
@@ -276,9 +276,8 @@ function renderHome() {
     </div>
   `;
 
-  // Cargar Shorts dinámicos y luego inicializar dots
+  // Cargar Shorts dinámicos y luego inicializar dots (una sola vez, tras cargar datos)
   _cargarShorts().then(() => setTimeout(_initCarouselDots, 50));
-  setTimeout(_initCarouselDots, 50);
   setTimeout(_initCardStack, 80);
 
   // Forzar play del video hero (iOS ignora autoplay en elementos creados con innerHTML)
@@ -298,12 +297,14 @@ function renderHome() {
     v.play().catch(() => {});
   }, 100);
 
-// Cargar galería — usa la sesión ya almacenada en localStorage
+// Cargar galería en idle para no bloquear el render inicial
   if (typeof cargarFotosMascotas === 'function') {
-    setTimeout(() => {
+    const _cargarGaleria = () => {
       cargarFotosMascotas();
       if (typeof cargarCarruselJuntos === 'function') cargarCarruselJuntos();
-    }, 800);
+    };
+    if (window.requestIdleCallback) requestIdleCallback(_cargarGaleria, { timeout: 2000 });
+    else setTimeout(_cargarGaleria, 200);
   }
 
   // Viñeta URGENTE
@@ -362,8 +363,6 @@ async function _cargarShorts() {
     </div>
   `;}).join('');
 
-  // Reiniciar dots con nuevo total
-  _initCarouselDots();
 }
 
 let _shortIdx = 0;
@@ -488,7 +487,8 @@ function abrirVideoYoutube(id) { abrirShort(id); }
 let _carouselIdx = 0;
 let _touchStartX = 0;
 let _touchStartY = 0;
-let _swipeLocked  = false; // true cuando el gesto es claramente horizontal
+let _swipeLocked  = false;
+let _carouselAbort = null; // controla listeners acumulados entre rerenders
 
 /* Mueve el track al slide idx usando CSS transition */
 const SHORTS_PER_PAGE = 3;
@@ -522,18 +522,22 @@ function _initCarouselDots() {
   const totalPages = Math.ceil((_shortsData.length || 9) / SHORTS_PER_PAGE);
   _carouselIdx = 0;
 
+  // Cancelar listeners previos para evitar acumulación entre rerenders
+  if (_carouselAbort) _carouselAbort.abort();
+  _carouselAbort = new AbortController();
+  const sig = { signal: _carouselAbort.signal, passive: true };
+
   clip.addEventListener('touchstart', e => {
     _touchStartX = e.touches[0].clientX;
     _touchStartY = e.touches[0].clientY;
     _swipeLocked  = false;
-  }, { passive: true });
+  }, sig);
 
   clip.addEventListener('touchmove', e => {
     const dx = Math.abs(e.touches[0].clientX - _touchStartX);
     const dy = Math.abs(e.touches[0].clientY - _touchStartY);
-    // Bloquear scroll vertical si el gesto es claramente horizontal
     if (!_swipeLocked && dx > dy && dx > 8) _swipeLocked = true;
-  }, { passive: true });
+  }, sig);
 
   clip.addEventListener('touchend', e => {
     if (!_swipeLocked) return;
@@ -544,7 +548,7 @@ function _initCarouselDots() {
       _goToSlide(_carouselIdx);
     }
     _swipeLocked = false;
-  }, { passive: true });
+  }, sig);
 }
 
 

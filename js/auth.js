@@ -4,9 +4,7 @@
    recordatorios con la nube
    ══════════════════════════════════════ */
 
-const SUPABASE_URL  = 'https://ybnacudfqerbzpvqcjzc.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibmFjdWRmcWVyYnpwdnFjanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzYzNjksImV4cCI6MjA5MTk1MjM2OX0.pQ4PVNS1wqHvnvEPO0TYwlMS6ooDpsP7DaYXqdTbFxE';
-
+// SUPABASE_URL, SUPABASE_REF y SUPABASE_ANON vienen de js/config.js
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 let currentUser = null;
 

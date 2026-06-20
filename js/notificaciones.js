@@ -24,7 +24,7 @@ function _mostrarToastNotificaciones() {
   `;
   toast.innerHTML = `
     <span style="font-size:22px;flex-shrink:0;">🔔</span>
-    <span style="flex:1;line-height:1.4;">Activa notificaciones para saber cuando alguien pierde una mascota</span>
+    <span style="flex:1;line-height:1.4;">Activa notificaciones para saber cuándo alguien pierde una mascota</span>
     <button onclick="activarNotificaciones()" style="background:var(--purple);color:white;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif;">Activar</button>
     <button onclick="cerrarToastPush()" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:18px;cursor:pointer;padding:0;line-height:1;">✕</button>
   `;

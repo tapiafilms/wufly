@@ -13,8 +13,7 @@ async function cargarFotosMascotas() {
 
   try {
     // Token de sesión si existe, si no usar clave anónima (galería pública para todos)
-    const SUPABASE_REF = 'ybnacudfqerbzpvqcjzc';
-    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibmFjdWRmcWVyYnpwdnFjanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzYzNjksImV4cCI6MjA5MTk1MjM2OX0.pQ4PVNS1wqHvnvEPO0TYwlMS6ooDpsP7DaYXqdTbFxE';
+    // SUPABASE_REF y SUPABASE_ANON vienen de js/config.js
     const stored = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF}-auth-token`) || 'null');
     const token = stored?.access_token || SUPABASE_ANON;
 

@@ -4,9 +4,9 @@
    Secret: wrangler secret put SUPABASE_SERVICE_KEY
    ══════════════════════════════════════════════════════════════════ */
 
-const VAPID_PUBLIC_KEY  = 'BKgfIN8ffRfuVhQ-ebLhvt1zT-bTumBBsHw-pTrYIdwJgjJ217jGNk3zD9-ycbjfKwQ-awzb2G1lOVWqOLBXM50';
-const VAPID_PRIVATE_KEY = 'C9fBTUiIaR3KK1DEGKHQT8gZj_Xakb9P8Gq6X2-p1K0';
-const VAPID_SUBJECT     = 'mailto:admin@wufly.cl';
+const VAPID_PUBLIC_KEY = 'BKgfIN8ffRfuVhQ-ebLhvt1zT-bTumBBsHw-pTrYIdwJgjJ217jGNk3zD9-ycbjfKwQ-awzb2G1lOVWqOLBXM50';
+const VAPID_SUBJECT    = 'mailto:admin@wufly.cl';
+// VAPID_PRIVATE_KEY se lee de env.VAPID_PRIVATE_KEY (wrangler secret put VAPID_PRIVATE_KEY)
 const SUPABASE_URL      = 'https://ybnacudfqerbzpvqcjzc.supabase.co';
 
 const CORS = {
@@ -31,7 +31,7 @@ function concat(...arrs) {
 }
 
 // ── VAPID JWT ─────────────────────────────────────────────────────────────
-async function vapidAuth(endpoint) {
+async function vapidAuth(endpoint, privateKey) {
   const origin  = new URL(endpoint).origin;
   const now     = Math.floor(Date.now() / 1000);
   const enc     = new TextEncoder();
@@ -42,7 +42,7 @@ async function vapidAuth(endpoint) {
   const pubBytes = fromB64url(VAPID_PUBLIC_KEY);
   const key = await crypto.subtle.importKey('jwk', {
     kty: 'EC', crv: 'P-256',
-    d: VAPID_PRIVATE_KEY,
+    d: privateKey,
     x: b64url(pubBytes.slice(1, 33)),
     y: b64url(pubBytes.slice(33, 65)),
   }, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']);
@@ -103,8 +103,8 @@ async function encryptPayload(payloadStr, p256dh, authSecret) {
 }
 
 // ── Send one push ─────────────────────────────────────────────────────────
-async function sendPush(sub, payload) {
-  const auth = await vapidAuth(sub.endpoint);
+async function sendPush(sub, payload, vapidPrivateKey) {
+  const auth = await vapidAuth(sub.endpoint, vapidPrivateKey);
   const body = await encryptPayload(JSON.stringify(payload), sub.p256dh, sub.auth);
   const res  = await fetch(sub.endpoint, {
     method:  'POST',
@@ -162,7 +162,7 @@ export default {
       if (!Array.isArray(subs) || subs.length === 0)
         return new Response(JSON.stringify({ sent: 0 }), { headers: { 'Content-Type': 'application/json', ...CORS } });
 
-      const results = await Promise.allSettled(subs.map(s => sendPush(s, payload)));
+      const results = await Promise.allSettled(subs.map(s => sendPush(s, payload, env.VAPID_PRIVATE_KEY)));
 
       // Limpiar suscripciones expiradas (410 Gone)
       const expired = results
@@ -518,7 +518,7 @@ Vibrant colors, cinematic Pixar lighting, rich background details, ultra high qu
       if (!Array.isArray(subs) || subs.length === 0)
         return new Response(JSON.stringify({ sent: 0 }), { headers: { 'Content-Type': 'application/json', ...CORS } });
 
-      const results = await Promise.allSettled(subs.map(s => sendPush(s, payload)));
+      const results = await Promise.allSettled(subs.map(s => sendPush(s, payload, env.VAPID_PRIVATE_KEY)));
       const sent = results.filter(r => r.status === 'fulfilled' && !r.value?.expired).length;
       return new Response(JSON.stringify({ sent }), { headers: { 'Content-Type': 'application/json', ...CORS } });
     }
@@ -560,18 +560,35 @@ Vibrant colors, cinematic Pixar lighting, rich background details, ultra high qu
 
     /* POST /api/encuentro/completar — otorgar premium a ambos usuarios (service role) */
     if (url.pathname === '/api/encuentro/completar') {
-      const { encuentroId, pixarUrl, token } = await request.json();
+      // Verificar que el solicitante es un participante del encuentro
+      const authHeader = request.headers.get('Authorization') || '';
+      const userJwt = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+      if (!userJwt) return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 401, headers: { 'Content-Type': 'application/json', ...CORS } });
+
+      const meRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+        headers: { 'apikey': env.SUPABASE_SERVICE_KEY, 'Authorization': `Bearer ${userJwt}` },
+      });
+      if (!meRes.ok) return new Response(JSON.stringify({ error: 'Token inválido' }), { status: 401, headers: { 'Content-Type': 'application/json', ...CORS } });
+      const me = await meRes.json();
+      const requesterId = me?.id;
+      if (!requesterId) return new Response(JSON.stringify({ error: 'Token inválido' }), { status: 401, headers: { 'Content-Type': 'application/json', ...CORS } });
+
+      const { encuentroId, pixarUrl } = await request.json();
       if (!encuentroId || !pixarUrl) return new Response(JSON.stringify({ error: 'Faltan parámetros' }), { status: 400, headers: { 'Content-Type': 'application/json', ...CORS } });
 
       const h = { 'apikey': env.SUPABASE_SERVICE_KEY, 'Authorization': `Bearer ${env.SUPABASE_SERVICE_KEY}`, 'Content-Type': 'application/json' };
 
-      // Verify the encuentro exists
+      // Verificar que el encuentro existe y el solicitante es participante
       const encRes = await fetch(`${SUPABASE_URL}/rest/v1/encuentros?id=eq.${encuentroId}&select=user1_id,user2_id,nombre1,nombre2,estado`, { headers: h });
       const encData = await encRes.json();
       if (!Array.isArray(encData) || encData.length === 0)
         return new Response(JSON.stringify({ error: 'Encuentro no encontrado' }), { status: 404, headers: { 'Content-Type': 'application/json', ...CORS } });
 
       const enc = encData[0];
+
+      // Verificar que el solicitante es participante del encuentro
+      if (enc.user1_id !== requesterId && enc.user2_id !== requesterId)
+        return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 403, headers: { 'Content-Type': 'application/json', ...CORS } });
 
       // Update encuentro as completed
       await fetch(`${SUPABASE_URL}/rest/v1/encuentros?id=eq.${encuentroId}`, {
@@ -600,11 +617,27 @@ Vibrant colors, cinematic Pixar lighting, rich background details, ultra high qu
             body:  `¡Tú y ${nombre} son Premium Wufly! Abre la app para ver tu foto Pixar.`,
             icon:  '/img/icono.png',
             url:   '/',
-          })));
+          }, env.VAPID_PRIVATE_KEY)));
         }
       }
 
       return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json', ...CORS } });
+    }
+
+    /* POST /api/tts — proxy de ElevenLabs para no exponer la API key en el cliente */
+    if (url.pathname === '/api/tts' && request.method === 'POST') {
+      if (!env.ELEVENLABS_KEY) return new Response('TTS no configurado', { status: 503, headers: CORS });
+      const { text, voice_id } = await request.json();
+      if (!text || !voice_id) return new Response(JSON.stringify({ error: 'Faltan parámetros' }), { status: 400, headers: { 'Content-Type': 'application/json', ...CORS } });
+
+      const ttsRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}/stream`, {
+        method: 'POST',
+        headers: { 'xi-api-key': env.ELEVENLABS_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.8 } }),
+      });
+
+      if (!ttsRes.ok) return new Response(`ElevenLabs error ${ttsRes.status}`, { status: ttsRes.status, headers: CORS });
+      return new Response(ttsRes.body, { headers: { 'Content-Type': 'audio/mpeg', 'Access-Control-Allow-Origin': '*' } });
     }
 
     return new Response('Not Found', { status: 404 });

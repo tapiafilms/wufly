@@ -1,7 +1,7 @@
 /* ══ DRA. WUFLY — ASISTENTE VETERINARIA ══ */
 
-const ELEVENLABS_KEY     = 'sk_dc7b78b29bccad83d31fd71cb5a46c6db16d3b7f3db64cd6';
 const ELEVENLABS_VOICE   = 'kcQkGnn0HAT2JRDQ4Ljp'; // Norah
+const _TTS_PROXY_URL     = 'https://wufly-push.pablo77tapia.workers.dev/api/tts';
 
 let _recognition = null;
 let _micActive = false;
@@ -105,17 +105,10 @@ function _drwSpeakFallback(text, { onStart } = {}) {
 
 async function drwSpeak(text, { onStart } = {}) {
   try {
-    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE}/stream`, {
+    const res = await fetch(_TTS_PROXY_URL, {
       method: 'POST',
-      headers: {
-        'xi-api-key': ELEVENLABS_KEY,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        text,
-        model_id: 'eleven_multilingual_v2',
-        voice_settings: { stability: 0.5, similarity_boost: 0.8 },
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, voice_id: ELEVENLABS_VOICE }),
     });
 
     if (!res.ok) throw new Error(`ElevenLabs ${res.status}`);
@@ -254,7 +247,7 @@ REGLAS ESTRICTAS:
 - Si es urgente (envenenamiento, convulsiones, dificultad respiratoria), di ir a la sección VETS YA.
 - El diagnóstico lo da el veterinario presencial, no tú.`;
 
-  setTimeout(() => drwSetBubble('', 'loading'), 400);
+  drwSetBubble('', 'loading');
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000);
@@ -276,7 +269,7 @@ REGLAS ESTRICTAS:
     if (!res.ok) throw new Error(res.status >= 500 ? 'server' : 'client');
 
     const data = await res.json();
-    const text = data.content.map(i => i.text || '').join('');
+    const text = (data?.content || []).map(i => i.text || '').join('');
 
     drwSpeak(text, { onStart: () => drwSetBubble(text, 'doc') });
 

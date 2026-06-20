@@ -89,9 +89,9 @@ function escHTMLRec(str) {
 function abrirFormRecordatorio() {
   const form = document.getElementById('formRecordatorio');
   form.style.display = 'block';
-  // Fecha por defecto: hoy
-  const hoy = new Date().toISOString().split('T')[0];
-  document.getElementById('recFecha').value = hoy;
+  // Fecha por defecto: mañana (los recordatorios son para el futuro)
+  const manana = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+  document.getElementById('recFecha').value = manana;
   form.scrollIntoView({ behavior: 'smooth' });
 }
 

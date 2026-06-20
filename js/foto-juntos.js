@@ -5,8 +5,9 @@
    ══════════════════════════════════════ */
 
 const JUNTOS_WORKER_URL = 'https://wufly-push.pablo77tapia.workers.dev/api/juntar-fotos';
-const SUPABASE_REF_J    = 'ybnacudfqerbzpvqcjzc';
-const SUPABASE_ANON_J   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibmFjdWRmcWVyYnpwdnFjanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzYzNjksImV4cCI6MjA5MTk1MjM2OX0.pQ4PVNS1wqHvnvEPO0TYwlMS6ooDpsP7DaYXqdTbFxE';
+// SUPABASE_REF y SUPABASE_ANON vienen de js/config.js
+const SUPABASE_REF_J  = SUPABASE_REF;
+const SUPABASE_ANON_J = SUPABASE_ANON;
 
 /* ── Estado interno ── */
 let _jFotoMascota   = null;
@@ -138,7 +139,10 @@ function cerrarJuntos(recargar = false) {
   setTimeout(() => {
     m.remove();
     document.body.style.overflow = '';
-    if (recargar) window.location.reload();
+    if (recargar) {
+      if (typeof renderHome === 'function') renderHome();
+      if (typeof cargarCarruselJuntos === 'function') cargarCarruselJuntos();
+    }
   }, 350);
 }
 

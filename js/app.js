@@ -2,6 +2,7 @@
    CONFIG — URL del Cloudflare Worker
    ══════════════════════════════════════ */
 const WORKER_URL = "https://divine-waterfall-d1dfsin-gluten-life.pablo77tapia.workers.dev";
+let _lastPrimaryTab = 'home';
 
 /* ── Debounce: evita renders en cada tecla (búsquedas) ── */
 function _debounce(fn, ms = 280) {
@@ -371,7 +372,7 @@ function switchTab(name, el, fromNav = false) {
     b.classList.toggle('active', b.dataset.tab === name);
   });
 
-  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('page-' + name)?.classList.add('active');
   if (name === 'restaurantes') {
     renderClinicas?.();
     /* Auto-buscar solo si el usuario ya permitió la ubicación antes */
@@ -387,14 +388,16 @@ function switchTab(name, el, fromNav = false) {
   const topBar = document.getElementById('topColorBar');
   if (topBar) topBar.style.display = name === 'home' ? 'none' : 'block';
 
-  // Páginas secundarias no tienen tab activo en nav — solo las 5 principales
-  const secondary = ['recetas', 'recordatorios', 'detail'];
+  // Para páginas secundarias, iluminar el tab padre lógico
+  const secondaryParent = { recetas: 'comunidad', recordatorios: 'home', detail: _lastPrimaryTab || 'home' };
   const order = ['home', 'restaurantes', 'drwufly', 'comunidad', 'servicios'];
-  const idx = order.indexOf(name);
-  if (!secondary.includes(name)) {
+  const activeName = secondaryParent[name] ?? name;
+  const idx = order.indexOf(activeName);
+  if (idx >= 0) {
     document.querySelectorAll('.tab')[idx]?.classList.add('active');
     document.querySelectorAll('.nav-btn')[idx]?.classList.add('active');
   }
+  if (!secondaryParent[name]) _lastPrimaryTab = name;
 
   const appPages = document.querySelector('.app-pages');
   if (appPages && window.innerWidth >= 900) {
@@ -496,13 +499,14 @@ function geoModalRechazar() {
   sessionStorage.setItem('wufly_geo_declined', '1');
 }
 
-/* ── Registrar visita única por IP ── */
+/* ── Registrar visita única por sesión ── */
 (function registrarVisita() {
   try {
+    if (sessionStorage.getItem('wufly_visita_ok')) return;
     fetch('https://wufly-push.pablo77tapia.workers.dev/api/registrar-visita', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-    }).catch(() => {});
+    }).then(() => sessionStorage.setItem('wufly_visita_ok', '1')).catch(() => {});
   } catch (_) {}
 })();
 

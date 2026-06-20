@@ -294,23 +294,38 @@ async function iniciarGeoBusqueda(forzar = false) {
 
     const RADIO = 7000; // 7 km
 
-    /* 2 · Buscar las 3 categorías en paralelo */
-    const [rVet, rTienda, rGroom] = await Promise.allSettled([
-      queryOverpass(loc.lat, loc.lng, RADIO, ['amenity=veterinary']),
-      queryOverpass(loc.lat, loc.lng, RADIO, ['shop=pet', 'shop=pet_care', 'shop=pet_food']),
-      queryOverpass(loc.lat, loc.lng, RADIO, ['shop=pet_grooming', 'craft=pet_grooming']),
-    ]);
+    /* 2 · Una sola query Overpass para las 3 categorías (con cache 10 min en sessionStorage) */
+    const _GEO_CACHE_KEY = `wufly_geo_${Math.round(loc.lat * 10) / 10}_${Math.round(loc.lng * 10) / 10}`;
+    const _GEO_CACHE_TTL = 10 * 60 * 1000;
+    let elementos = null;
+    try {
+      const cached = JSON.parse(sessionStorage.getItem(_GEO_CACHE_KEY) || 'null');
+      if (cached && Date.now() - cached.ts < _GEO_CACHE_TTL) elementos = cached.data;
+    } catch {}
 
-    /* 3 · Convertir y ordenar por distancia */
-    geoResults.clinicas = (rVet.status    === 'fulfilled' ? rVet.value    : [])
+    if (!elementos) {
+      elementos = await queryOverpass(loc.lat, loc.lng, RADIO, [
+        'amenity=veterinary',
+        'shop=pet', 'shop=pet_care', 'shop=pet_food',
+        'shop=pet_grooming', 'craft=pet_grooming',
+      ]);
+      try { sessionStorage.setItem(_GEO_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: elementos })); } catch {}
+    }
+
+    /* 3 · Separar por tipo y convertir */
+    const esVet     = e => e.tags?.amenity === 'veterinary';
+    const esTienda  = e => ['pet','pet_care','pet_food'].includes(e.tags?.shop);
+    const esGroom   = e => e.tags?.shop === 'pet_grooming' || e.tags?.craft === 'pet_grooming';
+
+    geoResults.clinicas = elementos.filter(esVet)
       .map(n => osmToClinica(n, loc.lat, loc.lng))
       .sort((a, b) => a.distKm - b.distKm);
 
-    geoResults.tiendas  = (rTienda.status === 'fulfilled' ? rTienda.value : [])
+    geoResults.tiendas  = elementos.filter(esTienda)
       .map(n => osmToTienda(n, loc.lat, loc.lng))
       .sort((a, b) => a.distKm - b.distKm);
 
-    geoResults.grooming = (rGroom.status  === 'fulfilled' ? rGroom.value  : [])
+    geoResults.grooming = elementos.filter(esGroom)
       .map(n => osmToGrooming(n, loc.lat, loc.lng))
       .sort((a, b) => a.distKm - b.distKm);
 

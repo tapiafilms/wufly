@@ -6,8 +6,9 @@
    ══════════════════════════════════════ */
 
 const _EC_WORKER = 'https://wufly-push.pablo77tapia.workers.dev';
-const _EC_REF    = 'ybnacudfqerbzpvqcjzc';
-const _EC_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibmFjdWRmcWVyYnpwdnFjanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzYzNjksImV4cCI6MjA5MTk1MjM2OX0.pQ4PVNS1wqHvnvEPO0TYwlMS6ooDpsP7DaYXqdTbFxE';
+// SUPABASE_REF y SUPABASE_ANON vienen de js/config.js
+const _EC_REF  = SUPABASE_REF;
+const _EC_ANON = SUPABASE_ANON;
 
 /* ── Estado ── */
 let _ecProxInterval  = null;  // chequeo de proximidad cada 30s
@@ -533,7 +534,7 @@ async function _ecCompletarEncuentro(encuentroId, pixarUrl) {
     // Llamar al worker para marcar como completado y otorgar premium (usa service role)
     await fetch(`${_EC_WORKER}/api/encuentro/completar`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${_ecToken()}` },
       body: JSON.stringify({ encuentroId, pixarUrl }),
     });
 

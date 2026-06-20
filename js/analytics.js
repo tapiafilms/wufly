@@ -98,9 +98,12 @@ async function mostrarAdmin() {
 }
 
 let _adminData = null;
+let _adminCacheTime = 0;
+const _ADMIN_CACHE_MS = 5 * 60 * 1000; // 5 minutos
 
 async function _recargarAdmin() {
   _adminData = null;
+  _adminCacheTime = 0;
   const btn = document.getElementById('btn-reload-admin');
   if (btn) btn.style.opacity = '0.5';
   await _cargarAdminData();
@@ -108,6 +111,11 @@ async function _recargarAdmin() {
 }
 
 async function _cargarAdminData() {
+  // Reusar datos si el cache aún es válido
+  if (_adminData && Date.now() - _adminCacheTime < _ADMIN_CACHE_MS) {
+    _renderAdminData(_adminData);
+    return;
+  }
   try {
     const hace7  = new Date(Date.now() - 7  * 86400000).toISOString();
     const hace30 = new Date(Date.now() - 30 * 86400000).toISOString();
@@ -191,11 +199,9 @@ async function _cargarAdminData() {
       totalSolicitudes, solicitudes7d, totalPaseos,
       visitasStats,
     };
+    _adminCacheTime = Date.now();
 
-    const ts = document.getElementById('admin-last-update');
-    if (ts) ts.textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-CL', { hour:'2-digit', minute:'2-digit' });
-
-    _adminTab('overview');
+    _renderAdminData(_adminData);
   } catch (e) {
     const content = document.getElementById('admin-content');
     if (content) content.innerHTML = `
@@ -205,6 +211,12 @@ async function _cargarAdminData() {
         <div style="font-size:12px;opacity:0.7;">${e.message}</div>
       </div>`;
   }
+}
+
+function _renderAdminData(d) {
+  const ts = document.getElementById('admin-last-update');
+  if (ts) ts.textContent = 'Actualizado ' + new Date(_adminCacheTime).toLocaleTimeString('es-CL', { hour:'2-digit', minute:'2-digit' });
+  _adminTab('overview');
 }
 
 function _adminTab(tab) {

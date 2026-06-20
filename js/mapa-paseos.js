@@ -4,8 +4,9 @@
    en tiempo real usando OpenStreetMap
    ══════════════════════════════════════ */
 
-const _MP_REF  = 'ybnacudfqerbzpvqcjzc';
-const _MP_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibmFjdWRmcWVyYnpwdnFjanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzYzNjksImV4cCI6MjA5MTk1MjM2OX0.pQ4PVNS1wqHvnvEPO0TYwlMS6ooDpsP7DaYXqdTbFxE';
+// SUPABASE_REF y SUPABASE_ANON vienen de js/config.js
+const _MP_REF  = SUPABASE_REF;
+const _MP_ANON = SUPABASE_ANON;
 
 const _MP_EXPIRY_MIN = 5; // minutos visibles tras cerrar el mapa
 

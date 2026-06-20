@@ -96,7 +96,7 @@ function _htmlPaseadorVerificado(p) {
         </div>
         <span style="font-size:11px;font-weight:700;color:var(--mint-dark);background:rgba(93,214,168,0.3);padding:4px 10px;border-radius:100px;">${p.zonaPaseador || 'Viña del Mar'}</span>
       </div>
-      <button onclick="iniciarModoPasseador()"
+      <button onclick="iniciarModoPaseador()"
         style="width:100%;padding:13px;border-radius:var(--r-xs);border:none;background:var(--purple);color:white;font-family:'Funnel Display',sans-serif;font-weight:700;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
         <span style="font-size:18px;">🐕</span> Iniciar modo paseador
       </button>
@@ -229,7 +229,7 @@ async function _cargarEstadoPaseadorDB() {
 
 /* ══ PANTALLA DE PASEO ACTIVO ════════════════════= */
 
-function iniciarModoPasseador() {
+function iniciarModoPaseador() {
   const overlay = document.getElementById('paseoActivoOverlay');
   if (overlay) {
     overlay.style.display = 'flex';
@@ -408,9 +408,11 @@ async function enviarFotoPaseo(input) {
 /* ══ SOS ══════════════════════════════════════════ */
 
 function activarSOS() {
-  const confirmado = confirm('🆘 ¿Activar alerta SOS? El dueño será notificado de inmediato.');
+  const confirmado = confirm('🆘 ¿Activar alerta SOS? Se registrará una alerta de emergencia.');
   if (!confirmado) return;
-  _paseadorToast('🆘 Alerta SOS enviada al dueño.', 'err');
+
+  // TODO: para notificar al dueño por push se necesita almacenar dueno_user_id
+  // al iniciar el paseo y pasarlo aquí. Por ahora registra la alerta en BD.
   if (typeof db !== 'undefined' && typeof currentUser !== 'undefined' && currentUser) {
     db.from('paseo_alertas').insert({
       paseador_id: currentUser.id,
@@ -418,7 +420,13 @@ function activarSOS() {
       lat: rutaPuntos[rutaPuntos.length - 1]?.lat || null,
       lng: rutaPuntos[rutaPuntos.length - 1]?.lng || null,
       created_at: new Date().toISOString(),
-    }).catch(() => {});
+    }).then(() => {
+      _paseadorToast('🆘 Alerta SOS registrada.', 'err');
+    }).catch(() => {
+      _paseadorToast('🆘 Alerta SOS (sin conexión).', 'err');
+    });
+  } else {
+    _paseadorToast('🆘 Alerta SOS (sin sesión).', 'err');
   }
 }
 
