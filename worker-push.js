@@ -15,6 +15,22 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
+// ── Subir imagen base64 a fal.ai Storage y devolver URL pública ──────────
+async function falUploadBase64(dataUrl, falApiKey) {
+  // dataUrl: "data:image/jpeg;base64,/9j/4AAQ..."
+  const [header, b64] = dataUrl.split(',');
+  const mime = header.match(/:(.*?);/)?.[1] || 'image/jpeg';
+  const binary = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  const res = await fetch('https://storage.fal.run/upload', {
+    method: 'POST',
+    headers: { 'Authorization': `Key ${falApiKey}`, 'Content-Type': mime },
+    body: binary,
+  });
+  if (!res.ok) throw new Error(`fal storage upload error ${res.status}`);
+  const data = await res.json();
+  return data.url; // URL pública CDN de fal.ai
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────
 function b64url(bytes) {
   return btoa(String.fromCharCode(...bytes))
@@ -218,6 +234,17 @@ RULE 3 — THE SCENE: Generate one single magical scene where the fully human Pi
 
 Vibrant colors, cinematic Pixar lighting, rich background details, ultra high quality, 8K render.`;
 
+      // Si las imágenes vienen como base64, subirlas a fal.ai Storage para obtener URLs públicas
+      // fal.ai no acepta base64 directamente en image_urls — necesita URLs https://
+      let selfieUrl     = selfie;
+      let mascotaUrl    = fotoMascota;
+      if (selfie.startsWith('data:')) {
+        selfieUrl  = await falUploadBase64(selfie, env.FAL_API_KEY);
+      }
+      if (fotoMascota.startsWith('data:')) {
+        mascotaUrl = await falUploadBase64(fotoMascota, env.FAL_API_KEY);
+      }
+
       // Enviar a la cola de fal.ai (no bloquea — devuelve request_id de inmediato)
       const falRes = await fetch('https://queue.fal.run/fal-ai/flux-pro/kontext/multi', {
         method: 'POST',
@@ -226,7 +253,7 @@ Vibrant colors, cinematic Pixar lighting, rich background details, ultra high qu
           'Content-Type':  'application/json',
         },
         body: JSON.stringify({
-          image_urls:       [selfie, fotoMascota],
+          image_urls:       [selfieUrl, mascotaUrl],
           prompt,
           num_images:       1,
           guidance_scale:   3.5,
