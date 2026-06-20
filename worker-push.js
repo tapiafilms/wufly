@@ -230,17 +230,15 @@ export default {
         fish:    'small, the person holds a fishbowl or the fish swims nearby in water',
       }[tipoPet] || 'appropriately sized relative to the person';
 
-      const prompt = `Pixar 3D animated movie style, render quality like Coco or Up.
+      const prompt = `Pixar 3D animated movie style, render quality like Coco or Up. Two separate characters, two completely different bodies — never mix their anatomy.
 
-STRICT RULES — follow exactly:
+CHARACTER A — THE ${petWord.toUpperCase()} (first image): A Pixar ${petWord} with the exact same breed, fur color and markings as in the photo. Size: ${sizeHint}. Fully animal body. No human hands, no human feet, no human face.
 
-RULE 1 — THE ${petWord.toUpperCase()} (first image): Transform it into a Pixar-style ${petWord} that looks exactly like the one in the photo — same breed, fur color, size and markings. The ${petWord} must be rendered at REALISTIC SIZE relative to the person: ${sizeHint}. It is 100% animal — no human features.
+CHARACTER B — THE HUMAN (second image): A fully human Pixar character. Human face, human hands with five fingers, human feet with shoes, human legs, human body. Preserve their hair color and style, skin tone, eye color and facial features in Pixar style. ABSOLUTELY NO: paws, claws, fur, tail, animal ears, snout, hooves or any animal body part. Every part of their body is 100% human.
 
-RULE 2 — THE PERSON (second image): Transform them into a fully HUMAN Pixar character. They must keep their complete human anatomy: human face, human hands, human feet, human legs, human body. Do NOT give them paws, claws, fur, tails, animal ears, snouts, or any animal feature whatsoever. Preserve their exact face structure, hair color and style, skin tone, eye color and distinctive features translated faithfully into Pixar art style. They are 100% human.
+CRITICAL: The human character must have normal human hands and normal human feet. Not paws. Not claws. Human hands and human feet.
 
-RULE 3 — THE SCENE: Generate one single magical scene where the fully human Pixar character joyfully interacts with their Pixar ${petWord} on ${lugarSafe}. The human has zero animal features. The ${petWord} has zero human features. No mixing or blending of anatomy between them.
-
-Vibrant colors, cinematic Pixar lighting, rich background details, ultra high quality, 8K render.`;
+SCENE: Both characters together on ${lugarSafe}, joyfully interacting. Vibrant Pixar colors, cinematic lighting, 8K quality.`;
 
       // Si las imágenes vienen como base64, subirlas a fal.ai Storage para obtener URLs públicas
       // fal.ai no acepta base64 directamente en image_urls — necesita URLs https://
