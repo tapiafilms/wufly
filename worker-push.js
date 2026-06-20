@@ -16,27 +16,27 @@ const CORS = {
 };
 
 // ── Subir imagen base64 a fal.ai Storage y devolver URL pública ──────────
-async function falUploadBase64(dataUrl, falApiKey) {
+// Subir imagen base64 a Supabase Storage temporal y devolver URL pública para fal.ai
+async function uploadBase64ToSupabase(dataUrl, serviceKey) {
   const [header, b64] = dataUrl.split(',');
   const mime = header.match(/:(.*?);/)?.[1] || 'image/jpeg';
   const binary = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-  console.log(`[falUpload] mime=${mime} size=${binary.length}`);
-
-  const blob = new Blob([binary], { type: mime });
-  const form = new FormData();
-  form.append('file', blob, 'image.jpg');
-
-  const res = await fetch('https://rest.alpha.fal.ai/storage/upload', {
+  const ext  = mime.split('/')[1] || 'jpg';
+  const path = `temp/juntos_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+  console.log(`[upload] mime=${mime} size=${binary.length} path=${path}`);
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/mascotas/${path}`, {
     method: 'POST',
-    headers: { 'Authorization': `Key ${falApiKey}` }, // NO poner Content-Type — FormData lo setea con boundary
-    body: form,
+    headers: {
+      'Authorization': `Bearer ${serviceKey}`,
+      'Content-Type': mime,
+      'x-upsert': 'true',
+    },
+    body: binary,
   });
   const resText = await res.text();
-  console.log(`[falUpload] status=${res.status} body=${resText.slice(0, 300)}`);
-  if (!res.ok) throw new Error(`fal storage upload error ${res.status}: ${resText.slice(0, 200)}`);
-  const data = JSON.parse(resText);
-  console.log(`[falUpload] url=${data.url}`);
-  return data.url;
+  console.log(`[upload] status=${res.status} body=${resText.slice(0, 200)}`);
+  if (!res.ok) throw new Error(`supabase upload error ${res.status}: ${resText.slice(0, 200)}`);
+  return `${SUPABASE_URL}/storage/v1/object/public/mascotas/${path}`;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────
@@ -247,10 +247,10 @@ Vibrant colors, cinematic Pixar lighting, rich background details, ultra high qu
       let selfieUrl     = selfie;
       let mascotaUrl    = fotoMascota;
       if (selfie.startsWith('data:')) {
-        selfieUrl  = await falUploadBase64(selfie, env.FAL_API_KEY);
+        selfieUrl  = await uploadBase64ToSupabase(selfie, env.SUPABASE_SERVICE_KEY);
       }
       if (fotoMascota.startsWith('data:')) {
-        mascotaUrl = await falUploadBase64(fotoMascota, env.FAL_API_KEY);
+        mascotaUrl = await uploadBase64ToSupabase(fotoMascota, env.SUPABASE_SERVICE_KEY);
       }
 
       // Enviar a la cola de fal.ai (no bloquea — devuelve request_id de inmediato)
