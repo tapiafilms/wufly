@@ -222,12 +222,12 @@ export default {
       const petWord   = (tipoPet || 'pet').slice(0, 20);
 
       const sizeHint = {
-        perro:   'medium-sized, roughly reaching the person\'s knees or waist depending on breed',
-        gato:    'small, fits comfortably in the person\'s arms, much smaller than the person',
-        conejo:  'very small, fits in the person\'s hands or lap, tiny compared to the person',
+        dog:     'medium-sized, roughly reaching the person\'s knees or waist depending on breed',
+        cat:     'small, fits comfortably in the person\'s arms, much smaller than the person',
+        rabbit:  'very small, fits in the person\'s hands or lap, tiny compared to the person',
         hamster: 'tiny, fits in the palm of one hand, extremely small compared to the person',
-        ave:     'very small, can perch on the person\'s shoulder or finger',
-        pez:     'small, the person holds a fishbowl or the fish swims nearby in water',
+        bird:    'very small, can perch on the person\'s shoulder or finger',
+        fish:    'small, the person holds a fishbowl or the fish swims nearby in water',
       }[tipoPet] || 'appropriately sized relative to the person';
 
       const prompt = `Pixar 3D animated movie style, render quality like Coco or Up.

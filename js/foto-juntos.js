@@ -28,7 +28,7 @@ function _juntosGetTipoPet() {
   try {
     const perfil = JSON.parse(localStorage.getItem('wufly_profile_v1') || '{}');
     const tipo = perfil.tipomascota || '';
-    const map = { perro: 'dog', gato: 'cat', conejo: 'rabbit', ave: 'bird', pez: 'fish' };
+    const map = { perro: 'dog', gato: 'cat', conejo: 'rabbit', hamster: 'hamster', ave: 'bird', pez: 'fish' };
     return map[tipo] || 'pet';
   } catch { return 'pet'; }
 }
