@@ -234,9 +234,9 @@ export default {
 
 STRICT RULES — follow exactly:
 
-RULE 1 — THE PERSON (first image): Transform them into a fully HUMAN Pixar character. They must keep their complete human anatomy: human face, human hands, human feet, human legs, human body. Do NOT give them paws, claws, fur, tails, animal ears, snouts, or any animal feature whatsoever. Preserve their exact face structure, hair color and style, skin tone, eye color and distinctive features translated faithfully into Pixar art style. They are 100% human.
+RULE 1 — THE ${petWord.toUpperCase()} (first image): Transform it into a Pixar-style ${petWord} that looks exactly like the one in the photo — same breed, fur color, size and markings. The ${petWord} must be rendered at REALISTIC SIZE relative to the person: ${sizeHint}. It is 100% animal — no human features.
 
-RULE 2 — THE ${petWord.toUpperCase()} (second image): Transform it into a Pixar-style ${petWord} that looks exactly like the one in the photo — same breed, fur color, size and markings. The ${petWord} must be rendered at REALISTIC SIZE relative to the person: ${sizeHint}.
+RULE 2 — THE PERSON (second image): Transform them into a fully HUMAN Pixar character. They must keep their complete human anatomy: human face, human hands, human feet, human legs, human body. Do NOT give them paws, claws, fur, tails, animal ears, snouts, or any animal feature whatsoever. Preserve their exact face structure, hair color and style, skin tone, eye color and distinctive features translated faithfully into Pixar art style. They are 100% human.
 
 RULE 3 — THE SCENE: Generate one single magical scene where the fully human Pixar character joyfully interacts with their Pixar ${petWord} on ${lugarSafe}. The human has zero animal features. The ${petWord} has zero human features. No mixing or blending of anatomy between them.
 
@@ -261,7 +261,7 @@ Vibrant colors, cinematic Pixar lighting, rich background details, ultra high qu
           'Content-Type':  'application/json',
         },
         body: JSON.stringify({
-          image_urls:       [selfieUrl, mascotaUrl],
+          image_urls:       [mascotaUrl, selfieUrl],
           prompt,
           num_images:       1,
           guidance_scale:   3.5,
