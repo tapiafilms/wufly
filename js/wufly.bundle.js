@@ -1937,7 +1937,7 @@ No inventes precios ni productos que no estén listados.`;
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-3-5-sonnet-20241022',
         max_tokens: 400,
         system,
         messages: vitrinaChats[vitrinaId].slice(-6), // últimos 6 turnos de contexto
@@ -7443,7 +7443,7 @@ REGLAS ESTRICTAS:
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-3-5-sonnet-20241022',
         max_tokens: 80,
         system: sys,
         messages: [{ role: 'user', content: msg }]
@@ -9339,7 +9339,7 @@ Reglas IMPORTANTES:
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-3-5-haiku-20241022',
       max_tokens: 120,
       system,
       messages: [{ role: 'user', content: 'genera el mensaje de hoy' }]
@@ -9388,7 +9388,7 @@ async function _cmpGenerarResumen(perfil, mem) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-3-5-haiku-20241022',
       max_tokens: 200,
       system: 'Resume en 3 oraciones los datos más relevantes aprendidos sobre el usuario y su mascota. Solo datos concretos, sin adornos.',
       messages: [{ role: 'user', content: convs }]
