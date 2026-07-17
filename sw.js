@@ -8,7 +8,7 @@
 
 // ⚠️ IMPORTANTE: incrementar este número manualmente cada vez que se haga deploy
 // para que los usuarios reciban los archivos actualizados y no versiones cacheadas.
-const CACHE_NAME = 'wufly-v62';
+const CACHE_NAME = 'wufly-v63';
 const API_HOST         = 'divine-waterfall-d1dfsin-gluten-life.pablo77tapia.workers.dev';
 const SUPABASE_HOST    = 'ybnacudfqerbzpvqcjzc.supabase.co';
 const PUSH_WORKER_HOST = 'wufly-push.pablo77tapia.workers.dev';
@@ -17,39 +17,12 @@ const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/css/styles.css',
-  '/js/app.js',
-  '/js/onboarding.js',
-  '/js/clinicas-destacadas.js',
-  '/js/places.js',
-  '/js/adoptar.js',
-  '/js/tiendas-destacadas.js',
-  '/js/tiendas.js',
-  '/js/grooming.js',
-  '/js/paseadores.js',
-  '/js/recetas.js',
-  '/js/recordatorios.js',
-  '/js/perdidos.js',
-  '/js/supabase.min.js',
-  '/js/auth.js',
-  '/js/geo.js',
-  '/js/perfil.js',
-  '/js/chat.js',
+  '/js/wufly.bundle.min.js',
   '/img/logo.png',
   '/img/icono.png',
   '/img/generando.mp4',
-  '/js/analytics.js',
-  '/js/vitrina.js',
-  '/js/arte.js',
-  '/js/home.js',
-  '/js/companion.js',
-  '/js/paseador-mode.js',
   '/js/leaflet.min.js',
   '/css/leaflet.min.css',
-  '/js/mapa-paseos.js',
-  '/js/encuentro.js',
-  '/js/notificaciones.js',
-  '/js/foto-juntos.js',
-  '/js/pet-gallery.js',
   'https://fonts.googleapis.com/css2?family=Funnel+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap',
 ];
 

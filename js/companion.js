@@ -286,5 +286,4 @@ document.addEventListener('DOMContentLoaded', () => {
 // Si se necesitan recuperar: git show HEAD~1:js/companion.js
 
 // Placeholder para evitar errores si algo llama initWuflyFAB por nombre
-function initWuflyFAB() {
 function initWuflyFAB() {} // stub — FAB eliminado
