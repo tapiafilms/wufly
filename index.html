@@ -59,6 +59,177 @@
 </script>
 <!-- ===== /SPLASH SCREEN ===== -->
 
+<!-- ===== CORPORATE LANDING PAGE (Escritorio) ===== -->
+<div id="wufly-landing" class="wufly-landing">
+  <!-- Header / Navbar -->
+  <header class="landing-header">
+    <div class="landing-header-container">
+      <div class="landing-logo" onclick="exitAppMode()">
+        <img src="img/logo.png" alt="Wufly Logo">
+      </div>
+      <nav class="landing-nav">
+        <a href="#features" class="landing-nav-link">Características</a>
+        <a href="#drwufly" class="landing-nav-link">Dra. Wufly</a>
+        <a href="#walks" class="landing-nav-link">Paseos en Vivo</a>
+        <a href="#community" class="landing-nav-link">Comunidad</a>
+      </nav>
+      <button class="landing-cta-btn" onclick="enterAppMode()">
+        Abrir Web App
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="landing-hero">
+    <div class="landing-hero-container">
+      <div class="landing-hero-info">
+        <div class="landing-badge">🐾 El cuidado de tu mascota en un solo lugar</div>
+        <h1 class="landing-hero-title">El bienestar de tu mascota, <span>simplificado</span></h1>
+        <p class="landing-hero-desc">
+          Encuentra veterinarias de urgencia 24/7, consulta a nuestra asistente veterinaria con IA, gestiona paseos en tiempo real y sé parte de la mayor comunidad animal de Chile. Todo desde tu teléfono o computador.
+        </p>
+        <div class="landing-hero-actions">
+          <button class="landing-primary-btn" onclick="enterAppMode()">
+            Probar la Web App
+            <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.5; margin-left: 6px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <div class="landing-qr-box">
+            <div class="landing-qr-code">
+              <svg width="60" height="60" viewBox="0 0 29 29" style="background:#fff;padding:4px;border-radius:8px;display:block;">
+                <path d="M0 0h7v7H0zm1 1v5h5V1zm1 1h3v3H2zm6-2h1v1H8zm1 1h1v2H9zm1-1h1v1h-1zm1 1h1v1h-1zm-2 2h2v1H8zm1 1h1v1H9zm1 1h2v1h-2zm-2 1h1v1H8zm1 1h1v1H9zm1-1h1v1h-1zm1 1h1v1h-1zm-2 2h2v1H8zm1 1h1v1H9zm1-1h1v1h-1zm1 1h1v1h-1zm-3-8h1v1h-1zm0 2h1v1h-1zm0 2h1v1h-1zm0 2h1v1h-1zM15 0h7v7h-7zm1 1v5h5V1zm1 1h3v3H17zm-9 9h1v1H8zm1 1h2v1H9zm2-1h1v1h-1zm0 2h1v1h-1zm1 1h1v1h-1zm-2 1h1v1h-1zm2 1h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm-2 2h2v1h-2zm1 1h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm-3-8h1v1h-1zm0 2h1v1h-1zm0 2h1v1h-1zm0 2h1v1h-1z" fill="#3B1A8C"/>
+              </svg>
+            </div>
+            <div class="landing-qr-text">
+              <strong>Escanea para móvil</strong>
+              <span>Instálala en tu smartphone</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="landing-hero-mockup">
+        <div class="phone-frame">
+          <div class="phone-screen" style="background: url('img/logo.png') no-repeat center #7C4DCC; background-size: 50%;">
+            <div class="phone-screen-overlay">
+              <div class="phone-app-mock">
+                <div class="phone-app-header">
+                  <img src="img/icono.png" alt="Icono" style="height:20px;">
+                  <span class="phone-badge">Online</span>
+                </div>
+                <div class="phone-app-content">
+                  <div class="phone-card">
+                    <span class="card-emoji">🏥</span>
+                    <div>
+                      <strong>Clínicas Cercanas</strong>
+                      <small>Santiago, Viña y más</small>
+                    </div>
+                  </div>
+                  <div class="phone-card">
+                    <span class="card-emoji">🩺</span>
+                    <div>
+                      <strong>Dra. Wufly IA</strong>
+                      <small>Asistente 24/7 activa</small>
+                    </div>
+                  </div>
+                  <div class="phone-card">
+                    <span class="card-emoji">🐕</span>
+                    <div>
+                      <strong>Paseos Activos</strong>
+                      <small>Sigue a tu perro en vivo</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-speaker"></div>
+          <div class="phone-home-indicator"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid Section -->
+  <section id="features" class="landing-features">
+    <div class="landing-section-header">
+      <h2 class="landing-section-title">Una solución integral para tu mascota</h2>
+      <p class="landing-section-subtitle">Wufly conecta todos los servicios esenciales para hacer tu vida y la de tu mascota más fácil.</p>
+    </div>
+    <div class="landing-features-grid">
+      <!-- Feature 1 -->
+      <div class="feature-card">
+        <div class="feature-icon" style="background: rgba(124, 77, 204, 0.1); color: #7C4DCC;">🏥</div>
+        <h3>Directorio de Veterinarias 24/7</h3>
+        <p>Encuentra clínicas y servicios médicos de urgencia cercanos. Filtra por distancia, especialidades y atención las 24 horas con mapas interactivos.</p>
+      </div>
+      <!-- Feature 2 -->
+      <div id="drwufly" class="feature-card">
+        <div class="feature-icon" style="background: rgba(61, 175, 135, 0.1); color: #3DAF87;">🩺</div>
+        <h3>Dra. Wufly — Consulta con IA</h3>
+        <p>Tu asistente veterinaria virtual disponible a toda hora. Describe síntomas, adjunta fotos de lesiones y recibe orientación veterinaria instantánea.</p>
+      </div>
+      <!-- Feature 3 -->
+      <div id="walks" class="feature-card">
+        <div class="feature-icon" style="background: rgba(245, 158, 11, 0.1); color: #F59E0B;">🐕</div>
+        <h3>Paseos y Geolocalización</h3>
+        <p>Conecta con paseadores verificados o activa el modo paseo tú mismo. Envía la ubicación GPS en tiempo real al dueño y toma fotos del recorrido.</p>
+      </div>
+      <!-- Feature 4 -->
+      <div id="community" class="feature-card">
+        <div class="feature-icon" style="background: rgba(239, 68, 68, 0.1); color: #EF4444;">🤝</div>
+        <h3>Comunidad, Adopción y Reportes</h3>
+        <p>Reporta mascotas perdidas con alertas automáticas de zona, publica animales en adopción y coordina rescates de animales en situación de calle.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PWA Instructions Section -->
+  <section class="landing-pwa-steps">
+    <div class="landing-pwa-container">
+      <div class="landing-pwa-info">
+        <h2 class="landing-section-title" style="text-align:left; color:#fff; margin-bottom: 12px;">¿Cómo instalar Wufly en tu teléfono?</h2>
+        <p style="color: rgba(255,255,255,0.8); margin-bottom: 32px; font-size: 15px; line-height: 1.6;">Wufly es una Aplicación Web Progresiva. No necesitas descargarla de App Store o Play Store. Ocupa menos de 1MB y funciona instantáneamente.</p>
+        <div class="pwa-steps-list">
+          <div class="pwa-step">
+            <span class="step-num">1</span>
+            <div>
+              <h4>Escanea el código QR</h4>
+              <p>Apunta con la cámara de tu teléfono al código QR de arriba para abrir www.wufly.cl.</p>
+            </div>
+          </div>
+          <div class="pwa-step">
+            <span class="step-num">2</span>
+            <div>
+              <h4>Añadir a la pantalla de inicio</h4>
+              <p>En iOS (Safari): Presiona "Compartir" y selecciona "Añadir a pantalla de inicio". En Android (Chrome): Toca el menú de 3 puntos e "Instalar aplicación".</p>
+            </div>
+          </div>
+          <div class="pwa-step">
+            <span class="step-num">3</span>
+            <div>
+              <h4>¡Listo para usar!</h4>
+              <p>Se creará un ícono de Wufly en tu celular. Ábrelo y disfruta la app en pantalla completa y con soporte sin conexión.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <div class="landing-footer-container">
+      <div class="footer-logo">
+        <img src="img/logo.png" alt="Wufly Logo" style="height:36px;">
+        <span>© 2026 Wufly. Hecho con ❤️ para las mascotas de Chile.</span>
+      </div>
+      <div class="footer-links">
+        <button class="footer-btn-link" onclick="enterAppMode()">Abrir Versión Web App →</button>
+      </div>
+    </div>
+  </footer>
+</div>
+<!-- ===== /CORPORATE LANDING PAGE ===== -->
+
 <!-- DESKTOP LAYOUT WRAPPER -->
 <div class="desktop-layout">
 
@@ -92,6 +263,10 @@
   <button class="dsb-btn" data-tab="alergias" onclick="abrirPerfil()">
     <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     <span>Perfil</span>
+  </button>
+  <button class="dsb-btn dsb-back-btn" onclick="exitAppMode()" title="Volver a la Web corporativa" style="margin-top: 16px; border-top: 1.5px solid rgba(255,255,255,0.15); padding-top: 16px;">
+    <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    <span>Volver Web</span>
   </button>
 </nav>
 
@@ -831,6 +1006,30 @@
 
 <!-- PWA: Service Worker registration -->
 <script>
+  /* ── Modos Landing / App para Escritorio ── */
+  window.enterAppMode = function() {
+    document.body.classList.add('app-mode');
+    document.documentElement.classList.add('app-mode');
+    localStorage.setItem('wufly_app_mode', 'true');
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 100);
+  };
+  window.exitAppMode = function() {
+    document.body.classList.remove('app-mode');
+    document.documentElement.classList.remove('app-mode');
+    localStorage.removeItem('wufly_app_mode');
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 100);
+  };
+
+  // Recordar la elección del usuario en pantallas grandes (computadores)
+  if (window.innerWidth >= 900 && localStorage.getItem('wufly_app_mode') === 'true') {
+    document.body.classList.add('app-mode');
+    document.documentElement.classList.add('app-mode');
+  }
+
   /* ── ?reset: limpia TODO y recarga limpio. Uso: añadir ?reset a la URL ── */
   (async function() {
     if (!location.search.includes('reset')) return;
