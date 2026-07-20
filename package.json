@@ -5,6 +5,7 @@
   "main": "build.js",
   "scripts": {
     "build": "node build.js",
+    "vercel-build": "echo 'Static Deploy'",
     "dev": "node build.js --watch"
   },
   "dependencies": {
