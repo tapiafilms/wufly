@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
+const { execSync } = require('child_process');
 
 const files = [
   'js/config.js',
@@ -55,20 +55,18 @@ function build() {
     fs.writeFileSync(bundlePath, concatenated, 'utf8');
     console.log(`✅ Archivos concatenados en ${bundlePath}`);
 
-    // Minificar usando esbuild
+    // Minificar usando esbuild de forma síncrona
     const esbuildCmd = `npx esbuild "${bundlePath}" --minify --outfile="${minBundlePath}"`;
-    exec(esbuildCmd, (err, stdout, stderr) => {
-      if (err) {
-        console.error('❌ Error de minificación con esbuild:', err);
-        return false;
-      }
-      if (stderr) {
-        console.warn('⚠️ Advertencia de esbuild:', stderr);
-      }
+    console.log('⚡ Ejecutando esbuild...');
+    try {
+      execSync(esbuildCmd, { stdio: 'inherit' });
       console.log(`🚀 Minificación completada: ${minBundlePath}`);
       console.log(`📊 Tamaño del bundle minificado: ${(fs.statSync(minBundlePath).size / 1024).toFixed(2)} KB`);
-    });
-    return true;
+      return true;
+    } catch (err) {
+      console.error('❌ Error de minificación con esbuild:', err.message);
+      return false;
+    }
   } catch (e) {
     console.error('❌ Error general de compilación:', e.message);
     return false;
