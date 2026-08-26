@@ -24,6 +24,9 @@ const files = [
   'js/perfil.js',
   'js/pet-gallery.js',
   'js/foto-juntos.js',
+  'js/camera-capture.js',
+  'js/media-compress.js',
+  'js/media.js',
   'js/home.js'
 ];
 

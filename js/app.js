@@ -370,20 +370,6 @@ function switchComunidadTab(tab) {
   if (tab === 'adoptar')      renderAdoptar?.();
 }
 
-/* ══ SUB-TABS DE MEDIA ══ */
-function switchMediaTab(tab) {
-  const subs = ['videos', 'fotos', 'galerias'];
-  subs.forEach(s => {
-    const el = document.getElementById('msub-' + s);
-    if (el) el.style.display = s === tab ? 'block' : 'none';
-    const btn = document.getElementById('mtab-' + s);
-    if (btn) {
-      btn.style.background = s === tab ? 'var(--purple)' : 'transparent';
-      btn.style.color      = s === tab ? 'white' : 'var(--text-muted)';
-    }
-  });
-}
-
 /* ══ CONSULTA RÁPIDA ══ */
 function setConsultaRapida(texto) {
   /* Función deshabilitada — Dra. Wufly eliminada */

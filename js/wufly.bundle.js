@@ -3503,20 +3503,6 @@ function switchComunidadTab(tab) {
   if (tab === 'adoptar')      renderAdoptar?.();
 }
 
-/* ══ SUB-TABS DE MEDIA ══ */
-function switchMediaTab(tab) {
-  const subs = ['videos', 'fotos', 'galerias'];
-  subs.forEach(s => {
-    const el = document.getElementById('msub-' + s);
-    if (el) el.style.display = s === tab ? 'block' : 'none';
-    const btn = document.getElementById('mtab-' + s);
-    if (btn) {
-      btn.style.background = s === tab ? 'var(--purple)' : 'transparent';
-      btn.style.color      = s === tab ? 'white' : 'var(--text-muted)';
-    }
-  });
-}
-
 /* ══ CONSULTA RÁPIDA ══ */
 function setConsultaRapida(texto) {
   /* Función deshabilitada — Dra. Wufly eliminada */
@@ -7407,6 +7393,1303 @@ function _cerrarFotoJuntos() {
   if (!overlay) return;
   overlay.style.animation = 'petModalOut 0.18s ease forwards';
   setTimeout(() => overlay.remove(), 180);
+}
+
+
+// ==========================================
+// ARCHIVO: js/camera-capture.js
+// ==========================================
+
+/* ══════════════════════════════════════════════════════════════
+   CAMERA CAPTURE - WUFLY
+   Interfaz de cámara custom para fotos cuadradas y videos verticales
+   Inspirada en CumpLand CameraCapture.jsx
+   ══════════════════════════════════════════════════════════════ */
+
+let _cameraStream = null;
+let _cameraRecorder = null;
+let _cameraChunks = [];
+let _cameraTimer = null;
+let _cameraSecondsLeft = 10;
+let _cameraFacingMode = 'environment';
+let _cameraType = 'video'; // 'video' | 'photo'
+let _cameraOnComplete = null;
+let _cameraOnClose = null;
+
+const CAMERA_MAX_DURATION = 10; // segundos
+const CAMERA_MIN_DURATION = 8;
+
+/* ══ ABRIR CÁMARA ══ */
+function openCamera(type = 'video', onComplete, onClose) {
+  _cameraType = type;
+  _cameraOnComplete = onComplete;
+  _cameraOnClose = onClose;
+  _cameraFacingMode = 'environment';
+  _cameraSecondsLeft = CAMERA_MAX_DURATION;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'cameraOverlay';
+  overlay.style.cssText = `
+    position:fixed; inset:0; z-index:9999; display:flex; flex-direction:column;
+    background:#000; color:white; overflow:hidden; height:100dvh;
+  `;
+
+  overlay.innerHTML = _buildCameraHTML(type);
+  document.body.appendChild(overlay);
+
+  _startCamera();
+  _attachCameraEvents();
+}
+
+/* ══ CONSTRUIR HTML ══ */
+function _buildCameraHTML(type) {
+  const isVideo = type === 'video';
+
+  return `
+    <!-- Barra superior -->
+    <div style="position:absolute;top:0;left:0;right:0;z-index:10;padding:16px 20px;
+      display:flex;justify-content:space-between;align-items:center;
+      background:linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);"
+      class="safe-area-top">
+      <button id="camCloseBtn" style="
+        width:40px; height:40px; border-radius:50%; border:none;
+        background:rgba(0,0,0,0.4); color:white; font-size:20px;
+        cursor:pointer; display:flex; align-items:center; justify-content:center;
+      ">✕</button>
+
+      ${isVideo ? `
+      <div id="camCountdown" style="
+        display:none; align-items:center; gap:8px;
+        background:#DC2626; padding:6px 16px; border-radius:20px;
+        font-size:13px; font-weight:700; animation:pulse 1s infinite;
+      ">
+        <span style="width:8px;height:8px;background:white;border-radius:50%;"></span>
+        <span id="camCountdownText">0:10</span>
+      </div>
+      ` : '<div></div>'}
+
+      <button id="camSwitchBtn" style="
+        width:40px; height:40px; border-radius:50%; border:none;
+        background:rgba(0,0,0,0.4); color:white; font-size:18px;
+        cursor:pointer; display:flex; align-items:center; justify-content:center;
+      ">🔄</button>
+    </div>
+
+    <!-- Visor de cámara -->
+    <div id="camViewfinder" style="
+      flex:1; position:relative; display:flex; align-items:center; justify-content:center;
+      background:#000; overflow:hidden; padding-top:56px;
+    ">
+      <!-- Loading -->
+      <div id="camLoading" style="
+        position:absolute; inset:0; display:flex; flex-direction:column;
+        align-items:center; justify-content:center; gap:12px; background:#0a0a0a;
+      ">
+        <div style="
+          width:36px; height:36px; border:3px solid rgba(124,77,204,0.25);
+          border-top-color:var(--purple); border-radius:50%;
+          animation:spin 0.8s linear infinite;
+        "></div>
+        <p style="font-size:12px; color:#888;">Encendiendo cámara...</p>
+      </div>
+
+      <!-- Error -->
+      <div id="camError" style="
+        position:absolute; inset:0; display:none; flex-direction:column;
+        align-items:center; justify-content:center; gap:16px; padding:24px;
+        text-align:center; background:#0a0a0a;
+      ">
+        <div style="font-size:40px;">⚠️</div>
+        <p style="font-size:13px; color:#ccc;">No se pudo acceder a la cámara. Verifica los permisos.</p>
+        <button id="camFallbackBtn" style="
+          font-size:12px; background:#1e1e1e; color:white; font-weight:700;
+          padding:10px 16px; border-radius:12px; border:none; cursor:pointer;
+        ">Usar selector de archivos</button>
+      </div>
+
+      <!-- Video element -->
+      <video id="camVideo" autoplay playsinline muted style="
+        width:100%; height:100%; object-fit:contain;
+      "></video>
+
+      <!-- Guía cuadrada para fotos -->
+      ${!isVideo ? `
+      <div id="camSquareGuide" style="
+        position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+        width:min(85vw, 85vh); height:min(85vw, 85vh);
+        border:2px solid rgba(255,255,255,0.3); border-radius:12px;
+        pointer-events:none;
+      "></div>
+      ` : ''}
+
+      <!-- Barra de progreso video -->
+      ${isVideo ? `
+      <div id="camProgressBar" style="
+        position:absolute; bottom:16px; left:24px; right:24px;
+        height:6px; background:rgba(255,255,255,0.2); border-radius:3px;
+        overflow:hidden; display:none;
+      ">
+        <div id="camProgressFill" style="
+          height:100%; background:#DC2626; border-radius:3px;
+          transition:width 1s linear; width:0%;
+        "></div>
+      </div>
+      ` : ''}
+    </div>
+
+    <!-- Panel inferior -->
+    <div style="
+      height:100px; background:#000; display:flex; align-items:center;
+      justify-content:center; flex-shrink:0;
+    " class="safe-area-bottom">
+      ${isVideo ? `
+      <!-- Botón grabar video -->
+      <button id="camRecordBtn" style="
+        width:68px; height:68px; border-radius:16px; border:4px solid white;
+        background:#DC2626; cursor:pointer; display:flex;
+        align-items:center; justify-content:center; transition:all 0.2s;
+      ">
+        <div id="camRecordIcon" style="
+          width:28px; height:28px; background:#DC2626; border-radius:50%;
+          border:2px solid white;
+        "></div>
+      </button>
+      ` : `
+      <!-- Botón foto -->
+      <button id="camPhotoBtn" style="
+        width:68px; height:68px; border-radius:50%; border:4px solid #555;
+        background:white; cursor:pointer; display:flex;
+        align-items:center; justify-content:center; transition:all 0.2s;
+      ">
+        <div style="
+          width:56px; height:56px; background:white; border-radius:50%;
+          border:1px solid #ddd;
+        "></div>
+      </button>
+      `}
+    </div>
+
+    <style>
+      @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+      @keyframes spin { to{transform:rotate(360deg)} }
+    </style>
+  `;
+}
+
+/* ══ INICIAR CÁMARA ══ */
+async function _startCamera() {
+  const video = document.getElementById('camVideo');
+  const loading = document.getElementById('camLoading');
+  const error = document.getElementById('camError');
+
+  try {
+    // Detener stream anterior
+    _stopCamera();
+
+    const constraints = {
+      video: {
+        facingMode: { ideal: _cameraFacingMode },
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
+      audio: _cameraType === 'video'
+    };
+
+    _cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+    video.srcObject = _cameraStream;
+
+    // Aplicar espejo si es cámara frontal
+    if (_cameraFacingMode === 'user') {
+      video.style.transform = 'scaleX(-1)';
+    } else {
+      video.style.transform = 'none';
+    }
+
+    loading.style.display = 'none';
+    error.style.display = 'none';
+  } catch (err) {
+    console.error('Camera error:', err);
+    loading.style.display = 'none';
+    error.style.display = 'flex';
+  }
+}
+
+/* ══ DETENER CÁMARA ══ */
+function _stopCamera() {
+  if (_cameraStream) {
+    _cameraStream.getTracks().forEach(track => track.stop());
+    _cameraStream = null;
+  }
+  if (_cameraTimer) {
+    clearInterval(_cameraTimer);
+    _cameraTimer = null;
+  }
+}
+
+/* ══ EVENTOS ══ */
+function _attachCameraEvents() {
+  // Cerrar
+  document.getElementById('camCloseBtn')?.addEventListener('click', _closeCamera);
+
+  // Rotar cámara
+  document.getElementById('camSwitchBtn')?.addEventListener('click', () => {
+    _cameraFacingMode = _cameraFacingMode === 'environment' ? 'user' : 'environment';
+    _startCamera();
+  });
+
+  // Fallback a selector de archivos
+  document.getElementById('camFallbackBtn')?.addEventListener('click', () => {
+    _closeCamera();
+    _openFileFallback();
+  });
+
+  if (_cameraType === 'video') {
+    // Grabar video
+    document.getElementById('camRecordBtn')?.addEventListener('click', _toggleRecording);
+  } else {
+    // Tomar foto
+    document.getElementById('camPhotoBtn')?.addEventListener('click', _takePhoto);
+  }
+}
+
+/* ══ TOGGLE GRABACIÓN ══ */
+function _toggleRecording() {
+  if (_cameraRecorder && _cameraRecorder.state === 'recording') {
+    _stopRecording();
+  } else {
+    _startRecording();
+  }
+}
+
+/* ══ INICIAR GRABACIÓN ══ */
+function _startRecording() {
+  if (!_cameraStream) return;
+
+  _cameraChunks = [];
+
+  // Seleccionar codec compatible
+  let options = { mimeType: 'video/webm;codecs=vp8,opus' };
+  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+    options = { mimeType: 'video/webm' };
+  }
+  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+    options = { mimeType: 'video/mp4' };
+  }
+
+  try {
+    _cameraRecorder = new MediaRecorder(_cameraStream, options);
+
+    _cameraRecorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) {
+        _cameraChunks.push(e.data);
+      }
+    };
+
+    _cameraRecorder.onstop = () => {
+      const blob = new Blob(_cameraChunks, { type: _cameraRecorder.mimeType || 'video/webm' });
+      if (_cameraOnComplete) _cameraOnComplete(blob);
+      _closeCamera();
+    };
+
+    _cameraRecorder.start();
+
+    // UI: modo grabando
+    const btn = document.getElementById('camRecordBtn');
+    const icon = document.getElementById('camRecordIcon');
+    const countdown = document.getElementById('camCountdown');
+    const progress = document.getElementById('camProgressBar');
+
+    if (btn) {
+      btn.style.borderRadius = '50%';
+      btn.style.background = '#DC2626';
+    }
+    if (icon) {
+      icon.style.width = '22px';
+      icon.style.height = '22px';
+      icon.style.borderRadius = '4px';
+      icon.style.background = 'white';
+      icon.style.border = 'none';
+    }
+    if (countdown) countdown.style.display = 'flex';
+    if (progress) progress.style.display = 'block';
+
+    // Countdown
+    _cameraSecondsLeft = CAMERA_MAX_DURATION;
+    _updateCountdown();
+
+    _cameraTimer = setInterval(() => {
+      _cameraSecondsLeft--;
+      _updateCountdown();
+
+      // Actualizar barra de progreso
+      const fill = document.getElementById('camProgressFill');
+      if (fill) {
+        const pct = ((CAMERA_MAX_DURATION - _cameraSecondsLeft) / CAMERA_MAX_DURATION) * 100;
+        fill.style.width = pct + '%';
+      }
+
+      if (_cameraSecondsLeft <= 0) {
+        _stopRecording();
+      }
+    }, 1000);
+
+  } catch (err) {
+    console.error('MediaRecorder error:', err);
+    alert('Tu navegador no soporta grabación de video.');
+  }
+}
+
+/* ══ DETENER GRABACIÓN ══ */
+function _stopRecording() {
+  if (_cameraRecorder && _cameraRecorder.state !== 'inactive') {
+    _cameraRecorder.stop();
+  }
+  if (_cameraTimer) {
+    clearInterval(_cameraTimer);
+    _cameraTimer = null;
+  }
+}
+
+/* ══ ACTUALIZAR COUNTDOWN ══ */
+function _updateCountdown() {
+  const text = document.getElementById('camCountdownText');
+  if (text) {
+    const secs = _cameraSecondsLeft;
+    text.textContent = `0:${secs < 10 ? '0' + secs : secs}`;
+  }
+}
+
+/* ══ TOMAR FOTO ══ */
+function _takePhoto() {
+  const video = document.getElementById('camVideo');
+  if (!video || !_cameraStream) return;
+
+  const canvas = document.createElement('canvas');
+  const size = Math.min(video.videoWidth, video.videoHeight);
+  canvas.width = 800;  // Salida cuadrada 800x800
+  canvas.height = 800;
+
+  const ctx = canvas.getContext('2d');
+
+  // Recortar al centro (formato cuadrado)
+  const srcX = (video.videoWidth - size) / 2;
+  const srcY = (video.videoHeight - size) / 2;
+
+  // Si es cámara frontal, voltear horizontalmente
+  if (_cameraFacingMode === 'user') {
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+  }
+
+  ctx.drawImage(video, srcX, srcY, size, size, 0, 0, 800, 800);
+
+  canvas.toBlob((blob) => {
+    if (blob && _cameraOnComplete) {
+      _cameraOnComplete(blob);
+    }
+    _closeCamera();
+  }, 'image/jpeg', 0.7);
+}
+
+/* ══ CERRAR CÁMARA ══ */
+function _closeCamera() {
+  _stopCamera();
+  _cameraRecorder = null;
+  _cameraChunks = [];
+
+  const overlay = document.getElementById('cameraOverlay');
+  if (overlay) {
+    overlay.remove();
+  }
+
+  if (_cameraOnClose) _cameraOnClose();
+  _cameraOnComplete = null;
+  _cameraOnClose = null;
+}
+
+/* ══ FALLBACK: SELECTOR DE ARCHIVOS ══ */
+function _openFileFallback() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = _cameraType === 'video' ? 'video/*' : 'image/*';
+  input.capture = 'environment';
+
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (file && _cameraOnComplete) {
+      _cameraOnComplete(file);
+    }
+  };
+
+  input.click();
+}
+
+/* ══ API PÚBLICA ══ */
+window.openCamera = openCamera;
+
+
+// ==========================================
+// ARCHIVO: js/media-compress.js
+// ==========================================
+
+/* ══════════════════════════════════════════════════════════════
+   MEDIA COMPRESS - WUFLY
+   Compresión de video (vertical 9:16) y foto (cuadrada 1:1)
+   Objetivo: videos ~500KB, fotos ~150KB
+   ══════════════════════════════════════════════════════════════ */
+
+const COMPRESS_VIDEO_MAX_SIZE = 600 * 1024;  // 600KB max
+const COMPRESS_PHOTO_MAX_SIZE = 180 * 1024;  // 180KB max
+const COMPRESS_VIDEO_BITRATE = 400000;        // 400kbps
+const COMPRESS_PHOTO_QUALITY = 0.65;         // JPEG quality
+
+/* ══ COMPRIMIR VIDEO ══ */
+async function compressVideo(blob) {
+  return new Promise(async (resolve) => {
+    try {
+      // Si ya es pequeño, retornar directo
+      if (blob.size <= COMPRESS_VIDEO_MAX_SIZE) {
+        resolve(blob);
+        return;
+      }
+
+      // Crear video element para procesar
+      const video = document.createElement('video');
+      video.muted = true;
+      video.playsInline = true;
+
+      const url = URL.createObjectURL(blob);
+      video.src = url;
+
+      video.onloadedmetadata = async () => {
+        // Canvas vertical 9:16 (720x1280)
+        const canvas = document.createElement('canvas');
+        const targetWidth = 720;
+        const targetHeight = 1280;
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+
+        const ctx = canvas.getContext('2d');
+
+        // MediaRecorder para re-comprimir
+        const stream = canvas.captureStream(24);
+
+        // Agregar audio si existe
+        if (video.captureStream) {
+          const originalStream = video.captureStream();
+          const audioTracks = originalStream.getAudioTracks();
+          audioTracks.forEach(track => stream.addTrack(track));
+        }
+
+        let options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: COMPRESS_VIDEO_BITRATE };
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          options = { mimeType: 'video/webm', videoBitsPerSecond: COMPRESS_VIDEO_BITRATE };
+        }
+
+        const recorder = new MediaRecorder(stream, options);
+        const chunks = [];
+
+        recorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) chunks.push(e.data);
+        };
+
+        recorder.onstop = () => {
+          const compressed = new Blob(chunks, { type: 'video/webm' });
+          URL.revokeObjectURL(url);
+
+          // Si sigue siendo muy grande, reducir calidad
+          if (compressed.size > COMPRESS_VIDEO_MAX_SIZE) {
+            console.log(`Video comprimido: ${blob.size} → ${compressed.size} bytes`);
+          }
+          resolve(compressed);
+        };
+
+        recorder.start();
+
+        // Dibujar frames del video al canvas
+        const drawFrame = () => {
+          if (video.ended || video.paused) return;
+
+          // Calcular recorte centrado (mantener aspecto 9:16)
+          const videoAspect = video.videoWidth / video.videoHeight;
+          const targetAspect = targetWidth / targetHeight;
+
+          let drawWidth, drawHeight, offsetX, offsetY;
+
+          if (videoAspect > targetAspect) {
+            // Video más ancho - recortar lados
+            drawHeight = video.videoHeight;
+            drawWidth = drawHeight * targetAspect;
+            offsetX = (video.videoWidth - drawWidth) / 2;
+            offsetY = 0;
+          } else {
+            // Video más alto - recortar arriba/abajo
+            drawWidth = video.videoWidth;
+            drawHeight = drawWidth / targetAspect;
+            offsetX = 0;
+            offsetY = (video.videoHeight - drawHeight) / 2;
+          }
+
+          ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight, 0, 0, targetWidth, targetHeight);
+
+          if (!video.ended) {
+            requestAnimationFrame(drawFrame);
+          }
+        };
+
+        video.onplay = () => {
+          drawFrame();
+        };
+
+        // Reproducir y grabar
+        await video.play();
+
+        // Detener después de la duración del video
+        setTimeout(() => {
+          video.pause();
+          recorder.stop();
+        }, video.duration * 1000);
+      };
+
+      video.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve(blob); // Retornar original si hay error
+      };
+
+    } catch (err) {
+      console.error('Video compression error:', err);
+      resolve(blob); // Retornar original si hay error
+    }
+  });
+}
+
+/* ══ COMPRIMIR FOTO ══ */
+async function compressPhoto(blob) {
+  return new Promise((resolve) => {
+    try {
+      // Si ya es pequeña, retornar directo
+      if (blob.size <= COMPRESS_PHOTO_MAX_SIZE) {
+        resolve(blob);
+        return;
+      }
+
+      const img = new Image();
+      const url = URL.createObjectURL(blob);
+
+      img.onload = () => {
+        // Canvas cuadrado 800x800
+        const canvas = document.createElement('canvas');
+        const size = 800;
+        canvas.width = size;
+        canvas.height = size;
+
+        const ctx = canvas.getContext('2d');
+
+        // Recortar al centro (formato cuadrado)
+        const imgAspect = img.width / img.height;
+        let srcX, srcY, srcW, srcH;
+
+        if (imgAspect > 1) {
+          // Imagen más ancha - recortar lados
+          srcH = img.height;
+          srcW = srcH;
+          srcX = (img.width - srcW) / 2;
+          srcY = 0;
+        } else {
+          // Imagen más alta - recortar arriba/abajo
+          srcW = img.width;
+          srcH = srcW;
+          srcX = 0;
+          srcY = (img.height - srcH) / 2;
+        }
+
+        ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, size, size);
+
+        canvas.toBlob((compressedBlob) => {
+          URL.revokeObjectURL(url);
+
+          if (compressedBlob) {
+            console.log(`Foto comprimida: ${blob.size} → ${compressedBlob.size} bytes`);
+            resolve(compressedBlob);
+          } else {
+            resolve(blob);
+          }
+        }, 'image/jpeg', COMPRESS_PHOTO_QUALITY);
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve(blob);
+      };
+
+      img.src = url;
+    } catch (err) {
+      console.error('Photo compression error:', err);
+      resolve(blob);
+    }
+  });
+}
+
+/* ══ GENERAR THUMBNAIL ══ */
+async function generateThumbnail(videoBlob) {
+  return new Promise((resolve) => {
+    try {
+      const video = document.createElement('video');
+      video.muted = true;
+      video.playsInline = true;
+
+      const url = URL.createObjectURL(videoBlob);
+      video.src = url;
+
+      video.onloadeddata = () => {
+        // Buscar frame a los 2 segundos
+        video.currentTime = Math.min(2, video.duration * 0.25);
+      };
+
+      video.onseeked = () => {
+        // Canvas cuadrado 200x200 para thumbnail
+        const canvas = document.createElement('canvas');
+        const size = 200;
+        canvas.width = size;
+        canvas.height = size;
+
+        const ctx = canvas.getContext('2d');
+
+        // Recortar al centro
+        const videoAspect = video.videoWidth / video.videoHeight;
+        let srcX, srcY, srcW, srcH;
+
+        if (videoAspect > 1) {
+          srcH = video.videoHeight;
+          srcW = srcH;
+          srcX = (video.videoWidth - srcW) / 2;
+          srcY = 0;
+        } else {
+          srcW = video.videoWidth;
+          srcH = srcW;
+          srcX = 0;
+          srcY = (video.videoHeight - srcH) / 2;
+        }
+
+        ctx.drawImage(video, srcX, srcY, srcW, srcH, 0, 0, size, size);
+
+        canvas.toBlob((thumbBlob) => {
+          URL.revokeObjectURL(url);
+          resolve(thumbBlob || videoBlob);
+        }, 'image/jpeg', 0.6);
+      };
+
+      video.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve(videoBlob);
+      };
+
+    } catch (err) {
+      console.error('Thumbnail generation error:', err);
+      resolve(videoBlob);
+    }
+  });
+}
+
+/* ══ API PÚBLICA ══ */
+window.compressVideo = compressVideo;
+window.compressPhoto = compressPhoto;
+window.generateThumbnail = generateThumbnail;
+
+
+// ==========================================
+// ARCHIVO: js/media.js
+// ==========================================
+
+/* ══════════════════════════════════════════════════════════════
+   MEDIA - WUFLY
+   Lógica principal: upload, galerías, shorts públicos
+   ══════════════════════════════════════════════════════════════ */
+
+/* ══ SUB-TABS DE MEDIA ══ */
+function switchMediaTab(tab) {
+  const subs = ['videos', 'fotos', 'galerias'];
+  subs.forEach(s => {
+    const el = document.getElementById('msub-' + s);
+    if (el) el.style.display = s === tab ? 'block' : 'none';
+    const btn = document.getElementById('mtab-' + s);
+    if (btn) {
+      btn.style.background = s === tab ? 'var(--purple)' : 'transparent';
+      btn.style.color = s === tab ? 'white' : 'var(--text-muted)';
+    }
+  });
+
+  // Renderizar contenido según tab
+  if (tab === 'videos') renderMediaVideos();
+  if (tab === 'fotos') renderMediaFotos();
+  if (tab === 'galerias') renderMediaGalerias();
+}
+
+/* ══ RENDER VIDEOS PRIVADOS ══ */
+async function renderMediaVideos() {
+  const container = document.getElementById('msub-videos');
+  if (!container || !currentUser) return;
+
+  container.innerHTML = `
+    <div style="text-align:center;padding:20px;">
+      <div style="
+        width:48px; height:48px; border-radius:50%; background:var(--purple-light);
+        display:flex; align-items:center; justify-content:center; margin:0 auto 12px;
+      ">
+        <span style="font-size:24px;">🎬</span>
+      </div>
+      <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:6px;">
+        Crea tu primer video
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);line-height:1.5;margin-bottom:16px;">
+        Videos de 8-10 segundos estilo Reels.<br>Solo tú puedes verlos.
+      </div>
+      <button onclick="mediaCreateVideo()" class="btn-primary" style="
+        padding:12px 24px; font-size:13px;
+      ">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;margin-right:6px;">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        Grabar video
+      </button>
+    </div>
+  `;
+
+  // Cargar videos del usuario
+  try {
+    const { data: videos, error } = await db
+      .from('media_videos')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    if (videos && videos.length > 0) {
+      let html = `
+        <div style="padding:0 2px 12px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:10px;">
+            TUS VIDEOS (${videos.length})
+          </div>
+        </div>
+      `;
+
+      videos.forEach(v => {
+        const fecha = new Date(v.created_at);
+        const expira = new Date(v.expires_at);
+        const horasRestantes = Math.max(0, Math.floor((expira - Date.now()) / (1000 * 60 * 60)));
+        const sizeKB = Math.round(v.size_bytes / 1024);
+
+        html += `
+          <div style="
+            background:var(--surface); border-radius:14px; border:1.5px solid var(--border-md);
+            margin-bottom:10px; overflow:hidden;
+          ">
+            <div style="
+              height:140px; background:linear-gradient(135deg,#1a1a2e,#16213e);
+              display:flex; align-items:center; justify-content:center; position:relative;
+            ">
+              ${v.thumbnail_url ? `
+                <img src="${_getMediaUrl(v.thumbnail_url)}" style="width:100%;height:100%;object-fit:cover;" alt="video">
+              ` : `
+                <span style="font-size:40px;">🎬</span>
+              `}
+              <div style="
+                position:absolute; bottom:8px; right:8px;
+                background:rgba(0,0,0,0.7); padding:4px 8px; border-radius:6px;
+                font-size:11px; font-weight:600;
+              ">
+                ${v.duration || 10}s • ${sizeKB}KB
+              </div>
+              <div style="
+                position:absolute; top:8px; right:8px;
+                background:${horasRestantes > 0 ? 'rgba(220,38,38,0.9)' : 'rgba(100,100,100,0.9)'};
+                padding:3px 8px; border-radius:6px; font-size:10px; font-weight:600;
+              ">
+                ${horasRestantes > 0 ? `⏱ ${horasRestantes}h restantes` : '⏱ Expirado'}
+              </div>
+            </div>
+            <div style="padding:10px 12px; display:flex; justify-content:space-between; align-items:center;">
+              <div style="font-size:11px; color:var(--text-muted);">
+                ${fecha.toLocaleDateString('es-CL')} ${fecha.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
+              </div>
+              <button onclick="mediaDeleteVideo('${v.id}')" style="
+                background:none; border:none; color:#DC2626; font-size:11px;
+                font-weight:600; cursor:pointer; padding:4px 8px;
+              ">Eliminar</button>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+  } catch (err) {
+    console.error('Error loading videos:', err);
+  }
+}
+
+/* ══ RENDER FOTOS PRIVADAS ══ */
+async function renderMediaFotos() {
+  const container = document.getElementById('msub-fotos');
+  if (!container || !currentUser) return;
+
+  container.innerHTML = `
+    <div style="text-align:center;padding:20px;">
+      <div style="
+        width:48px; height:48px; border-radius:50%; background:var(--purple-light);
+        display:flex; align-items:center; justify-content:center; margin:0 auto 12px;
+      ">
+        <span style="font-size:24px;">📸</span>
+      </div>
+      <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:6px;">
+        Tomar foto
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);line-height:1.5;margin-bottom:16px;">
+        Fotos cuadradas comprimidas.<br>Solo tú puedes verlas.
+      </div>
+      <button onclick="mediaCreatePhoto()" class="btn-primary" style="
+        padding:12px 24px; font-size:13px;
+      ">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;margin-right:6px;">
+          <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+        Tomar foto
+      </button>
+    </div>
+  `;
+
+  // Cargar fotos del usuario
+  try {
+    const { data: photos, error } = await db
+      .from('media_photos')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    if (photos && photos.length > 0) {
+      let html = `
+        <div style="padding:0 2px 12px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:10px;">
+            TUS FOTOS (${photos.length})
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:0 2px;">
+      `;
+
+      photos.forEach(p => {
+        const sizeKB = Math.round(p.size_bytes / 1024);
+        html += `
+          <div style="
+            aspect-ratio:1; border-radius:8px; overflow:hidden; position:relative;
+            background:var(--surface); border:1px solid var(--border-md);
+          ">
+            <img src="${_getMediaUrl(p.photo_url)}" style="width:100%;height:100%;object-fit:cover;" alt="foto">
+            <button onclick="mediaDeletePhoto('${p.id}')" style="
+              position:absolute; top:4px; right:4px;
+              width:20px; height:20px; border-radius:50%; border:none;
+              background:rgba(0,0,0,0.6); color:white; font-size:10px;
+              cursor:pointer; display:flex; align-items:center; justify-content:center;
+            ">✕</button>
+          </div>
+        `;
+      });
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+  } catch (err) {
+    console.error('Error loading photos:', err);
+  }
+}
+
+/* ══ RENDER GALERÍAS ══ */
+async function renderMediaGalerias() {
+  const container = document.getElementById('msub-galerias');
+  if (!container || !currentUser) return;
+
+  container.innerHTML = `
+    <div style="text-align:center;padding:20px;">
+      <div style="
+        width:48px; height:48px; border-radius:50%; background:var(--purple-light);
+        display:flex; align-items:center; justify-content:center; margin:0 auto 12px;
+      ">
+        <span style="font-size:24px;">🖼️</span>
+      </div>
+      <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:6px;">
+        Crear galería
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);line-height:1.5;margin-bottom:16px;">
+        Organiza tus fotos en galerías.<br>
+        <em style="color:var(--purple);">Próximamente: galerías animadas para compartir</em>
+      </div>
+      <button onclick="mediaCreateGallery()" class="btn-primary" style="
+        padding:12px 24px; font-size:13px;
+      ">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;margin-right:6px;">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+        Nueva galería
+      </button>
+    </div>
+  `;
+
+  // Cargar galerías del usuario
+  try {
+    const { data: galleries, error } = await db
+      .from('media_galleries')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    if (galleries && galleries.length > 0) {
+      let html = `
+        <div style="padding:0 2px 12px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:10px;">
+            TUS GALERÍAS (${galleries.length})
+          </div>
+        </div>
+      `;
+
+      galleries.forEach(g => {
+        const fecha = new Date(g.created_at);
+        html += `
+          <div style="
+            background:var(--surface); border-radius:14px; border:1.5px solid var(--border-md);
+            margin-bottom:10px; padding:14px; display:flex; gap:12px; align-items:center;
+          ">
+            <div style="
+              width:56px; height:56px; border-radius:10px; background:var(--purple-light);
+              display:flex; align-items:center; justify-content:center; flex-shrink:0;
+            ">
+              ${g.cover_url ? `
+                <img src="${_getMediaUrl(g.cover_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" alt="">
+              ` : `
+                <span style="font-size:24px;">🖼️</span>
+              `}
+            </div>
+            <div style="flex:1; min-width:0;">
+              <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:2px;">${g.name}</div>
+              <div style="font-size:11px;color:var(--text-muted);">
+                ${g.photo_count || 0} fotos • ${fecha.toLocaleDateString('es-CL')}
+              </div>
+            </div>
+            <button onclick="mediaDeleteGallery('${g.id}')" style="
+              background:none; border:none; color:#DC2626; font-size:11px;
+              font-weight:600; cursor:pointer; padding:4px 8px;
+            ">Eliminar</button>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+  } catch (err) {
+    console.error('Error loading galleries:', err);
+  }
+}
+
+/* ══ CREAR VIDEO ══ */
+function mediaCreateVideo() {
+  if (!currentUser) {
+    abrirAuthModal('login');
+    return;
+  }
+
+  openCamera('video', async (blob) => {
+    // Mostrar loading
+    _mediaShowLoading('Procesando video...');
+
+    try {
+      // Comprimir video
+      const compressed = await compressVideo(blob);
+
+      // Generar thumbnail
+      const thumbnail = await generateThumbnail(compressed);
+
+      // Subir video
+      const videoPath = `${currentUser.id}/video_${Date.now()}.webm`;
+      const { error: uploadErr1 } = await db.storage
+        .from('media-videos')
+        .upload(videoPath, compressed, { contentType: 'video/webm' });
+
+      if (uploadErr1) throw uploadErr1;
+
+      // Subir thumbnail
+      const thumbPath = `${currentUser.id}/thumb_${Date.now()}.jpg`;
+      const { error: uploadErr2 } = await db.storage
+        .from('media-photos')
+        .upload(thumbPath, thumbnail, { contentType: 'image/jpeg' });
+
+      if (uploadErr2) throw uploadErr2;
+
+      // Guardar en BD
+      const { error: dbErr } = await db.from('media_videos').insert({
+        user_id: currentUser.id,
+        video_url: videoPath,
+        thumbnail_url: thumbPath,
+        duration: CAMERA_MAX_DURATION,
+        size_bytes: compressed.size,
+        expires_at: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString()
+      });
+
+      if (dbErr) throw dbErr;
+
+      // Actualizar shorts públicos
+      await _updatePublicShort(videoPath, thumbPath);
+
+      _mediaHideLoading();
+      _mediaShowToast('Video guardado ✓');
+
+      // Refrescar lista
+      renderMediaVideos();
+
+    } catch (err) {
+      console.error('Error uploading video:', err);
+      _mediaHideLoading();
+      _mediaShowToast('Error al guardar video', 'error');
+    }
+  });
+}
+
+/* ══ CREAR FOTO ══ */
+function mediaCreatePhoto() {
+  if (!currentUser) {
+    abrirAuthModal('login');
+    return;
+  }
+
+  openCamera('photo', async (blob) => {
+    _mediaShowLoading('Procesando foto...');
+
+    try {
+      // Comprimir foto
+      const compressed = await compressPhoto(blob);
+
+      // Subir foto
+      const photoPath = `${currentUser.id}/photo_${Date.now()}.jpg`;
+      const { error: uploadErr } = await db.storage
+        .from('media-photos')
+        .upload(photoPath, compressed, { contentType: 'image/jpeg' });
+
+      if (uploadErr) throw uploadErr;
+
+      // Guardar en BD
+      const { error: dbErr } = await db.from('media_photos').insert({
+        user_id: currentUser.id,
+        photo_url: photoPath,
+        size_bytes: compressed.size
+      });
+
+      if (dbErr) throw dbErr;
+
+      _mediaHideLoading();
+      _mediaShowToast('Foto guardada ✓');
+
+      // Refrescar lista
+      renderMediaFotos();
+
+    } catch (err) {
+      console.error('Error uploading photo:', err);
+      _mediaHideLoading();
+      _mediaShowToast('Error al guardar foto', 'error');
+    }
+  });
+}
+
+/* ══ CREAR GALERÍA ══ */
+async function mediaCreateGallery() {
+  if (!currentUser) {
+    abrirAuthModal('login');
+    return;
+  }
+
+  const name = prompt('Nombre de la galería:');
+  if (!name || name.trim().length < 2) return;
+
+  try {
+    const { error } = await db.from('media_galleries').insert({
+      user_id: currentUser.id,
+      name: name.trim()
+    });
+
+    if (error) throw error;
+
+    _mediaShowToast('Galería creada ✓');
+    renderMediaGalerias();
+  } catch (err) {
+    console.error('Error creating gallery:', err);
+    _mediaShowToast('Error al crear galería', 'error');
+  }
+}
+
+/* ══ ACTUALIZAR SHORTS PÚBLICOS ══ */
+async function _updatePublicShort(videoPath, thumbPath) {
+  try {
+    // Obtener perfil del usuario
+    let petName = '';
+    let userName = '';
+    try {
+      const profile = JSON.parse(localStorage.getItem('wufly_profile_v1') || '{}');
+      petName = profile.nombreMascota || '';
+      userName = profile.nombre || currentUser.email.split('@')[0];
+    } catch {}
+
+    // Verificar si ya tiene short público
+    const { data: existing } = await db
+      .from('shorts_public')
+      .select('video_url, thumbnail_url')
+      .eq('user_id', currentUser.id)
+      .single();
+
+    if (existing) {
+      // Eliminar video anterior de storage
+      try {
+        await db.storage.from('shorts-public').remove([existing.video_url]);
+      } catch {}
+
+      // Actualizar registro
+      await db.from('shorts_public').update({
+        video_url: videoPath,
+        thumbnail_url: thumbPath,
+        pet_name: petName,
+        user_name: userName,
+        created_at: new Date().toISOString()
+      }).eq('user_id', currentUser.id);
+    } else {
+      // Crear nuevo
+      await db.from('shorts_public').insert({
+        user_id: currentUser.id,
+        video_url: videoPath,
+        thumbnail_url: thumbPath,
+        pet_name: petName,
+        user_name: userName
+      });
+    }
+  } catch (err) {
+    console.error('Error updating public short:', err);
+  }
+}
+
+/* ══ ELIMINAR VIDEO ══ */
+async function mediaDeleteVideo(id) {
+  if (!confirm('¿Eliminar este video?')) return;
+
+  try {
+    // Obtener datos del video
+    const { data: video } = await db
+      .from('media_videos')
+      .select('video_url, thumbnail_url')
+      .eq('id', id)
+      .single();
+
+    if (video) {
+      // Eliminar de storage
+      try {
+        await db.storage.from('media-videos').remove([video.video_url]);
+        if (video.thumbnail_url) {
+          await db.storage.from('media-photos').remove([video.thumbnail_url]);
+        }
+      } catch {}
+    }
+
+    // Eliminar de BD
+    await db.from('media_videos').delete().eq('id', id);
+
+    _mediaShowToast('Video eliminado');
+    renderMediaVideos();
+  } catch (err) {
+    console.error('Error deleting video:', err);
+  }
+}
+
+/* ══ ELIMINAR FOTO ══ */
+async function mediaDeletePhoto(id) {
+  if (!confirm('¿Eliminar esta foto?')) return;
+
+  try {
+    const { data: photo } = await db
+      .from('media_photos')
+      .select('photo_url')
+      .eq('id', id)
+      .single();
+
+    if (photo) {
+      try {
+        await db.storage.from('media-photos').remove([photo.photo_url]);
+      } catch {}
+    }
+
+    await db.from('media_photos').delete().eq('id', id);
+
+    _mediaShowToast('Foto eliminada');
+    renderMediaFotos();
+  } catch (err) {
+    console.error('Error deleting photo:', err);
+  }
+}
+
+/* ══ ELIMINAR GALERÍA ══ */
+async function mediaDeleteGallery(id) {
+  if (!confirm('¿Eliminar esta galería? Las fotos no se eliminarán.')) return;
+
+  try {
+    await db.from('media_galleries').delete().eq('id', id);
+    _mediaShowToast('Galería eliminada');
+    renderMediaGalerias();
+  } catch (err) {
+    console.error('Error deleting gallery:', err);
+  }
+}
+
+/* ══ UTILS ══ */
+function _getMediaUrl(path) {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+
+  const ref = SUPABASE_URL.replace('https://', '').split('.')[0];
+
+  // Determinar bucket
+  let bucket = 'media-photos';
+  if (path.includes('video_') || path.includes('thumb_')) {
+    bucket = path.includes('video_') ? 'media-videos' : 'media-photos';
+  }
+
+  return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}`;
+}
+
+function _mediaShowLoading(text) {
+  const el = document.getElementById('mediaLoading');
+  if (el) {
+    el.querySelector('p').textContent = text;
+    el.style.display = 'flex';
+  }
+}
+
+function _mediaHideLoading() {
+  const el = document.getElementById('mediaLoading');
+  if (el) el.style.display = 'none';
+}
+
+function _mediaShowToast(msg, type = 'ok') {
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position:fixed; bottom:100px; left:50%; transform:translateX(-50%);
+    background:${type === 'ok' ? 'var(--purple)' : '#DC2626'};
+    color:white; padding:12px 24px; border-radius:12px;
+    font-size:13px; font-weight:600; z-index:10000;
+    animation:slideUp 0.3s ease;
+  `;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
 }
 
 
