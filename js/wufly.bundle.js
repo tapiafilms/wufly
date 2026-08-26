@@ -3451,7 +3451,7 @@ function switchTab(name, el, fromNav = false) {
 
   // Para páginas secundarias, iluminar el tab padre lógico
   const secondaryParent = { recetas: 'comunidad', recordatorios: 'home', detail: _lastPrimaryTab || 'home' };
-  const order = ['home', 'restaurantes', 'comunidad', 'alergias'];
+  const order = ['home', 'media', 'restaurantes', 'comunidad', 'alergias'];
   const activeName = secondaryParent[name] ?? name;
   const idx = order.indexOf(activeName);
   if (idx >= 0) {
@@ -3501,6 +3501,20 @@ function switchComunidadTab(tab) {
   if (tab === 'perdidos')     renderPerdidos?.();
   if (tab === 'rescate')      renderRescate?.();
   if (tab === 'adoptar')      renderAdoptar?.();
+}
+
+/* ══ SUB-TABS DE MEDIA ══ */
+function switchMediaTab(tab) {
+  const subs = ['videos', 'fotos', 'galerias'];
+  subs.forEach(s => {
+    const el = document.getElementById('msub-' + s);
+    if (el) el.style.display = s === tab ? 'block' : 'none';
+    const btn = document.getElementById('mtab-' + s);
+    if (btn) {
+      btn.style.background = s === tab ? 'var(--purple)' : 'transparent';
+      btn.style.color      = s === tab ? 'white' : 'var(--text-muted)';
+    }
+  });
 }
 
 /* ══ CONSULTA RÁPIDA ══ */
