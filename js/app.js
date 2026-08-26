@@ -11,8 +11,6 @@ function _debounce(fn, ms = 280) {
 }
 const onSearchClinica   = _debounce(() => typeof renderClinicas   === 'function' && renderClinicas());
 const onSearchTienda    = _debounce(() => typeof renderTiendas    === 'function' && renderTiendas());
-const onSearchGrooming  = _debounce(() => typeof renderGrooming   === 'function' && renderGrooming());
-const onSearchPaseador  = _debounce(() => typeof renderPaseadores === 'function' && renderPaseadores());
 
 
 /* ══ STATS DINÁMICAS — lee desde los arrays de datos al renderizar ══ */
@@ -21,7 +19,6 @@ function _infoStats() {
     ? REGIONES_CLINICAS.reduce((s, r) => s + r.clinicas.length, 0) : '–';
   const totalTiendas = typeof REGIONES_TIENDAS !== 'undefined'
     ? REGIONES_TIENDAS.reduce((s, r) => s + r.tiendas.length, 0) : '–';
-  const totalArtistas = typeof artistas !== 'undefined' ? artistas.length : '–';
 
   const clinicasActivas = typeof getClinicasActivas === 'function' ? getClinicasActivas() : null;
   const clinicasRegion  = clinicasActivas?.length ?? totalClinicas;
@@ -31,7 +28,7 @@ function _infoStats() {
   const tiendasActivas = typeof getTiendasActivas === 'function' ? getTiendasActivas() : null;
   const tiendasRegion  = tiendasActivas?.length ?? totalTiendas;
 
-  return { totalClinicas, totalTiendas, totalArtistas, clinicasRegion, urgencias24h, ciudades, tiendasRegion };
+  return { totalClinicas, totalTiendas, clinicasRegion, urgencias24h, ciudades, tiendasRegion };
 }
 
 /* ══ CONTENIDO PANEL DERECHO (desktop) ══ */
@@ -107,42 +104,6 @@ const INFO_COLUMN_CONTENT = {
       </div>
     </div>`; },
 
-  drwufly: () => `
-    <div class="info-card">
-      <div class="info-card-tag">🩺 Dra. Wufly IA</div>
-      <h2>Tu asistente veterinaria disponible 24/7</h2>
-      <p>Cuéntale los síntomas de tu mascota y recibirás orientación inmediata. No reemplaza una consulta presencial.</p>
-      <div class="info-card-divider"></div>
-      <div class="info-stat-row">
-        <div class="info-stat"><div class="info-stat-num">24/7</div><div class="info-stat-label">Disponible</div></div>
-        <div class="info-stat"><div class="info-stat-num">IA</div><div class="info-stat-label">Claude AI</div></div>
-        <div class="info-stat"><div class="info-stat-num">🆓</div><div class="info-stat-label">Gratis</div></div>
-      </div>
-    </div>
-    <div class="info-card">
-      <div class="info-card-tag">💬 Cómo usarla mejor</div>
-      <h2>Consejos para una mejor consulta</h2>
-      <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
-        <div class="info-tip"><div class="info-tip-icon">📝</div><div class="info-tip-text"><strong>Sé específico</strong>Indica especie, edad, peso y hace cuánto comenzaron los síntomas.</div></div>
-        <div class="info-tip"><div class="info-tip-icon">📸</div><div class="info-tip-text"><strong>Adjunta fotos</strong>Si hay herida o lesión visible, adjunta una foto para un mejor diagnóstico.</div></div>
-        <div class="info-tip"><div class="info-tip-icon">⚠️</div><div class="info-tip-text"><strong>En emergencias, ve al vet</strong>Si no puede respirar, convulsiona o sangra, ve directamente a una clínica.</div></div>
-      </div>
-    </div>
-    <div class="info-card">
-      <div class="info-card-tag">🔬 Síntomas frecuentes</div>
-      <h2>Consultas más comunes en mascotas</h2>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;">
-        <span class="info-tag-pill">🤢 Vómitos</span>
-        <span class="info-tag-pill">😴 Letargia</span>
-        <span class="info-tag-pill">🍽️ Sin apetito</span>
-        <span class="info-tag-pill">💧 Diarrea</span>
-        <span class="info-tag-pill">😮‍💨 Tos seca</span>
-        <span class="info-tag-pill">🦷 Problemas dentales</span>
-        <span class="info-tag-pill">🐾 Cojea</span>
-        <span class="info-tag-pill">🫧 Picazón</span>
-      </div>
-    </div>`,
-
   comunidad: () => `
     <div class="info-card">
       <div class="info-card-tag">🐾 Comunidad Wufly</div>
@@ -176,40 +137,6 @@ const INFO_COLUMN_CONTENT = {
         <span class="info-tag-pill">🍚 Arroz</span>
       </div>
     </div>`,
-
-  servicios: () => { const s = _infoStats(); return `
-    <div class="info-card">
-      <div class="info-card-tag">🛍️ Servicios para mascotas</div>
-      <h2>Todo lo que tu mascota necesita</h2>
-      <p>Tiendas, peluquerías, paseadores y artistas. Encuentra los mejores servicios en la región.</p>
-      <div class="info-card-divider"></div>
-      <div class="info-stat-row">
-        <div class="info-stat"><div class="info-stat-num">${s.tiendasRegion}</div><div class="info-stat-label">Tiendas</div></div>
-        <div class="info-stat"><div class="info-stat-num">📍</div><div class="info-stat-label">Grooming geo</div></div>
-        <div class="info-stat"><div class="info-stat-num">${s.totalArtistas}</div><div class="info-stat-label">Artistas</div></div>
-      </div>
-    </div>
-    <div class="info-card">
-      <div class="info-card-tag">✂️ Grooming profesional</div>
-      <h2>¿Cuándo llevar a tu mascota a la peluquería?</h2>
-      <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
-        <div class="info-tip"><div class="info-tip-icon">🐕</div><div class="info-tip-text"><strong>Pelo largo: cada 6-8 semanas</strong>Razas como Shih Tzu, Poodle o Maltés requieren corte frecuente para evitar enredos.</div></div>
-        <div class="info-tip"><div class="info-tip-icon">🐩</div><div class="info-tip-text"><strong>Pelo corto: cada 3-4 meses</strong>Un baño y cepillado profesional mantiene el pelaje sano y sin parásitos.</div></div>
-        <div class="info-tip"><div class="info-tip-icon">🐈</div><div class="info-tip-text"><strong>Gatos: según necesidad</strong>La mayoría se autolimpia, pero los de pelo largo se benefician de un grooming ocasional.</div></div>
-      </div>
-    </div>
-    <div class="info-card">
-      <div class="info-card-tag">🎨 Arte de mascotas</div>
-      <h2>Inmortaliza a tu compañero</h2>
-      <p>Artistas verificados en todo Chile ofrecen retratos en óleo, acuarela, lápiz y arte digital.</p>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;">
-        <span class="info-tag-pill">🖼️ Óleo</span>
-        <span class="info-tag-pill">🎨 Acuarela</span>
-        <span class="info-tag-pill">✏️ Lápiz</span>
-        <span class="info-tag-pill">💻 Digital</span>
-        <span class="info-tag-pill">📦 Envío incluido</span>
-      </div>
-    </div>`; },
 
   alergias: () => `
     <div class="info-card">
@@ -390,7 +317,7 @@ function switchTab(name, el, fromNav = false) {
 
   // Para páginas secundarias, iluminar el tab padre lógico
   const secondaryParent = { recetas: 'comunidad', recordatorios: 'home', detail: _lastPrimaryTab || 'home' };
-  const order = ['home', 'restaurantes', 'drwufly', 'comunidad', 'servicios'];
+  const order = ['home', 'restaurantes', 'comunidad', 'alergias'];
   const activeName = secondaryParent[name] ?? name;
   const idx = order.indexOf(activeName);
   if (idx >= 0) {
@@ -411,7 +338,7 @@ function switchTab(name, el, fromNav = false) {
 
 /* ══ SUB-TABS DE SERVICIOS ══ */
 function switchServiciosTab(tab) {
-  const subs = ['tiendas', 'grooming', 'paseadores', 'arte'];
+  const subs = ['tiendas'];
   subs.forEach(s => {
     const el = document.getElementById('ssub-' + s);
     if (el) el.style.display = s === tab ? 'block' : 'none';
@@ -422,24 +349,6 @@ function switchServiciosTab(tab) {
     }
   });
   if (tab === 'tiendas')    renderTiendas?.();
-  if (tab === 'grooming')   renderGrooming?.();
-  if (tab === 'paseadores') { if (typeof initPaseadores === 'function') initPaseadores(); }
-  if (tab === 'arte')       renderArte?.();
-
-  if (tab === 'grooming' || tab === 'paseadores') {
-    const sub = document.getElementById('ssub-' + tab);
-    const vid = sub?.querySelector('video');
-    if (vid) {
-      vid.style.transition = 'none';
-      vid.style.opacity = '0';
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          vid.style.transition = 'opacity 0.8s ease';
-          vid.style.opacity = '1';
-        });
-      });
-    }
-  }
 }
 
 /* ══ SUB-TABS DE COMUNIDAD ══ */
@@ -460,12 +369,9 @@ function switchComunidadTab(tab) {
   if (tab === 'fundaciones')  renderFundaciones?.();
 }
 
-/* ══ CONSULTA RÁPIDA EN DR. WUFLY ══ */
+/* ══ CONSULTA RÁPIDA ══ */
 function setConsultaRapida(texto) {
-  const input = document.getElementById('chatInput');
-  if (!input) return;
-  input.value = texto;
-  sendChat();
+  /* Función deshabilitada — Dra. Wufly eliminada */
 }
 
 /* ══ OBTENER CONTEXTO COMPLETO DEL PERFIL PARA LA IA ══ */
@@ -569,7 +475,7 @@ function _initPullToRefresh() {
     return document.querySelector('.page.active')?.id?.replace('page-', '') || 'home';
   }
   function _activeServiciosSub() {
-    return ['tiendas','grooming','paseadores','arte'].find(s => {
+    return ['tiendas'].find(s => {
       const el = document.getElementById('ssub-' + s);
       return el && el.style.display !== 'none';
     }) || 'tiendas';
@@ -599,10 +505,8 @@ function _initPullToRefresh() {
         .then(() => { renderClinicas?.(); done(); });
     } else if (tab === 'servicios') {
       const sub = _activeServiciosSub();
-      if (sub === 'grooming')   { activarBusquedaGrooming?.(); setTimeout(done, 900); }
-      else if (sub === 'tiendas')   { activarBusquedaTiendas?.(); setTimeout(done, 900); }
-      else if (sub === 'paseadores'){ cargarPaseadoresDB?.();     setTimeout(done, 900); }
-      else { renderArte?.(); setTimeout(done, 400); }
+      if (sub === 'tiendas')   { activarBusquedaTiendas?.(); setTimeout(done, 900); }
+      else { setTimeout(done, 400); }
     } else if (tab === 'comunidad') {
       const sub = _activeComunidadSub();
       if (sub === 'adoptar')  renderAdopcion?.();

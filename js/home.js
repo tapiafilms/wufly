@@ -154,40 +154,6 @@ function renderHome() {
         </div>
       </div>
 
-      <!-- SECCIÓN JUNTOS IA -->
-      <div style="margin:0 16px 24px;">
-        <!-- Card principal -->
-        <div style="
-          border-radius:22px;
-          overflow:hidden;
-          background:linear-gradient(135deg,#3B0764,#6D28D9,#9333EA);
-          box-shadow:0 8px 28px rgba(109,40,217,0.38);
-          padding:22px 18px 20px;
-          position:relative;
-          min-height:180px;
-        ">
-          <!-- Imagen de fondo con blend mode screen -->
-          <div style="position:absolute;inset:0;background-image:url('img/bg-juntos.png');background-size:contain;background-repeat:no-repeat;background-position:right center;mix-blend-mode:screen;opacity:0.9;pointer-events:none;"></div>
-
-          <div style="position:relative;z-index:1;max-width:55%;">
-            <div style="font-size:28px;margin-bottom:8px;">✨</div>
-            <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:20px;color:white;line-height:1.2;margin-bottom:6px;">
-              Juntos — IA
-            </div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.9);line-height:1.5;margin-bottom:18px;">
-              Toma una foto de tu mascota y una selfie.<br>La IA los une en un lugar mágico.
-            </div>
-            <button onclick="abrirJuntos()"
-              style="padding:13px 20px;border:none;border-radius:14px;background:white;color:#6D28D9;font-family:'Funnel Display',sans-serif;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.25);display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform 0.15s;white-space:nowrap;"
-              onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'"
-              ontouchstart="this.style.transform='scale(0.97)'" ontouchend="this.style.transform='scale(1)'">
-              <span style="font-size:20px;"></span>Crear mi foto con IA
-            </button>
-          </div>
-        </div>
-
-      </div>
-
       <!-- CARRUSEL FOTOS JUNTOS -->
       <div id="juntos-carousel-section" style="display:none;margin-bottom:20px;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:10px;">
@@ -201,45 +167,6 @@ function renderHome() {
       </div>
 
 
-
-<!-- PERRITOS PASEANDO -->
-      <div style="margin:0 16px 24px;">
-        <div onclick="abrirMapaPaseos()" style="
-          border-radius:22px;
-          background:#1D4ED8;
-          box-shadow:0 8px 28px rgba(29,78,216,0.35);
-          padding:20px 18px;
-          cursor:pointer;
-          display:flex;
-          align-items:center;
-          gap:16px;
-          position:relative;
-          overflow:hidden;
-          min-height:90px;
-        ">
-          <video autoplay muted loop playsinline
-            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transition:opacity 1s ease;"
-            oncanplay="this.style.opacity='0.45'">
-            <source src="img/paseo.mp4" type="video/mp4">
-          </video>
-          <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgb(18 42 100/85%) 40%,rgb(34 91 250/55%) 100%);z-index:1;"></div>
-          <div style="flex-shrink:0;position:relative;z-index:2;">
-            <img src="img/icono.png" alt="Wufly" style="width:52px;height:52px;object-fit:contain;border-radius:10px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));">
-          </div>
-          <div style="flex:1;position:relative;z-index:2;">
-            <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:18px;color:white;line-height:1.2;margin-bottom:5px;">Perritos paseando cerca</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.5;">Mira en tiempo real qué perritos de la comunidad están paseando ahora mismo cerca tuyo.</div>
-          </div>
-          <div style="flex-shrink:0;position:relative;z-index:2;width:36px;height:36px;">
-            <span style="position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,0.35);animation:pulse-ring 1.8s ease-out infinite;"></span>
-            <span style="position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,0.25);animation:pulse-ring 1.8s ease-out 0.6s infinite;"></span>
-            <span style="position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,0.15);animation:pulse-ring 1.8s ease-out 1.2s infinite;"></span>
-            <div style="position:relative;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;">
-              <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
-            </div>
-          </div>
-        </div>
-      </div>
 
 <!-- CAROUSEL VIDEOS -->
       <div style="margin-bottom:20px;">
@@ -259,17 +186,10 @@ function renderHome() {
       </div>
 
 
-      <!-- BANNER ARTE — imagen: img/banner-arte.jpg | link: onclick abajo -->
-      <div style="margin:0 16px 20px;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(124,58,237,0.15);cursor:pointer;"
-        onclick="switchServiciosTab('arte'); switchTab('servicios')">
-        <img src="img/banner-arte.jpg" alt="Arte · Retratos de mascotas"
-          style="width:100%;display:block;object-fit:cover;">
-      </div>
-
       <!-- BANNER TIP DEL DÍA — imagen: img/banner-tip.jpg | link: onclick abajo -->
       <div style="margin:0 16px 24px;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(59,130,246,0.15);cursor:pointer;"
         onclick="window.open('https://www.superzoo.cl/tiendas?showMap=true&horizontalView=true&isForm=true', '_blank')">
-        <img src="img/banner-tip.jpg" alt="Tip del día · Dra. Wufly"
+        <img src="img/banner-tip.jpg" alt="Tip del día"
           style="width:100%;display:block;object-fit:cover;">
       </div>
 
@@ -296,16 +216,6 @@ function renderHome() {
     }
     v.play().catch(() => {});
   }, 100);
-
-// Cargar galería en idle para no bloquear el render inicial
-  if (typeof cargarFotosMascotas === 'function') {
-    const _cargarGaleria = () => {
-      cargarFotosMascotas();
-      if (typeof cargarCarruselJuntos === 'function') cargarCarruselJuntos();
-    };
-    if (window.requestIdleCallback) requestIdleCallback(_cargarGaleria, { timeout: 2000 });
-    else setTimeout(_cargarGaleria, 200);
-  }
 
   // Viñeta URGENTE
   setTimeout(cargarUrgentePanel, 500);
@@ -561,7 +471,7 @@ const STACK_CARDS = [
   { label:'Dra. Wufly',     sub:'Asistente veterinario IA',        img:'img/card-dra.jpg',        nav: () => switchTab('drwufly'),                                                   grad:'#2d0f6b' },
   { label:'Adoptar',        sub:'Mascotas que buscan hogar',       img:'img/card-adoptar.jpg',    nav: () => { switchComunidadTab('adoptar'); switchTab('comunidad'); },              grad:'#1a0a3c' },
   { label:'Arte',           sub:'Retratos de tu mascota',          img:'img/card-arte.jpg',       nav: () => { switchServiciosTab('arte'); switchTab('servicios'); },                 grad:'#2a0545' },
-  { label:'Grooming',       sub:'Estética y peluquería',           img:'img/card-grooming.jpg',   nav: () => { switchServiciosTab('grooming'); switchTab('servicios'); },             grad:'#3d1278' },
+  { label:'Grooming',       sub:'Estética y peluquería',           img:'img/card-grooming.jpg',   nav: () => { switchTab('restaurantes'); },             grad:'#3d1278' },
   { label:'Paseadores',     sub:'Paseos para tu mascota',          img:'img/card-paseadores.jpg', nav: () => { switchServiciosTab('paseadores'); switchTab('servicios'); },           grad:'#1e0550' },
 ];
 

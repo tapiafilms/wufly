@@ -8,7 +8,6 @@
 const geoResults = {
   clinicas: [],
   tiendas:  [],
-  grooming: [],
 };
 
 let userLocation = null;      // { lat, lng }
@@ -148,38 +147,10 @@ function osmToTienda(node, uLat, uLng) {
   };
 }
 
-/* ── OSM → formato grooming ── */
-function osmToGrooming(node, uLat, uLng) {
-  const { lat, lng } = osmCoords(node);
-  const tags = node.tags || {};
-  const dist = lat && lng ? haversine(uLat, uLng, lat, lng) : 9999;
-
-  return {
-    id:       'osm_' + node.id,
-    name:     tags.name,
-    type:     'PELUQUERÍA · GROOMING',
-    icon:     '✂️',
-    city:     'geo',
-    destacado: false,
-    rating:   null,
-    reviews:  null,
-    desc:     tags.description || 'Peluquería canina encontrada cerca de tu ubicación.',
-    tags:     ['Grooming'],
-    address:  osmAddr(tags),
-    tel:      osmTel(tags),
-    wsp:      osmTel(tags).replace(/\D/g, ''),
-    horario:  osmHorario(tags.opening_hours),
-    especies: ['perro', 'gato'],
-    distKm:   dist,
-    lat, lng,
-    fromOSM:  true,
-  };
-}
-
 /* ══ BANNER GEO — renderiza en múltiples banners ══ */
 const _geoBanners = [
   { id: 'geoBanner',     titulo: 'Ver tiendas cerca de ti',  sub: 'Pet shops y tiendas reales en tu zona',
-    msgOk: () => `${(geoResults.tiendas?.length||0) + (geoResults.grooming?.length||0)} negocios encontrados a menos de 7 km` },
+    msgOk: () => `${geoResults.tiendas?.length||0} negocios encontrados a menos de 7 km` },
   { id: 'geoBannerVets', titulo: 'Ver clínicas cerca de ti', sub: 'Veterinarias y urgencias en tu zona',
     msgOk: () => `${geoResults.clinicas?.length||0} clínicas encontradas a menos de 7 km` },
 ];
@@ -266,7 +237,6 @@ function actualizarBotonesGeo() {
   const secciones = [
     { btnId: 'clinicaGeoBtn',  key: 'clinicas'  },
     { btnId: 'tiendaGeoBtn',   key: 'tiendas'   },
-    { btnId: 'groomingGeoBtn', key: 'grooming'  },
   ];
   secciones.forEach(({ btnId, key }) => {
     const btn = document.getElementById(btnId);
@@ -307,7 +277,6 @@ async function iniciarGeoBusqueda(forzar = false) {
       elementos = await queryOverpass(loc.lat, loc.lng, RADIO, [
         'amenity=veterinary',
         'shop=pet', 'shop=pet_care', 'shop=pet_food',
-        'shop=pet_grooming', 'craft=pet_grooming',
       ]);
       try { sessionStorage.setItem(_GEO_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: elementos })); } catch {}
     }
@@ -315,7 +284,6 @@ async function iniciarGeoBusqueda(forzar = false) {
     /* 3 · Separar por tipo y convertir */
     const esVet     = e => e.tags?.amenity === 'veterinary';
     const esTienda  = e => ['pet','pet_care','pet_food'].includes(e.tags?.shop);
-    const esGroom   = e => e.tags?.shop === 'pet_grooming' || e.tags?.craft === 'pet_grooming';
 
     geoResults.clinicas = elementos.filter(esVet)
       .map(n => osmToClinica(n, loc.lat, loc.lng))
@@ -325,20 +293,15 @@ async function iniciarGeoBusqueda(forzar = false) {
       .map(n => osmToTienda(n, loc.lat, loc.lng))
       .sort((a, b) => a.distKm - b.distKm);
 
-    geoResults.grooming = elementos.filter(esGroom)
-      .map(n => osmToGrooming(n, loc.lat, loc.lng))
-      .sort((a, b) => a.distKm - b.distKm);
-
     geoStatus = 'ok';
 
-    const total = geoResults.clinicas.length + geoResults.tiendas.length + geoResults.grooming.length;
+    const total = geoResults.clinicas.length + geoResults.tiendas.length;
     renderGeoBanner('ok', `${total} negocios encontrados a menos de 7 km`);
 
     /* 4 · Mostrar botones "Cerca" y re-render si aplica */
     actualizarBotonesGeo();
     if (typeof renderClinicas  === 'function') renderClinicas();
     if (typeof renderTiendas   === 'function') renderTiendas();
-    if (typeof renderGrooming  === 'function') renderGrooming();
 
   } catch (err) {
     if (err.code === 1) {

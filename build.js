@@ -18,21 +18,11 @@ const files = [
   'js/adoptar.js',
   'js/tiendas-destacadas.js',
   'js/tiendas.js',
-  'js/grooming.js',
-  'js/paseadores.js',
-  'js/arte.js',
   'js/recetas.js',
   'js/fundaciones.js',
   'js/recordatorios.js',
   'js/perfil.js',
-  'js/chat.js',
-  'js/pet-gallery.js',
-  'js/foto-juntos.js',
-  'js/home.js',
-  'js/companion.js',
-  'js/mapa-paseos.js',
-  'js/encuentro.js',
-  'js/paseador-mode.js'
+  'js/home.js'
 ];
 
 const bundlePath = path.join(__dirname, 'js/wufly.bundle.js');

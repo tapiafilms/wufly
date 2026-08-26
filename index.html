@@ -235,28 +235,16 @@
     </button>
     <button class="dsb-btn" data-tab="restaurantes" onclick="switchTab('restaurantes')">
       <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
-      <span>Vets</span>
-    </button>
-    <button class="dsb-btn" data-tab="drwufly" onclick="switchTab('drwufly')">
-      <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-      <span>Dra. Wufly</span>
+      <span>Veterinarias</span>
     </button>
     <button class="dsb-btn" data-tab="comunidad" onclick="switchTab('comunidad')">
       <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
       <span>Comunidad</span>
     </button>
-    <button class="dsb-btn" data-tab="servicios" onclick="switchTab('servicios')">
-      <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
-      <span>Servicios</span>
-    </button>
   </div>
   <button class="dsb-btn" data-tab="alergias" onclick="abrirPerfil()">
     <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     <span>Perfil</span>
-  </button>
-  <button class="dsb-btn dsb-back-btn" onclick="exitAppMode()" title="Volver a la Web corporativa" style="margin-top: 16px; border-top: 1.5px solid rgba(255,255,255,0.15); padding-top: 16px;">
-    <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    <span>Volver Web</span>
   </button>
 </nav>
 
@@ -299,84 +287,9 @@
   </div>
   <div class="hero-rounded-sep" style="margin:-36px -20px 16px;background:var(--bg);border-radius:36px 36px 0 0;height:36px;position:relative;z-index:1;"></div>
 
-  <!-- Sub-tabs de servicios -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);background:var(--bg);border-radius:var(--r-xs);padding:4px;gap:4px;margin-bottom:16px;">
-    <button id="stab-tiendas" onclick="switchServiciosTab('tiendas')"
-      style="padding:9px 4px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;background:var(--purple);color:white;font-family:'Plus Jakarta Sans',sans-serif;">
-      Tiendas
-    </button>
-    <button id="stab-grooming" onclick="switchServiciosTab('grooming')"
-      style="padding:9px 4px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;">
-      Grooming
-    </button>
-    <button id="stab-paseadores" onclick="switchServiciosTab('paseadores')"
-      style="padding:9px 4px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;">
-      Paseos
-    </button>
-    <button id="stab-arte" onclick="switchServiciosTab('arte')"
-      style="padding:9px 4px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;">
-      Arte
-    </button>
-  </div>
-
-  <!-- ── SUB: TIENDAS ── -->
+  <!-- ── TIENDAS ── -->
   <div id="ssub-tiendas">
     <div id="tiendaList" style="padding:0;"></div>
-  </div>
-
-  <!-- ── SUB: GROOMING ── -->
-  <div id="ssub-grooming" style="display:none;">
-    <div class="hero-banner" style="position:relative;overflow:hidden;">
-      <video autoplay muted loop playsinline
-        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;">
-        <source src="img/grooming.mp4" type="video/mp4">
-      </video>
-      <div style="position:absolute;inset:0;background:rgba(103,58,183,0.72);z-index:1;pointer-events:none;"></div>
-      <div style="position:relative;z-index:2;">
-        <h2>Peluquerías y Grooming</h2>
-        <p>Baño, corte, spa y más para que tu mascota esté siempre impecable</p>
-        <div class="stat-row">
-          <div class="stat"><div class="stat-num">9</div><div class="stat-label">Locales</div></div>
-          <div class="stat"><div class="stat-num">3</div><div class="stat-label">Ciudades</div></div>
-          <div class="stat"><div class="stat-num">2</div><div class="stat-label">A domicilio</div></div>
-        </div>
-      </div>
-    </div>
-    <div class="search-bar">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <input type="text" placeholder="Buscar peluquería o servicio..." id="searchGrooming" oninput="onSearchGrooming()" aria-label="Buscar peluquería o servicio de grooming">
-    </div>
-    <div class="filter-row sub-filter-grooming">
-      
-      <button id="groomingGeoBtn" class="filter-btn" onclick="setFilterGrooming(this,'geo')" style="display:none;">📍 Cerca</button>
-    </div>
-    <div id="groomingList"></div>
-  </div>
-
-  <!-- ── SUB: PASEADORES ── -->
-  <div id="ssub-paseadores" style="display:none;">
-    <div class="hero-banner" style="position:relative;overflow:hidden;">
-      <video autoplay muted loop playsinline
-        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;">
-        <source src="img/paseo.mp4" type="video/mp4">
-      </video>
-      <div style="position:absolute;inset:0;background:rgba(103,58,183,0.72);z-index:1;pointer-events:none;"></div>
-      <div style="position:relative;z-index:2;">
-        <h2>Paseadores de perros</h2>
-        <p>Profesionales verificados.</p>
-        <div class="stat-row">
-          <div class="stat"><div class="stat-num">3</div><div class="stat-label">Servicios</div></div>
-          <div class="stat"><div class="stat-num">2</div><div class="stat-label">Verificados</div></div>
-          <div class="stat"><div class="stat-num">2</div><div class="stat-label">Ciudades</div></div>
-        </div>
-      </div>
-    </div>
-    <div id="paseadoresList"></div>
-  </div>
-
-  <!-- ── SUB: ARTE ── -->
-  <div id="ssub-arte" style="display:none;">
-    <div id="arteList" style="display:flex;flex-direction:column;gap:14px;margin-top:4px;"></div>
   </div>
 
 </div>
@@ -463,46 +376,6 @@
 
 <!-- DETALLE CLÍNICA — página real dentro del sistema de tabs -->
 <div class="page" id="page-detail"></div>
-
-<!-- ══ DR. WUFLY — Dra. Wufly Avatar ══ -->
-<div class="page" id="page-drwufly">
-  <div class="page-title">Dra. Wufly 🩺</div>
-  <div class="page-sub">Cuéntame qué le pasa a tu mascota y te oriento. Para emergencias, ve directo a una clínica.</div>
-
-  <!-- Avatar -->
-  <div class="drw-wrap">
-    <video id="drw-escuchando" class="drw-video" src="img/avatar-escuchando.mp4" autoplay loop muted playsinline></video>
-    <video id="drw-hablando" class="drw-video" src="img/avatar-hablando.mp4" loop muted playsinline style="display:none"></video>
-  </div>
-
-  <!-- Burbuja de diálogo (fuera del avatar) -->
-  <div id="drw-bubble" class="drw-bubble drw-bubble--doc visible">
-    <span id="drw-bubble-text">Hola, ¿cómo puedo ayudarte hoy?</span>
-  </div>
-
-  <!-- Input -->
-  <div class="chat-input-row" style="margin-bottom:16px;border-top:none;padding:0;">
-    <button class="btn-mic" id="btnMic" onclick="toggleMic()" style="display:none;" title="Hablar con Dra. Wufly">
-      <svg id="micIcon" viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
-    </button>
-    <input type="text" id="chatInput" placeholder="Ej: Mi perro lleva 2 días sin comer..." onkeydown="if(event.key==='Enter')sendChat()">
-    <button class="btn-send" id="btnSend" onclick="sendChat()">Enviar</button>
-  </div>
-
-  <!-- Banner decorativo -->
-  <div style="width:100%;height:130px;border-radius:var(--r);overflow:hidden;margin-bottom:16px;background:var(--purple-light);">
-    <img src="img/dra-wufly-banner.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none'">
-  </div>
-
-  <!-- Acceso rápido a vets de urgencia -->
-  <div style="background:linear-gradient(135deg,#FEE2E2,#FFF3F3);border-radius:var(--r);border:1.5px solid rgba(220,38,38,0.2);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="switchTab('restaurantes')">
-    <div>
-      <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:14px;color:#DC2626;">🚨 ¿Es una emergencia?</div>
-      <div style="font-size:12px;color:#DC2626;opacity:0.8;margin-top:2px;">Ver clínicas con urgencias 24h →</div>
-    </div>
-    <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:#DC2626;fill:none;stroke-width:2;stroke-linecap:round;"><path d="M9 18l6-6-6-6"/></svg>
-  </div>
-</div>
 
 <!-- ══ COMUNIDAD ══ -->
 <div class="page" id="page-comunidad">
@@ -819,14 +692,6 @@
 </div>
 
 
-<!-- Modal detalle paseador -->
-<div id="detallePaseadorModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.5);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)cerrarDetallePaseador()">
-  <div class="modal-sheet" style="position:relative;width:100%;max-width:480px;">
-    <button onclick="cerrarDetallePaseador()" style="position:absolute;top:12px;right:12px;z-index:10;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;color:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
-    <div id="detallePaseadorBody" style="background:white;border-radius:24px 24px 0 0;width:100%;max-height:90vh;overflow-y:auto;"></div>
-  </div>
-</div>
-
 <!-- Modal detalle receta -->
 <div id="recetaModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.5);align-items:flex-end;justify-content:center;">
   <div id="recetaModalBody" style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;"></div>
@@ -892,19 +757,15 @@
   </button>
   <button class="nav-btn" onclick="switchTab('restaurantes',this,true)">
     <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
-    VETS
-  </button>
-  <button class="nav-btn" onclick="switchTab('drwufly',this,true)">
-    <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-    DRA. WUFLY
+    VETERINARIAS
   </button>
   <button class="nav-btn" onclick="switchTab('comunidad',this,true)">
     <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
     COMUNIDAD
   </button>
-  <button class="nav-btn" onclick="switchTab('servicios',this,true)">
-    <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
-    SERVICIOS
+  <button class="nav-btn" onclick="abrirPerfil()">
+    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    PERFIL
   </button>
 </nav>
 
@@ -1104,9 +965,7 @@
       const tabMap = {
         home: () => switchTab('home'),
         restaurantes: () => switchTab('restaurantes'),
-        drwufly: () => switchTab('drwufly'),
         comunidad: () => switchTab('comunidad'),
-        servicios: () => switchTab('servicios'),
         alergias: () => switchTab('alergias'),
         // Sub-tabs de comunidad (usados en shortcuts del manifest)
         adoptar:   () => { switchTab('comunidad'); switchComunidadTab('adoptar'); },
@@ -1124,117 +983,6 @@
   <button onclick="cerrarLightbox()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;">
     <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
   </button>
-</div>
-
-<!-- MODAL: FORMULARIO PASEADOR -->
-<div id="formPaseadorModal" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.6);align-items:flex-end;justify-content:center;">
-  <div style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;max-height:90vh;overflow-y:auto;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:20px;color:var(--text);">Quiero ser paseador 🐕</div>
-      <button onclick="cerrarFormPaseador()" style="width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border-md);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;">
-        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:2.5;stroke-linecap:round;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:14px;">
-      <div>
-        <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">NOMBRE COMPLETO *</label>
-        <input type="text" id="fpNombre" placeholder="Tu nombre..." style="width:100%;margin-top:6px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:11px 14px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
-      </div>
-      <div>
-        <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">ZONA DE TRABAJO *</label>
-        <select id="fpZona" style="width:100%;margin-top:6px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:11px 14px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
-          <option value="">Selecciona ciudad...</option>
-          <option value="Santiago">Santiago</option>
-          <option value="Vina del Mar">Viña del Mar</option>
-          <option value="Valparaiso">Valparaíso</option>
-          <option value="Concon">Concón</option>
-          <option value="Antofagasta">Antofagasta</option>
-          <option value="Temuco">Temuco</option>
-          <option value="Concepcion">Concepción</option>
-          <option value="La Serena">La Serena</option>
-          <option value="Puerto Montt">Puerto Montt</option>
-          <option value="Todo Chile">Todo Chile</option>
-        </select>
-      </div>
-      <div>
-        <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">CUÉNTANOS DE TI *</label>
-        <textarea id="fpDescripcion" placeholder="Experiencia con mascotas, zonas donde paseás, qué ofreces..." rows="3" style="width:100%;margin-top:6px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:11px 14px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;resize:vertical;"></textarea>
-      </div>
-      <div>
-        <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">TARIFA POR PASEO (opcional)</label>
-        <input type="text" id="fpTarifa" placeholder="Ej: $5.000 por 45 min" style="width:100%;margin-top:6px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:11px 14px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
-      </div>
-      <div>
-        <label style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;">WHATSAPP DE CONTACTO *</label>
-        <input type="tel" id="fpWhatsapp" placeholder="Ej: +56912345678" style="width:100%;margin-top:6px;border:1.5px solid var(--border-md);border-radius:var(--r-xs);padding:11px 14px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background:white;">
-        <div style="font-size:11px;color:var(--text-hint);margin-top:4px;">Solo se mostrará a usuarios interesados en contactarte.</div>
-      </div>
-      <div style="background:var(--purple-light);border-radius:10px;padding:12px 14px;border:1.5px solid rgba(124,77,204,0.2);">
-        <div style="font-size:12px;color:var(--purple);line-height:1.6;">📋 El equipo Wufly revisará tu solicitud y te contactará por correo. Una vez aprobado, aparecerás en el directorio verificado.</div>
-      </div>
-      <button id="fpBtnEnviar" onclick="enviarSolicitudPaseador()" style="width:100%;padding:14px;border-radius:var(--r-xs);border:none;background:var(--purple);color:white;font-family:'Funnel Display',sans-serif;font-weight:700;font-size:15px;cursor:pointer;margin-top:4px;">
-        Enviar solicitud →
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- OVERLAY: PASEO ACTIVO -->
-<div id="paseoActivoOverlay" style="display:none;position:fixed;inset:0;z-index:9997;background:#0D0520;flex-direction:column;">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;flex-shrink:0;">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <button onclick="cerrarModoPasseador()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
-        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <span style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:17px;color:white;">Paseo activo</span>
-    </div>
-    <div id="wakeLockPill" onclick="toggleWakeLock()" style="display:flex;align-items:center;gap:5px;background:rgba(61,175,135,0.12);border:0.5px solid rgba(61,175,135,0.4);border-radius:20px;padding:5px 12px;cursor:pointer;">
-      <div id="wakeLockDot" style="width:6px;height:6px;border-radius:50%;background:#3DAF87;"></div>
-      <span id="wakeLockTxt" style="font-size:10px;font-weight:600;color:#3DAF87;font-family:'Plus Jakarta Sans',sans-serif;">Pantalla activa</span>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,0.06);flex-shrink:0;">
-    <div style="background:#0D0520;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;">
-      <span id="paseoTimer" style="font-family:'Funnel Display',sans-serif;font-size:26px;font-weight:700;color:white;letter-spacing:-1px;">00:00</span>
-      <span style="font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.05em;">Tiempo</span>
-    </div>
-    <div style="background:#0D0520;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;">
-      <span id="paseoDistancia" style="font-family:'Funnel Display',sans-serif;font-size:26px;font-weight:700;color:white;letter-spacing:-1px;">0 m</span>
-      <span style="font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.05em;">Distancia</span>
-    </div>
-    <div style="background:#0D0520;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;">
-      <span style="font-family:'Funnel Display',sans-serif;font-size:26px;font-weight:700;color:#3DAF87;">●</span>
-      <span style="font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.05em;">En vivo</span>
-    </div>
-  </div>
-  <div style="flex:1;padding:16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;">
-    <div style="background:rgba(61,175,135,0.12);border:1px solid rgba(61,175,135,0.25);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;">
-      <span style="font-size:16px;flex-shrink:0;">✅</span>
-      <span style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.5;font-family:'Plus Jakarta Sans',sans-serif;">Wufly sigue enviando tu ubicación al dueño. Mantén la app visible para mejores resultados.</span>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
-      <button onclick="abrirCamaraPaseo()" style="background:rgba(255,255,255,0.07);border:0.5px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px 10px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;cursor:pointer;text-align:left;">
-        <span style="font-size:20px;">📸</span>
-        <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.85);font-family:'Plus Jakarta Sans',sans-serif;">Enviar foto</span>
-        <span style="font-size:10px;color:rgba(255,255,255,0.4);font-family:'Plus Jakarta Sans',sans-serif;">Al dueño ahora</span>
-      </button>
-      <button id="btnPausarPaseo" onclick="paseoActivo=!paseoActivo;this.querySelector('.ptxt').textContent=paseoActivo?'En progreso':'Pausado';" style="background:rgba(255,255,255,0.07);border:0.5px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px 10px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;cursor:pointer;text-align:left;">
-        <span style="font-size:20px;">⏸️</span>
-        <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.85);font-family:'Plus Jakarta Sans',sans-serif;">Pausar</span>
-        <span class="ptxt" style="font-size:10px;color:rgba(255,255,255,0.4);font-family:'Plus Jakarta Sans',sans-serif;">En progreso</span>
-      </button>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:auto;">
-      <button onclick="activarSOS()" style="flex:1;background:#7F1D1D;border:1px solid #991B1B;border-radius:12px;padding:16px 10px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;">
-        <span style="font-size:18px;">🆘</span>
-        <span style="font-size:14px;font-weight:700;color:white;font-family:'Funnel Display',sans-serif;">SOS</span>
-      </button>
-      <button onclick="cerrarModoPasseador()" style="flex:2;background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.15);border-radius:12px;padding:16px 10px;display:flex;align-items:center;justify-content:center;cursor:pointer;">
-        <span style="font-size:14px;font-weight:600;color:rgba(255,255,255,0.65);font-family:'Plus Jakarta Sans',sans-serif;">Finalizar paseo</span>
-      </button>
-    </div>
-  </div>
-  <input type="file" id="paseoCamaraInput" accept="image/*" capture="environment" style="display:none;" onchange="enviarFotoPaseo(this)">
 </div>
 
 
