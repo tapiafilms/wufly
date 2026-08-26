@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Propuesta Técnica y Comercial — PWA de Tenencia Responsable Concón</title>
+  <style>
+    /* Estilos del sistema de diseño premium */
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+      --primary: #0D6EFD;
+      --primary-dark: #0a58ca;
+      --primary-light: #e7f1ff;
+      --text: #212529;
+      --text-muted: #6c757d;
+      --bg: #ffffff;
+      --bg-alt: #f8f9fa;
+      --border: #dee2e6;
+      --success: #198754;
+      --warning: #ffc107;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text);
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-alt);
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 40px auto;
+      background: var(--bg);
+      padding: 60px 80px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Outfit', sans-serif;
+      color: #111111;
+      font-weight: 600;
+    }
+
+    /* Portada */
+    .cover {
+      text-align: center;
+      padding: 80px 0 100px 0;
+      border-bottom: 2px solid var(--primary-light);
+      margin-bottom: 50px;
+    }
+
+    .logo-placeholder {
+      font-size: 56px;
+      margin-bottom: 20px;
+    }
+
+    .cover h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+      color: var(--primary);
+    }
+
+    .cover h2 {
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-top: 0;
+    }
+
+    .metadata-box {
+      margin-top: 60px;
+      background-color: var(--bg-alt);
+      padding: 25px;
+      border-radius: 8px;
+      border-left: 4px solid var(--primary);
+      text-align: left;
+      display: inline-block;
+      min-width: 320px;
+    }
+
+    .metadata-box p {
+      margin: 8px 0;
+      font-size: 14px;
+    }
+
+    .metadata-box strong {
+      color: #111;
+    }
+
+    /* Secciones */
+    .section {
+      margin-bottom: 45px;
+    }
+
+    .section h2 {
+      font-size: 22px;
+      border-bottom: 2px solid var(--primary-light);
+      padding-bottom: 8px;
+      color: #111;
+      margin-top: 40px;
+    }
+
+    p {
+      font-size: 15px;
+      color: #333333;
+      text-align: justify;
+    }
+
+    ul, ol {
+      font-size: 15px;
+      color: #333333;
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    /* Tablas */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 25px 0;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background-color: var(--primary-light);
+      color: var(--primary-dark);
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background-color: #fbfbfb;
+    }
+
+    .total-row {
+      font-weight: bold;
+      background-color: var(--bg-alt);
+    }
+
+    /* Alertas / Cajas */
+    .alert-box {
+      background-color: var(--primary-light);
+      border: 1px solid rgba(13, 110, 253, 0.2);
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .alert-box h4 {
+      margin-top: 0;
+      color: var(--primary-dark);
+      margin-bottom: 10px;
+    }
+
+    .alert-box p {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    /* Estilos de Impresión (PDF) */
+    @media print {
+      body {
+        background-color: #fff;
+        color: #000;
+      }
+      .container {
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        max-width: 100%;
+        border: none;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+      .metadata-box {
+        border: 1px solid #ccc;
+      }
+      th {
+        background-color: #f0f0f0 !important;
+        color: #000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- PORTADA -->
+    <div class="cover">
+      <div class="logo-placeholder">🐾</div>
+      <h1>PROPUESTA TÉCNICA Y COMERCIAL</h1>
+      <h2>PWA de Tenencia Responsable y Cuidado de Mascotas Comunal</h2>
+      <p style="text-align: center; color: var(--text-muted); font-size: 16px; margin-top: 20px;">
+        Plataforma Digital "Concón Mascota"
+      </p>
+
+      <div class="metadata-box">
+        <p><strong>Para:</strong> Ilustre Municipalidad / Depto. de Tenencia Responsable de Concón</p>
+        <p><strong>Dirección Solicitante:</strong> Dirección de Desarrollo Comunitario (DIDECO)</p>
+        <p><strong>Preparado por:</strong> Consultor de Tecnología y Desarrollo de Software</p>
+        <p><strong>Fecha de Emisión:</strong> Julio 2026</p>
+        <p><strong>Estado:</strong> Propuesta Comercial Convenio Compra Ágil (&lt; 100 UTM)</p>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 1: INTRODUCCIÓN -->
+    <div class="section">
+      <h2>1. Resumen Ejecutivo</h2>
+      <p>
+        La tenencia responsable de mascotas se ha convertido en un pilar clave para el bienestar social, ambiental y de salud pública en Chile. Bajo el marco normativo de la <strong>Ley 21.020 (Ley Cholito)</strong>, los municipios tienen el mandato de promover, registrar y fiscalizar la tenencia de animales domésticos en sus comunas.
+      </p>
+      <p>
+        La presente propuesta detalla la implementación de <strong>"Concón Mascota"</strong>, una Aplicación Web Progresiva (PWA) de marca blanca basada en el ecosistema <em>Wufly</em>. Esta solución tecnológica centraliza en un único punto los esfuerzos de zoonosis municipal, la vinculación con pymes locales del sector petcare, los reportes en tiempo real de animales perdidos o en peligro, y un asistente interactivo inteligente con voz para consultas veterinarias primarias.
+      </p>
+      <div class="alert-box">
+        <h4>Beneficios Estratégicos para el Municipio</h4>
+        <ul>
+          <li><strong>Cero descarga:</strong> Al ser una PWA, los vecinos acceden de inmediato escaneando un QR o mediante un enlace web, instalándose instantáneamente en sus teléfonos sin saturar el almacenamiento de sus dispositivos.</li>
+          <li><strong>Cumplimiento Normativo:</strong> Facilita el cumplimiento de la Ley 21.020 mediante digitalización y registro comunal simplificado.</li>
+          <li><strong>Modernización Municipal:</strong> Posiciona a Concón como una comuna innovadora al integrar herramientas avanzadas de Inteligencia Artificial (IA) y geolocalización al servicio ciudadano.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- SECCIÓN 2: CARACTERÍSTICAS TÉCNICAS -->
+    <div class="section">
+      <h2>2. Funcionalidades Clave de la Plataforma</h2>
+      
+      <h3>2.1. Módulo del Vecino y Registro de Mascotas</h3>
+      <ul>
+        <li><strong>Ficha de Mascota Digital:</strong> Permite a los vecinos registrar perfiles individuales con foto, nombre, especie, raza, edad, número de microchip y registro de vacunas.</li>
+        <li><strong>Historial de Salud:</strong> Espacio integrado para llevar el control de visitas veterinarias e historial de atenciones comunales.</li>
+      </ul>
+
+      <h3>2.2. Mapa Interactivo de la Comuna (Geolocalización)</h3>
+      <ul>
+        <li><strong>Localizador de Servicios:</strong> Integración de mapas dinámicos locales (Leaflet.js) que muestran clínicas veterinarias municipales y privadas, farmacias de turno, caniles, plazas pet-friendly y pet shops autorizados en Concón.</li>
+        <li><strong>Filtro de Urgencias:</strong> Botón de acceso directo a veterinarias con atención de urgencia nocturna o 24 horas.</li>
+      </ul>
+
+      <h3>2.3. Red Comunitaria y Alertas de Emergencia</h3>
+      <ul>
+        <li><strong>Mascotas Perdidas y Avistadas:</strong> Los vecinos pueden publicar alertas con foto y ubicación exacta en el mapa donde se perdió o se avistó a una mascota.</li>
+        <li><strong>Alertas de Rescate:</strong> Módulo para notificar casos de animales abandonados, maltratados o heridos en la vía pública, permitiendo enviar la geolocalización exacta a la oficina municipal de Zoonosis.</li>
+        <li><strong>Notificaciones Push Instantáneas:</strong> Envío automático de notificaciones a los teléfonos de vecinos que se encuentran en el radio cercano al incidente reportado.</li>
+      </ul>
+
+      <h3>2.4. Doctora Virtual (Asistente IA con Voz)</h3>
+      <ul>
+        <li><strong>Consultas 24/7:</strong> Integración del modelo avanzado Claude 3.5 Sonnet para dar orientación veterinaria preventiva inmediata sobre síntomas, cuidados generales y nutrición.</li>
+        <li><strong>Interacción por Voz Realista (ElevenLabs):</strong> El vecino puede hablar directamente con la app (Speech-to-Text) y escuchar respuestas explicativas con una voz humana natural y cálida (Text-to-Speech), aumentando la accesibilidad para personas de todas las edades.</li>
+      </ul>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- SECCIÓN 3: ARQUITECTURA -->
+    <div class="section">
+      <h2>3. Arquitectura y Seguridad de la Información</h2>
+      <p>
+        La plataforma está diseñada bajo un modelo serverless moderno y altamente eficiente, asegurando velocidad y bajo costo de operación continua:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Tecnología</th>
+            <th style="width: 40%;">Función en el Sistema</th>
+            <th style="width: 35%;">Ventaja Técnica</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Frontend PWA</strong></td>
+            <td>Aplicación web progresiva en HTML5, CSS3 y JS Vanilla, sin frameworks pesados.</td>
+            <td>Carga ultra-rápida en redes móviles, soporte de almacenamiento local offline e instalación instantánea.</td>
+          </tr>
+          <tr>
+            <td><strong>Supabase</strong></td>
+            <td>Base de datos en la nube (PostgreSQL) y gestión de autenticación de usuarios.</td>
+            <td>Cifrado SSL de datos, almacenamiento seguro y cumplimiento de privacidad (Ley 19.628).</td>
+          </tr>
+          <tr>
+            <td><strong>Cloudflare Workers</strong></td>
+            <td>Proxy intermedio y manejo de lógica de back-office / notificaciones push.</td>
+            <td>Seguridad frente a ataques de denegación de servicio (DDoS) y protección de las claves de la API de IA.</td>
+          </tr>
+          <tr>
+            <td><strong>Anthropic API</strong></td>
+            <td>Motor de inteligencia artificial conversacional (Claude 3.5).</td>
+            <td>Respuestas precisas y seguras, acotadas al ámbito de tenencia responsable (con prompts reforzados).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECCIÓN 4: MODELO DE NEGOCIO Y COSTOS -->
+    <div class="section">
+      <h2>4. Propuesta Económica</h2>
+      <p>
+        Para agilizar la adquisición del sistema por parte del municipio y saltarse meses de licitaciones burocráticas, la propuesta se estructura bajo la modalidad de <strong>SaaS Anual Facturado en un Pago Único</strong> a través del convenio de <strong>Compra Ágil</strong> (monto menor a 100 UTM).
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Concepto de Cobro</th>
+            <th>Descripción del Detalle</th>
+            <th style="text-align: right;">Monto (CLP)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Implementación e Integración (Setup)</strong></td>
+            <td>
+              - Adaptación visual de marca (logo municipal, paleta de colores).<br>
+              - Carga inicial de datos de Zoonosis y veterinarias comunales.<br>
+              - Configuración de dominio oficial e integraciones API.
+            </td>
+            <td style="text-align: right; vertical-align: top;">$3.200.000</td>
+          </tr>
+          <tr>
+            <td><strong>2. Licencia Anual de Operación (SaaS)</strong></td>
+            <td>
+              - Licencia anual de uso de la PWA "Concón Mascota".<br>
+              - Hosting y almacenamiento de base de datos segura.<br>
+              - Mantención correctiva mensual frente a fallos.<br>
+              - Bolsa mensual de consultas de Inteligencia Artificial y Voz.
+            </td>
+            <td style="text-align: right; vertical-align: top;">$3.000.000<br><small style="color: var(--text-muted);">($250.000 / mes)</small></td>
+          </tr>
+          <tr class="total-row">
+            <td colspan="2">TOTAL PROPUESTA COMERCIAL</td>
+            <td style="text-align: right;">$6.200.000</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size: 13px; color: var(--text-muted); margin-top: -10px;">
+        * Valores exentos de IVA. Facturación anual completa para procesos de Compra Ágil en un pago único al inicio del servicio.
+      </p>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- SECCIÓN 5: CRONOGRAMA -->
+    <div class="section">
+      <h2>5. Plan de Trabajo y Cronograma</h2>
+      <p>
+        El despliegue de la PWA se realiza de forma ágil en un plazo estimado de **4 semanas** desde la emisión de la orden de compra municipal:
+      </p>
+      
+      <h4>Semana 1: Levantamiento y Adaptación Gráfica</h4>
+      <ul>
+        <li>Reunión técnica con el equipo de Zoonosis y Comunicaciones de Concón.</li>
+        <li>Definición de paleta de colores institucional y logos para la PWA.</li>
+        <li>Configuración del entorno en nube (Supabase).</li>
+      </ul>
+
+      <h4>Semana 2: Carga de Datos y Configuración de Mapas</h4>
+      <ul>
+        <li>Georreferenciación de puntos limpios, veterinarias y zonas pet-friendly de Concón.</li>
+        <li>Integración y prueba del módulo de alertas ciudadanas.</li>
+      </ul>
+
+      <h4>Semana 3: Integración de IA y Pruebas</h4>
+      <ul>
+        <li>Ajustes de prompts de la Dra. Virtual con directrices municipales específicas.</li>
+        <li>Pruebas de reconocimiento de voz y audio sintético en terreno.</li>
+        <li>Pruebas de rendimiento móvil (PWA offline caching).</li>
+      </ul>
+
+      <h4>Semana 4: Capacitación y Lanzamiento</h4>
+      <ul>
+        <li>Capacitación técnica al equipo municipal para el uso del panel de administración.</li>
+        <li>Publicación de la plataforma en producción bajo dominio municipal (ej: `mascotas.concon.cl`).</li>
+        <li>Entrega de material gráfico (códigos QR) para campañas de difusión en la comuna.</li>
+      </ul>
+    </div>
+
+    <!-- SECCIÓN 6: FIRMA -->
+    <div class="section" style="margin-top: 60px; text-align: center;">
+      <p style="text-align: center;">___________________________________________</p>
+      <p style="text-align: center; font-weight: bold; margin-bottom: 0;">Pablo Tapia</p>
+      <p style="text-align: center; color: var(--text-muted); font-size: 14px; margin-top: 5px;">Consultor de Software y Tecnologías Móviles</p>
+    </div>
+
+  </div>
+
+</body>
+</html>
