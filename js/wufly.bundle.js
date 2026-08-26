@@ -7941,7 +7941,7 @@ function _initCarouselDots() {
    ══════════════════════════════════════ */
 
 const STACK_CARDS = [
-  { label:'Vets Cercanas',  sub:'Clínicas y veterinarias',         img:'img/card-vets.jpg',       nav: () => switchTab('restaurantes'),                                              grad:'#3b1465' },
+  { label:'Servicios',  sub:'Veterinarias y tiendas',         img:'img/card-vets.jpg',       nav: () => switchTab('restaurantes'),                                              grad:'#3b1465' },
   { label:'Adoptar',        sub:'Mascotas que buscan hogar',       img:'img/card-adoptar.jpg',    nav: () => { switchComunidadTab('adoptar'); switchTab('comunidad'); },              grad:'#1a0a3c' },
   { label:'Tiendas',        sub:'Productos para tu mascota',       img:'img/card-grooming.jpg',   nav: () => switchTab('restaurantes'),                                              grad:'#3d1278' },
 ];
