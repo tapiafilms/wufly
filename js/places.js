@@ -11,33 +11,6 @@ function renderClinicas() {
   const geoDisponible = typeof geoResults !== 'undefined' && geoResults.clinicas?.length > 0;
   const geoLoading    = typeof geoStatus  !== 'undefined' && geoStatus === 'loading';
 
-  /* ── Hero banner ── */
-  const totalUrgencias = (CLINICAS_DESTACADAS || []).filter(c => c.urgencia).length;
-  const heroBanner = `
-    <div style="margin:-45px -20px 0;height:260px;overflow:hidden;position:relative;background:#c4b5dc;">
-      <img src="img/vets-hero.jpg" alt="Clínicas veterinarias"
-        style="width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;"
-        onerror="this.style.display='none'">
-    </div>
-    <div class="hero-rounded-sep" style="margin:-36px -20px 16px;background:var(--bg);border-radius:36px 36px 0 0;height:36px;position:relative;z-index:1;"></div>
-    <div class="hero-banner" style="margin-bottom:16px;position:relative;overflow:hidden;">
-      <video autoplay muted loop playsinline
-        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transition:opacity 0.8s ease;"
-        oncanplay="this.style.opacity='1'">
-        <source src="img/clinicas.mp4" type="video/mp4">
-      </video>
-      <div style="position:absolute;inset:0;background:rgba(103,58,183,0.72);z-index:1;pointer-events:none;"></div>
-      <div style="position:relative;z-index:2;">
-        <h2>Clínicas Veterinarias</h2>
-        <p>Veterinarias verificadas en tu ciudad</p>
-        <div class="stat-row">
-          <div class="stat"><div class="stat-num">${(CLINICAS_DESTACADAS||[]).length}</div><div class="stat-label">Destacadas</div></div>
-          <div class="stat"><div class="stat-num">3</div><div class="stat-label">Ciudades</div></div>
-          <div class="stat"><div class="stat-num">${totalUrgencias}</div><div class="stat-label">Urgencias 24h</div></div>
-        </div>
-      </div>
-    </div>`;
-
   /* ── Buscador ── */
   const searchBar = `
     <div class="search-bar oculto" style="margin-bottom:12px;">
@@ -109,7 +82,7 @@ function renderClinicas() {
     }
   }
 
-  list.innerHTML = heroBanner + searchBar + destHtml + loadingHtml + geoHtml;
+  list.innerHTML = searchBar + destHtml + loadingHtml + geoHtml;
 }
 
 /* ── Búsqueda por texto ── */
