@@ -512,11 +512,8 @@ function _initCarouselDots() {
 
 const STACK_CARDS = [
   { label:'Vets Cercanas',  sub:'Clínicas y veterinarias',         img:'img/card-vets.jpg',       nav: () => switchTab('restaurantes'),                                              grad:'#3b1465' },
-  { label:'Dra. Wufly',     sub:'Asistente veterinario IA',        img:'img/card-dra.jpg',        nav: () => switchTab('drwufly'),                                                   grad:'#2d0f6b' },
   { label:'Adoptar',        sub:'Mascotas que buscan hogar',       img:'img/card-adoptar.jpg',    nav: () => { switchComunidadTab('adoptar'); switchTab('comunidad'); },              grad:'#1a0a3c' },
-  { label:'Arte',           sub:'Retratos de tu mascota',          img:'img/card-arte.jpg',       nav: () => { switchServiciosTab('arte'); switchTab('servicios'); },                 grad:'#2a0545' },
-  { label:'Grooming',       sub:'Estética y peluquería',           img:'img/card-grooming.jpg',   nav: () => { switchTab('restaurantes'); },             grad:'#3d1278' },
-  { label:'Paseadores',     sub:'Paseos para tu mascota',          img:'img/card-paseadores.jpg', nav: () => { switchServiciosTab('paseadores'); switchTab('servicios'); },           grad:'#1e0550' },
+  { label:'Tiendas',        sub:'Productos para tu mascota',       img:'img/card-grooming.jpg',   nav: () => switchTab('restaurantes'),                                              grad:'#3d1278' },
 ];
 
 function _navFrontCard() {
