@@ -154,6 +154,40 @@ function renderHome() {
         </div>
       </div>
 
+      <!-- SECCIÓN JUNTOS IA -->
+      <div style="margin:0 16px 24px;">
+        <!-- Card principal -->
+        <div style="
+          border-radius:22px;
+          overflow:hidden;
+          background:linear-gradient(135deg,#3B0764,#6D28D9,#9333EA);
+          box-shadow:0 8px 28px rgba(109,40,217,0.38);
+          padding:22px 18px 20px;
+          position:relative;
+          min-height:180px;
+        ">
+          <!-- Imagen de fondo con blend mode screen -->
+          <div style="position:absolute;inset:0;background-image:url('img/bg-juntos.png');background-size:contain;background-repeat:no-repeat;background-position:right center;mix-blend-mode:screen;opacity:0.9;pointer-events:none;"></div>
+
+          <div style="position:relative;z-index:1;max-width:55%;">
+            <div style="font-size:28px;margin-bottom:8px;">✨</div>
+            <div style="font-family:'Funnel Display',sans-serif;font-weight:800;font-size:20px;color:white;line-height:1.2;margin-bottom:6px;">
+              Juntos — IA
+            </div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.9);line-height:1.5;margin-bottom:18px;">
+              Toma una foto de tu mascota y una selfie.<br>La IA los une en un lugar mágico.
+            </div>
+            <button onclick="abrirJuntos()"
+              style="padding:13px 20px;border:none;border-radius:14px;background:white;color:#6D28D9;font-family:'Funnel Display',sans-serif;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.25);display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform 0.15s;white-space:nowrap;"
+              onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'"
+              ontouchstart="this.style.transform='scale(0.97)'" ontouchend="this.style.transform='scale(1)'">
+              <span style="font-size:20px;"></span>Crear mi foto con IA
+            </button>
+          </div>
+        </div>
+
+      </div>
+
       <!-- CARRUSEL FOTOS JUNTOS -->
       <div id="juntos-carousel-section" style="display:none;margin-bottom:20px;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:10px;">
@@ -216,6 +250,16 @@ function renderHome() {
     }
     v.play().catch(() => {});
   }, 100);
+
+// Cargar galería en idle para no bloquear el render inicial
+  if (typeof cargarFotosMascotas === 'function') {
+    const _cargarGaleria = () => {
+      cargarFotosMascotas();
+      if (typeof cargarCarruselJuntos === 'function') cargarCarruselJuntos();
+    };
+    if (window.requestIdleCallback) requestIdleCallback(_cargarGaleria, { timeout: 2000 });
+    else setTimeout(_cargarGaleria, 200);
+  }
 
   // Viñeta URGENTE
   setTimeout(cargarUrgentePanel, 500);

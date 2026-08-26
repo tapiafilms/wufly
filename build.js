@@ -22,6 +22,8 @@ const files = [
   'js/fundaciones.js',
   'js/recordatorios.js',
   'js/perfil.js',
+  'js/pet-gallery.js',
+  'js/foto-juntos.js',
   'js/home.js'
 ];
 
