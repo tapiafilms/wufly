@@ -234,7 +234,7 @@
     </button>
     <button class="dsb-btn" data-tab="restaurantes" onclick="switchTab('restaurantes')">
       <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
-      <span>Veterinarias</span>
+      <span>Servicios</span>
     </button>
     <button class="dsb-btn" data-tab="comunidad" onclick="switchTab('comunidad')">
       <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
@@ -268,15 +268,8 @@
 <!-- ══ HOME ══ -->
 <div class="page active" id="page-home"></div>
 
-<!-- ══ CLÍNICAS VETERINARIAS ══ -->
-<div class="page" id="page-restaurantes">
-  <div id="clinicaList" style="padding:0;"></div>
-  <!-- geoBannerVets oculto — geo.js lo usa internamente para errores de permisos -->
-  <div id="geoBannerVets" style="display:none;"></div>
-</div>
-
 <!-- ══ SERVICIOS ══ -->
-<div class="page" id="page-servicios">
+<div class="page" id="page-restaurantes">
 
   <!-- Hero foto -->
   <div style="margin:-45px -20px 0;height:220px;overflow:hidden;position:relative;background:#c4b5dc;">
@@ -286,8 +279,26 @@
   </div>
   <div class="hero-rounded-sep" style="margin:-36px -20px 16px;background:var(--bg);border-radius:36px 36px 0 0;height:36px;position:relative;z-index:1;"></div>
 
-  <!-- ── TIENDAS ── -->
-  <div id="ssub-tiendas">
+  <!-- Sub-tabs de servicios -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border-radius:var(--r-xs);padding:4px;gap:4px;margin-bottom:16px;">
+    <button id="stab-veterinarias" onclick="switchServiciosTab('veterinarias')"
+      style="padding:9px 4px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;background:var(--purple);color:white;font-family:'Plus Jakarta Sans',sans-serif;">
+      🏥 Veterinarias
+    </button>
+    <button id="stab-tiendas" onclick="switchServiciosTab('tiendas')"
+      style="padding:9px 4px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;">
+      🛒 Tiendas
+    </button>
+  </div>
+
+  <!-- ── SUB: VETERINARIAS ── -->
+  <div id="ssub-veterinarias">
+    <div id="clinicaList" style="padding:0;"></div>
+    <div id="geoBannerVets" style="display:none;"></div>
+  </div>
+
+  <!-- ── SUB: TIENDAS ── -->
+  <div id="ssub-tiendas" style="display:none;">
     <div id="tiendaList" style="padding:0;"></div>
   </div>
 
@@ -755,7 +766,7 @@
   </button>
   <button class="nav-btn" onclick="switchTab('restaurantes',this,true)">
     <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
-    VETERINARIAS
+    SERVICIOS
   </button>
   <button class="nav-btn" onclick="switchTab('comunidad',this,true)">
     <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>

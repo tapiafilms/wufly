@@ -236,7 +236,7 @@ function openTiendaDetalle(id) {
     <div>
       <div style="background:${t.grad};padding:0 0 24px;position:relative;">
         <div style="padding:16px 16px 0;">
-          <button onclick="switchTab('servicios');switchServiciosTab('tiendas')"
+          <button onclick="switchTab('restaurantes');switchServiciosTab('tiendas')"
             style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.2);
               border:none;border-radius:100px;padding:8px 14px;color:white;font-size:13px;
               font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;

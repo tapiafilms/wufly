@@ -73,34 +73,35 @@ const INFO_COLUMN_CONTENT = {
 
   restaurantes: () => { const s = _infoStats(); return `
     <div class="info-card">
-      <div class="info-card-tag">🏥 Clínicas veterinarias</div>
-      <h2>Encuentra la clínica más cercana</h2>
-      <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
-        <div class="info-tip"><div class="info-tip-icon">📍</div><div class="info-tip-text"><strong>Activa tu ubicación</strong>Wufly ordena las clínicas por distancia para que encuentres la más cercana al instante.</div></div>
-        <div class="info-tip"><div class="info-tip-icon">🚨</div><div class="info-tip-text"><strong>Urgencias 24h</strong>Algunas clínicas tienen servicio de urgencias disponible toda la noche.</div></div>
-        <div class="info-tip"><div class="info-tip-icon">📋</div><div class="info-tip-text"><strong>Qué llevar a la consulta</strong>Carnet de vacunas, historial médico y, si es posible, una muestra de heces reciente.</div></div>
-      </div>
-    </div>
-    <div class="info-card">
-      <div class="info-card-tag">📊 Directorio</div>
-      <h2>Clínicas disponibles en la región</h2>
+      <div class="info-card-tag">🛍️ Servicios para mascotas</div>
+      <h2>Encuentra lo que tu mascota necesita</h2>
+      <p>Clínicas veterinarias y tiendas de mascotas cerca de ti.</p>
       <div class="info-card-divider"></div>
       <div class="info-stat-row">
-        <div class="info-stat"><div class="info-stat-num">${s.clinicasRegion}</div><div class="info-stat-label">Clínicas</div></div>
+        <div class="info-stat"><div class="info-stat-num">${s.clinicasRegion}</div><div class="info-stat-label">Veterinarias</div></div>
         <div class="info-stat"><div class="info-stat-num">${s.urgencias24h}</div><div class="info-stat-label">Con 24h</div></div>
-        <div class="info-stat"><div class="info-stat-num">${s.ciudades}</div><div class="info-stat-label">Regiones</div></div>
+        <div class="info-stat"><div class="info-stat-num">${s.tiendasRegion}</div><div class="info-stat-label">Tiendas</div></div>
       </div>
     </div>
     <div class="info-card">
-      <div class="info-card-tag">🚨 Señales de urgencia</div>
-      <h2>Ve a urgencias de inmediato si tu mascota…</h2>
+      <div class="info-card-tag">🏥 Consejos</div>
+      <h2>Qué llevar a la consulta veterinaria</h2>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
+        <div class="info-tip"><div class="info-tip-icon">📋</div><div class="info-tip-text"><strong>Carnet de vacunas</strong>Lleva el historial de vacunación actualizado de tu mascota.</div></div>
+        <div class="info-tip"><div class="info-tip-icon">📍</div><div class="info-tip-text"><strong>Activa tu ubicación</strong>Wufly ordena los servicios por distancia para que encuentres el más cercano.</div></div>
+        <div class="info-tip"><div class="info-tip-icon">🚨</div><div class="info-tip-text"><strong>Urgencias 24h</strong>Algunas clínicas tienen servicio de urgencias disponible toda la noche.</div></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-tag">🛒 Tiendas</div>
+      <h2>Productos para tu mascota</h2>
+      <p>Encuentra alimentos, accesorios y todo lo que tu mascota necesita.</p>
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;">
-        <span class="info-tag-pill" style="background:rgba(220,38,38,0.2);color:#fca5a5;border-color:rgba(220,38,38,0.3);">No respira bien</span>
-        <span class="info-tag-pill" style="background:rgba(220,38,38,0.2);color:#fca5a5;border-color:rgba(220,38,38,0.3);">Convulsiona</span>
-        <span class="info-tag-pill" style="background:rgba(220,38,38,0.2);color:#fca5a5;border-color:rgba(220,38,38,0.3);">No puede orinar</span>
-        <span class="info-tag-pill" style="background:rgba(220,38,38,0.2);color:#fca5a5;border-color:rgba(220,38,38,0.3);">Vómitos repetidos</span>
-        <span class="info-tag-pill" style="background:rgba(220,38,38,0.2);color:#fca5a5;border-color:rgba(220,38,38,0.3);">Sangrado</span>
-        <span class="info-tag-pill" style="background:rgba(220,38,38,0.2);color:#fca5a5;border-color:rgba(220,38,38,0.3);">Pérdida de equilibrio</span>
+        <span class="info-tag-pill">🍖 Alimentos</span>
+        <span class="info-tag-pill">🧸 Juguetes</span>
+        <span class="info-tag-pill">💊 Farmacia</span>
+        <span class="info-tag-pill">🧴 Higiene</span>
+        <span class="info-tag-pill">🏠 Accesorios</span>
       </div>
     </div>`; },
 
@@ -301,7 +302,7 @@ function switchTab(name, el, fromNav = false) {
 
   document.getElementById('page-' + name)?.classList.add('active');
   if (name === 'restaurantes') {
-    renderClinicas?.();
+    switchServiciosTab('veterinarias');
     /* Auto-buscar solo si el usuario ya permitió la ubicación antes */
     const yaHayGeo = typeof geoStatus !== 'undefined' && (geoStatus === 'ok' || geoStatus === 'loading');
     if (!yaHayGeo && localStorage.getItem('wufly_geo_granted')) activarBusquedaGeo?.();
@@ -338,7 +339,7 @@ function switchTab(name, el, fromNav = false) {
 
 /* ══ SUB-TABS DE SERVICIOS ══ */
 function switchServiciosTab(tab) {
-  const subs = ['tiendas'];
+  const subs = ['veterinarias', 'tiendas'];
   subs.forEach(s => {
     const el = document.getElementById('ssub-' + s);
     if (el) el.style.display = s === tab ? 'block' : 'none';
@@ -348,7 +349,8 @@ function switchServiciosTab(tab) {
       btn.style.color      = s === tab ? 'white' : 'var(--text-muted)';
     }
   });
-  if (tab === 'tiendas')    renderTiendas?.();
+  if (tab === 'veterinarias') { renderClinicas?.(); }
+  if (tab === 'tiendas')      { renderTiendas?.(); }
 }
 
 /* ══ SUB-TABS DE COMUNIDAD ══ */
@@ -475,10 +477,10 @@ function _initPullToRefresh() {
     return document.querySelector('.page.active')?.id?.replace('page-', '') || 'home';
   }
   function _activeServiciosSub() {
-    return ['tiendas'].find(s => {
+    return ['veterinarias','tiendas'].find(s => {
       const el = document.getElementById('ssub-' + s);
       return el && el.style.display !== 'none';
-    }) || 'tiendas';
+    }) || 'veterinarias';
   }
   function _activeComunidadSub() {
     return ['adoptar','perdidos','rescate','fundaciones'].find(s => {
@@ -503,9 +505,10 @@ function _initPullToRefresh() {
     } else if (tab === 'restaurantes') {
       Promise.resolve(typeof iniciarGeoBusqueda === 'function' ? iniciarGeoBusqueda(true) : null)
         .then(() => { renderClinicas?.(); done(); });
-    } else if (tab === 'servicios') {
+    } else if (tab === 'restaurantes') {
       const sub = _activeServiciosSub();
-      if (sub === 'tiendas')   { activarBusquedaTiendas?.(); setTimeout(done, 900); }
+      if (sub === 'veterinarias') { Promise.resolve(typeof iniciarGeoBusqueda === 'function' ? iniciarGeoBusqueda(true) : null).then(() => { renderClinicas?.(); setTimeout(done, 900); }); }
+      else if (sub === 'tiendas')  { activarBusquedaTiendas?.(); setTimeout(done, 900); }
       else { setTimeout(done, 400); }
     } else if (tab === 'comunidad') {
       const sub = _activeComunidadSub();
