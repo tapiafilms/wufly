@@ -797,7 +797,7 @@ async function submitAuth() {
       });
       if (error) throw error;
       currentUser = data.user;
-      await cargarPerfil();
+      await sincronizarPerfil();
       cerrarAuthModal();
       renderAuthBanner();
     }
