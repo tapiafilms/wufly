@@ -3,7 +3,7 @@
    Modo lectura / modo edición
    ══════════════════════════════════════ */
 
-const PERFIL_KEY = 'wufly_profile_v1';
+// PERFIL_KEY → usa PERFIL_KEY de config.js
 let perfilModoEdicion = false;
 
 const saludOpciones = [

@@ -1,24 +1,6 @@
 let adoptFilter = 'todos';
 let adoptFile = null;
 
-function escHTML(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
-}
-
-function _sbToken() {
-  try {
-    const ref = SUPABASE_URL.replace('https://', '').split('.')[0];
-    const s = JSON.parse(localStorage.getItem(`sb-${ref}-auth-token`) || 'null');
-    return s?.access_token || SUPABASE_ANON;
-  } catch { return SUPABASE_ANON; }
-}
-
 async function renderAdopFeed() {
   const feed = document.getElementById('adoptFeed');
   if (!feed) return;

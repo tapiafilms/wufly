@@ -5,17 +5,17 @@
    Flujo: bienvenida → mascota → salud → registro
    ══════════════════════════════════════ */
 
-const ONBOARDING_KEY = 'wufly_profile_v1';
+// PERFIL_KEY → usa PERFIL_KEY de config.js
 
 function loadProfile() {
   try {
-    const raw = localStorage.getItem(ONBOARDING_KEY);
+    const raw = localStorage.getItem(PERFIL_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch { return null; }
 }
 
 function saveProfileData(data) {
-  localStorage.setItem(ONBOARDING_KEY, JSON.stringify(data));
+  localStorage.setItem(PERFIL_KEY, JSON.stringify(data));
 }
 
 /* Contexto para la IA */
@@ -395,7 +395,7 @@ function cerrarOnboarding() {
 }
 
 function resetOnboarding() {
-  localStorage.removeItem(ONBOARDING_KEY);
+  localStorage.removeItem(PERFIL_KEY);
 }
 
 /* ── CSS DEL ONBOARDING ── */

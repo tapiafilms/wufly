@@ -462,8 +462,7 @@ function mediaCreateVideo() {
       const videoPath = `${currentUser.id}/video_${Date.now()}.webm`;
       console.log(`[media] Uploading video: ${videoPath}, size: ${(compressed.size / 1024).toFixed(0)}KB, type: ${videoMimeType}`);
 
-      const stored = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF}-auth-token`) || 'null');
-      const token = stored?.access_token;
+      const token = _sbToken();
 
       const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/media-videos/${videoPath}`, {
         method: 'POST',
@@ -554,8 +553,7 @@ function mediaCreatePhoto() {
       const photoPath = `${currentUser.id}/photo_${Date.now()}.jpg`;
       console.log(`[media] Uploading photo: ${photoPath}`);
 
-      const stored = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF}-auth-token`) || 'null');
-      const token = stored?.access_token;
+      const token = _sbToken();
 
       const uploadUrl = `${SUPABASE_URL}/storage/v1/object/media-photos/${photoPath}`;
       const uploadRes = await fetch(uploadUrl, {

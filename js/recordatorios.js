@@ -65,12 +65,12 @@ function renderRecordatorios() {
       <div style="width:44px;height:44px;min-width:44px;background:${cfg.bg};border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">${cfg.emoji}</div>
       <div style="flex:1;min-width:0;">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:4px;">
-          <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:15px;color:var(--text);">${escHTMLRec(r.descripcion)}</div>
+          <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:15px;color:var(--text);">${escHTML(r.descripcion)}</div>
           ${estadoBadge}
         </div>
         <div style="font-size:12px;font-weight:600;color:${cfg.color};margin-bottom:3px;">${cfg.label}</div>
         <div style="font-size:12px;color:var(--text-muted);">📅 ${fechaStr}</div>
-        ${r.notas ? `<div style="font-size:12px;color:var(--text-hint);margin-top:4px;font-style:italic;">${escHTMLRec(r.notas)}</div>` : ''}
+        ${r.notas ? `<div style="font-size:12px;color:var(--text-hint);margin-top:4px;font-style:italic;">${escHTML(r.notas)}</div>` : ''}
       </div>
       <button onclick="eliminarRecordatorio('${r.id}')"
         style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border-md);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-muted);font-size:14px;">×</button>
@@ -78,13 +78,7 @@ function renderRecordatorios() {
   }).join('');
 }
 
-function escHTMLRec(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
-}
-
+// escHTML → usa escHTML de config.js
 /* ── Form ── */
 function abrirFormRecordatorio() {
   const form = document.getElementById('formRecordatorio');

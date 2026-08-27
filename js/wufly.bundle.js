@@ -14,6 +14,31 @@ const SUPABASE_URL  = 'https://ybnacudfqerbzpvqcjzc.supabase.co';
 const SUPABASE_REF  = 'ybnacudfqerbzpvqcjzc';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibmFjdWRmcWVyYnpwdnFjanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzYzNjksImV4cCI6MjA5MTk1MjM2OX0.pQ4PVNS1wqHvnvEPO0TYwlMS6ooDpsP7DaYXqdTbFxE';
 
+const PERFIL_KEY = 'wufly_profile_v1';
+
+/* ── Utilidades compartidas ── */
+
+/** Escapa HTML para usar en atributos onclick */
+function escHTML(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/** Lee el token de Supabase desde localStorage */
+function _sbToken() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF}-auth-token`) || 'null');
+    return stored?.access_token || null;
+  } catch {
+    return null;
+  }
+}
+
 
 // ==========================================
 // ARCHIVO: js/supabase.min.js
@@ -2613,17 +2638,17 @@ function openClinicaDetalle(id) {
    Flujo: bienvenida → mascota → salud → registro
    ══════════════════════════════════════ */
 
-const ONBOARDING_KEY = 'wufly_profile_v1';
+// PERFIL_KEY → usa PERFIL_KEY de config.js
 
 function loadProfile() {
   try {
-    const raw = localStorage.getItem(ONBOARDING_KEY);
+    const raw = localStorage.getItem(PERFIL_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch { return null; }
 }
 
 function saveProfileData(data) {
-  localStorage.setItem(ONBOARDING_KEY, JSON.stringify(data));
+  localStorage.setItem(PERFIL_KEY, JSON.stringify(data));
 }
 
 /* Contexto para la IA */
@@ -3003,7 +3028,7 @@ function cerrarOnboarding() {
 }
 
 function resetOnboarding() {
-  localStorage.removeItem(ONBOARDING_KEY);
+  localStorage.removeItem(PERFIL_KEY);
 }
 
 /* ── CSS DEL ONBOARDING ── */
@@ -3891,16 +3916,6 @@ function _initInstallBtn() {
 let rescateFile = null;
 let perdidoFile = null;
 
-function escHTMLPerdidos(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
-}
-
 const iconMapP = { perro: '🐕', gato: '🐈', otro: '🐾' };
 
 function toggleFormPerdido() {
@@ -4103,7 +4118,7 @@ async function renderPerdidoFeed() {
       '/img/perdido-4.jpg','/img/perdido-5.jpg','/img/perdido-6.jpg',
     ];
     const fotoSrcP = p.foto_url || FOTOS_DEFAULT_P[Math.floor(Math.random() * FOTOS_DEFAULT_P.length)];
-    const fotoHtml = `<img src="${escHTMLPerdidos(fotoSrcP)}" alt="" onclick="abrirLightbox('${escHTMLPerdidos(fotoSrcP)}')" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;cursor:pointer;" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:160px;background:linear-gradient(135deg,#FAF0EE,#FEF3E8);border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:44px;\\'>${iconMapP[p.especie] || '🐾'}</div>'">`;
+    const fotoHtml = `<img src="${escHTML(fotoSrcP)}" alt="" onclick="abrirLightbox('${escHTML(fotoSrcP)}')" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;cursor:pointer;" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:160px;background:linear-gradient(135deg,#FAF0EE,#FEF3E8);border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:44px;\\'>${iconMapP[p.especie] || '🐾'}</div>'">`;
     const wspClean = (p.wsp || '').replace(/\D/g, '');
     const tieneWsp = wspClean.length >= 7;
     const tieneLink = !!(p.link || '').trim();
@@ -4115,7 +4130,7 @@ async function renderPerdidoFeed() {
         Contactar
       </a>` : '';
     const btnLinkP = tieneLink ? `
-      <a href="${escHTMLPerdidos(linkUrl)}" target="_blank" rel="noopener noreferrer"
+      <a href="${escHTML(linkUrl)}" target="_blank" rel="noopener noreferrer"
         style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--purple);color:white;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;text-decoration:none;">
         <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:white;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
         Ver más
@@ -4125,16 +4140,16 @@ async function renderPerdidoFeed() {
       <div style="padding:13px;">
         <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
           <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;background:#FAF0EE;color:#D7897F;">🔍 SE BUSCA</span>
-          <span style="font-size:10px;color:var(--text-hint);">${escHTMLPerdidos(tiempo)}</span>
+          <span style="font-size:10px;color:var(--text-hint);">${escHTML(tiempo)}</span>
         </div>
-        <p style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:8px;">${escHTMLPerdidos(p.descripcion)}</p>
+        <p style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:8px;">${escHTML(p.descripcion)}</p>
         <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:11px;font-size:12px;color:var(--text-muted);">
-          <div>📍 <strong style="color:var(--text);">Última vez:</strong> ${escHTMLPerdidos(p.ubicacion)}</div>
-          ${fechaStr ? `<div>📅 <strong style="color:var(--text);">Perdido el:</strong> ${escHTMLPerdidos(fechaStr)}</div>` : ''}
+          <div>📍 <strong style="color:var(--text);">Última vez:</strong> ${escHTML(p.ubicacion)}</div>
+          ${fechaStr ? `<div>📅 <strong style="color:var(--text);">Perdido el:</strong> ${escHTML(fechaStr)}</div>` : ''}
         </div>
         <div style="display:flex;gap:8px;">
           ${btnWspP}${btnLinkP}
-          <button onclick="compartirReporte('perdido','${escHTMLPerdidos(p.id)}')"
+          <button onclick="compartirReporte('perdido','${escHTML(p.id)}')"
             style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:var(--purple-light);color:var(--purple);border:none;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;cursor:pointer;">
             <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
             Compartir
@@ -4177,7 +4192,7 @@ async function renderRescateFeed() {
     const tiempo = dias === 0 ? `Hace ${horas}h` : dias === 1 ? 'Ayer' : `Hace ${dias} días`;
     const esRescatado = p.estado === 'rescatado';
     const fotoHtml = p.foto_url
-      ? `<img src="${escHTMLPerdidos(p.foto_url)}" alt="" onclick="abrirLightbox('${escHTMLPerdidos(p.foto_url)}')" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;cursor:pointer;${esRescatado ? 'filter:grayscale(0.4);' : ''}">`
+      ? `<img src="${escHTML(p.foto_url)}" alt="" onclick="abrirLightbox('${escHTML(p.foto_url)}')" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;cursor:pointer;${esRescatado ? 'filter:grayscale(0.4);' : ''}">`
       : `<div style="width:100%;height:90px;background:linear-gradient(135deg,#FEF3E8,#FFF8E8);border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:44px;">${iconMapP[p.especie] || '🐾'}</div>`;
     const wspRClean = (p.wsp || '').replace(/\D/g, '');
     const tieneWspR = wspRClean.length >= 7;
@@ -4190,7 +4205,7 @@ async function renderRescateFeed() {
         Contactar
       </a>` : '';
     const btnLinkR = tieneLinkR ? `
-      <a href="${escHTMLPerdidos(linkUrlR)}" target="_blank" rel="noopener noreferrer"
+      <a href="${escHTML(linkUrlR)}" target="_blank" rel="noopener noreferrer"
         style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--purple);color:white;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;text-decoration:none;">
         <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:white;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
         Ver más
@@ -4203,18 +4218,18 @@ async function renderRescateFeed() {
             <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;background:#FEF3E8;color:#E8A820;">🆘 RESCATE</span>
             <span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;background:${esRescatado ? '#E6F9F3' : '#FEF3E8'};color:${esRescatado ? '#3DAF87' : '#E8A820'};">${esRescatado ? '✓ Rescatado' : '⏳ Necesita ayuda'}</span>
           </div>
-          <span style="font-size:10px;color:var(--text-hint);">${escHTMLPerdidos(tiempo)}</span>
+          <span style="font-size:10px;color:var(--text-hint);">${escHTML(tiempo)}</span>
         </div>
-        <p style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:8px;">${escHTMLPerdidos(p.descripcion)}</p>
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:11px;">📍 <strong style="color:var(--text);">Se encuentra en:</strong> ${escHTMLPerdidos(p.ubicacion)}</div>
+        <p style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:8px;">${escHTML(p.descripcion)}</p>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:11px;">📍 <strong style="color:var(--text);">Se encuentra en:</strong> ${escHTML(p.ubicacion)}</div>
         <div style="display:flex;gap:8px;">
           ${btnWspR}${btnLinkR}
-          <button onclick="compartirReporte('rescate','${escHTMLPerdidos(p.id)}')"
+          <button onclick="compartirReporte('rescate','${escHTML(p.id)}')"
             style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:${esRescatado ? 'var(--mint-light)' : '#FEF3E8'};color:${esRescatado ? 'var(--mint-dark)' : '#E8A820'};border:none;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;cursor:pointer;">
             <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
             ${esRescatado ? 'Gracias' : 'Difundir'}
           </button>
-          ${!esRescatado ? `<button onclick="marcarRescatado('${escHTMLPerdidos(p.id)}')"
+          ${!esRescatado ? `<button onclick="marcarRescatado('${escHTML(p.id)}')"
             style="flex:1;display:flex;align-items:center;justify-content:center;background:var(--mint-light);color:var(--mint-dark);border:none;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;cursor:pointer;">✓ Rescatado</button>` : ''}
         </div>
       </div>
@@ -4368,24 +4383,6 @@ async function notificarMascotaPerdida(descripcion, ubicacion) {
 
 let adoptFilter = 'todos';
 let adoptFile = null;
-
-function escHTML(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
-}
-
-function _sbToken() {
-  try {
-    const ref = SUPABASE_URL.replace('https://', '').split('.')[0];
-    const s = JSON.parse(localStorage.getItem(`sb-${ref}-auth-token`) || 'null');
-    return s?.access_token || SUPABASE_ANON;
-  } catch { return SUPABASE_ANON; }
-}
 
 async function renderAdopFeed() {
   const feed = document.getElementById('adoptFeed');
@@ -5859,12 +5856,12 @@ function renderRecordatorios() {
       <div style="width:44px;height:44px;min-width:44px;background:${cfg.bg};border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">${cfg.emoji}</div>
       <div style="flex:1;min-width:0;">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:4px;">
-          <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:15px;color:var(--text);">${escHTMLRec(r.descripcion)}</div>
+          <div style="font-family:'Funnel Display',sans-serif;font-weight:700;font-size:15px;color:var(--text);">${escHTML(r.descripcion)}</div>
           ${estadoBadge}
         </div>
         <div style="font-size:12px;font-weight:600;color:${cfg.color};margin-bottom:3px;">${cfg.label}</div>
         <div style="font-size:12px;color:var(--text-muted);">📅 ${fechaStr}</div>
-        ${r.notas ? `<div style="font-size:12px;color:var(--text-hint);margin-top:4px;font-style:italic;">${escHTMLRec(r.notas)}</div>` : ''}
+        ${r.notas ? `<div style="font-size:12px;color:var(--text-hint);margin-top:4px;font-style:italic;">${escHTML(r.notas)}</div>` : ''}
       </div>
       <button onclick="eliminarRecordatorio('${r.id}')"
         style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border-md);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-muted);font-size:14px;">×</button>
@@ -5872,13 +5869,7 @@ function renderRecordatorios() {
   }).join('');
 }
 
-function escHTMLRec(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
-}
-
+// escHTML → usa escHTML de config.js
 /* ── Form ── */
 function abrirFormRecordatorio() {
   const form = document.getElementById('formRecordatorio');
@@ -5958,7 +5949,7 @@ document.addEventListener('DOMContentLoaded', () => {
    Modo lectura / modo edición
    ══════════════════════════════════════ */
 
-const PERFIL_KEY = 'wufly_profile_v1';
+// PERFIL_KEY → usa PERFIL_KEY de config.js
 let perfilModoEdicion = false;
 
 const saludOpciones = [
@@ -6434,9 +6425,7 @@ async function cargarFotosMascotas() {
 
   try {
     // Token de sesión si existe, si no usar clave anónima (galería pública para todos)
-    // SUPABASE_REF y SUPABASE_ANON vienen de js/config.js
-    const stored = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF}-auth-token`) || 'null');
-    const token = stored?.access_token || SUPABASE_ANON;
+    const token = _sbToken() || SUPABASE_ANON;
 
     // Llamada REST directa — funciona con y sin sesión
     const url = `https://${SUPABASE_REF}.supabase.co/rest/v1/profiles?select=id,nombre_mascota,tipo_mascota,foto_mascota_url,updated_at&foto_mascota_url=not.is.null&order=updated_at.desc&limit=${PET_GALLERY_LIMIT}`;
@@ -6486,7 +6475,7 @@ function _renderGalleryGrid(container, mascotas) {
     return `
       <div
         class="pet-thumb"
-        onclick="_abrirFotoMascota('${_escapar(m.foto_mascota_url)}', '${_escapar(nombre)}', '${emoji}')"
+        onclick="_abrirFotoMascota('${escHTML(m.foto_mascota_url)}', '${escHTML(nombre)}', '${emoji}')"
         style="
           position:relative;
           border-radius:14px;
@@ -6506,8 +6495,8 @@ function _renderGalleryGrid(container, mascotas) {
         ontouchend="this.style.transform='scale(1)'"
       >
         <img
-          src="${_escapar(m.foto_mascota_url)}"
-          alt="${_escapar(nombre)}"
+          src="${escHTML(m.foto_mascota_url)}"
+          alt="${escHTML(nombre)}"
           loading="lazy"
           style="
             width:100%;height:100%;
@@ -6538,23 +6527,14 @@ function _renderGalleryGrid(container, mascotas) {
             text-align:center;
             white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
             text-shadow:0 1px 4px rgba(0,0,0,0.4);
-          ">${emoji} ${_escapar(nombre)}</div>
+          ">${emoji} ${escHTML(nombre)}</div>
         </div>
       </div>
     `;
   }).join('');
 }
 
-/* ── Escapa comillas para evitar XSS en atributos onclick ── */
-function _escapar(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
+// escHTML → usa escHTML de config.js
 
 /* ── Modal lightbox para ver la foto ampliada ── */
 function _abrirFotoMascota(url, nombre, emoji) {
@@ -8435,8 +8415,7 @@ function mediaCreateVideo() {
       const videoPath = `${currentUser.id}/video_${Date.now()}.webm`;
       console.log(`[media] Uploading video: ${videoPath}, size: ${(compressed.size / 1024).toFixed(0)}KB, type: ${videoMimeType}`);
 
-      const stored = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF}-auth-token`) || 'null');
-      const token = stored?.access_token;
+      const token = _sbToken();
 
       const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/media-videos/${videoPath}`, {
         method: 'POST',
@@ -8527,8 +8506,7 @@ function mediaCreatePhoto() {
       const photoPath = `${currentUser.id}/photo_${Date.now()}.jpg`;
       console.log(`[media] Uploading photo: ${photoPath}`);
 
-      const stored = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF}-auth-token`) || 'null');
-      const token = stored?.access_token;
+      const token = _sbToken();
 
       const uploadUrl = `${SUPABASE_URL}/storage/v1/object/media-photos/${photoPath}`;
       const uploadRes = await fetch(uploadUrl, {

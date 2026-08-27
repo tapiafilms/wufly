@@ -1,16 +1,6 @@
 let rescateFile = null;
 let perdidoFile = null;
 
-function escHTMLPerdidos(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
-}
-
 const iconMapP = { perro: '🐕', gato: '🐈', otro: '🐾' };
 
 function toggleFormPerdido() {
@@ -213,7 +203,7 @@ async function renderPerdidoFeed() {
       '/img/perdido-4.jpg','/img/perdido-5.jpg','/img/perdido-6.jpg',
     ];
     const fotoSrcP = p.foto_url || FOTOS_DEFAULT_P[Math.floor(Math.random() * FOTOS_DEFAULT_P.length)];
-    const fotoHtml = `<img src="${escHTMLPerdidos(fotoSrcP)}" alt="" onclick="abrirLightbox('${escHTMLPerdidos(fotoSrcP)}')" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;cursor:pointer;" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:160px;background:linear-gradient(135deg,#FAF0EE,#FEF3E8);border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:44px;\\'>${iconMapP[p.especie] || '🐾'}</div>'">`;
+    const fotoHtml = `<img src="${escHTML(fotoSrcP)}" alt="" onclick="abrirLightbox('${escHTML(fotoSrcP)}')" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;cursor:pointer;" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:160px;background:linear-gradient(135deg,#FAF0EE,#FEF3E8);border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:44px;\\'>${iconMapP[p.especie] || '🐾'}</div>'">`;
     const wspClean = (p.wsp || '').replace(/\D/g, '');
     const tieneWsp = wspClean.length >= 7;
     const tieneLink = !!(p.link || '').trim();
@@ -225,7 +215,7 @@ async function renderPerdidoFeed() {
         Contactar
       </a>` : '';
     const btnLinkP = tieneLink ? `
-      <a href="${escHTMLPerdidos(linkUrl)}" target="_blank" rel="noopener noreferrer"
+      <a href="${escHTML(linkUrl)}" target="_blank" rel="noopener noreferrer"
         style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--purple);color:white;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;text-decoration:none;">
         <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:white;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
         Ver más
@@ -235,16 +225,16 @@ async function renderPerdidoFeed() {
       <div style="padding:13px;">
         <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
           <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;background:#FAF0EE;color:#D7897F;">🔍 SE BUSCA</span>
-          <span style="font-size:10px;color:var(--text-hint);">${escHTMLPerdidos(tiempo)}</span>
+          <span style="font-size:10px;color:var(--text-hint);">${escHTML(tiempo)}</span>
         </div>
-        <p style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:8px;">${escHTMLPerdidos(p.descripcion)}</p>
+        <p style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:8px;">${escHTML(p.descripcion)}</p>
         <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:11px;font-size:12px;color:var(--text-muted);">
-          <div>📍 <strong style="color:var(--text);">Última vez:</strong> ${escHTMLPerdidos(p.ubicacion)}</div>
-          ${fechaStr ? `<div>📅 <strong style="color:var(--text);">Perdido el:</strong> ${escHTMLPerdidos(fechaStr)}</div>` : ''}
+          <div>📍 <strong style="color:var(--text);">Última vez:</strong> ${escHTML(p.ubicacion)}</div>
+          ${fechaStr ? `<div>📅 <strong style="color:var(--text);">Perdido el:</strong> ${escHTML(fechaStr)}</div>` : ''}
         </div>
         <div style="display:flex;gap:8px;">
           ${btnWspP}${btnLinkP}
-          <button onclick="compartirReporte('perdido','${escHTMLPerdidos(p.id)}')"
+          <button onclick="compartirReporte('perdido','${escHTML(p.id)}')"
             style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:var(--purple-light);color:var(--purple);border:none;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;cursor:pointer;">
             <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
             Compartir
@@ -287,7 +277,7 @@ async function renderRescateFeed() {
     const tiempo = dias === 0 ? `Hace ${horas}h` : dias === 1 ? 'Ayer' : `Hace ${dias} días`;
     const esRescatado = p.estado === 'rescatado';
     const fotoHtml = p.foto_url
-      ? `<img src="${escHTMLPerdidos(p.foto_url)}" alt="" onclick="abrirLightbox('${escHTMLPerdidos(p.foto_url)}')" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;cursor:pointer;${esRescatado ? 'filter:grayscale(0.4);' : ''}">`
+      ? `<img src="${escHTML(p.foto_url)}" alt="" onclick="abrirLightbox('${escHTML(p.foto_url)}')" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;cursor:pointer;${esRescatado ? 'filter:grayscale(0.4);' : ''}">`
       : `<div style="width:100%;height:90px;background:linear-gradient(135deg,#FEF3E8,#FFF8E8);border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:44px;">${iconMapP[p.especie] || '🐾'}</div>`;
     const wspRClean = (p.wsp || '').replace(/\D/g, '');
     const tieneWspR = wspRClean.length >= 7;
@@ -300,7 +290,7 @@ async function renderRescateFeed() {
         Contactar
       </a>` : '';
     const btnLinkR = tieneLinkR ? `
-      <a href="${escHTMLPerdidos(linkUrlR)}" target="_blank" rel="noopener noreferrer"
+      <a href="${escHTML(linkUrlR)}" target="_blank" rel="noopener noreferrer"
         style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--purple);color:white;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;text-decoration:none;">
         <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:white;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
         Ver más
@@ -313,18 +303,18 @@ async function renderRescateFeed() {
             <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;background:#FEF3E8;color:#E8A820;">🆘 RESCATE</span>
             <span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;background:${esRescatado ? '#E6F9F3' : '#FEF3E8'};color:${esRescatado ? '#3DAF87' : '#E8A820'};">${esRescatado ? '✓ Rescatado' : '⏳ Necesita ayuda'}</span>
           </div>
-          <span style="font-size:10px;color:var(--text-hint);">${escHTMLPerdidos(tiempo)}</span>
+          <span style="font-size:10px;color:var(--text-hint);">${escHTML(tiempo)}</span>
         </div>
-        <p style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:8px;">${escHTMLPerdidos(p.descripcion)}</p>
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:11px;">📍 <strong style="color:var(--text);">Se encuentra en:</strong> ${escHTMLPerdidos(p.ubicacion)}</div>
+        <p style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:8px;">${escHTML(p.descripcion)}</p>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:11px;">📍 <strong style="color:var(--text);">Se encuentra en:</strong> ${escHTML(p.ubicacion)}</div>
         <div style="display:flex;gap:8px;">
           ${btnWspR}${btnLinkR}
-          <button onclick="compartirReporte('rescate','${escHTMLPerdidos(p.id)}')"
+          <button onclick="compartirReporte('rescate','${escHTML(p.id)}')"
             style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:${esRescatado ? 'var(--mint-light)' : '#FEF3E8'};color:${esRescatado ? 'var(--mint-dark)' : '#E8A820'};border:none;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;cursor:pointer;">
             <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
             ${esRescatado ? 'Gracias' : 'Difundir'}
           </button>
-          ${!esRescatado ? `<button onclick="marcarRescatado('${escHTMLPerdidos(p.id)}')"
+          ${!esRescatado ? `<button onclick="marcarRescatado('${escHTML(p.id)}')"
             style="flex:1;display:flex;align-items:center;justify-content:center;background:var(--mint-light);color:var(--mint-dark);border:none;border-radius:var(--r-xs);padding:10px;font-size:12px;font-weight:700;cursor:pointer;">✓ Rescatado</button>` : ''}
         </div>
       </div>

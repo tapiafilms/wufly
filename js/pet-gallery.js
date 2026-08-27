@@ -13,9 +13,7 @@ async function cargarFotosMascotas() {
 
   try {
     // Token de sesión si existe, si no usar clave anónima (galería pública para todos)
-    // SUPABASE_REF y SUPABASE_ANON vienen de js/config.js
-    const stored = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF}-auth-token`) || 'null');
-    const token = stored?.access_token || SUPABASE_ANON;
+    const token = _sbToken() || SUPABASE_ANON;
 
     // Llamada REST directa — funciona con y sin sesión
     const url = `https://${SUPABASE_REF}.supabase.co/rest/v1/profiles?select=id,nombre_mascota,tipo_mascota,foto_mascota_url,updated_at&foto_mascota_url=not.is.null&order=updated_at.desc&limit=${PET_GALLERY_LIMIT}`;
@@ -65,7 +63,7 @@ function _renderGalleryGrid(container, mascotas) {
     return `
       <div
         class="pet-thumb"
-        onclick="_abrirFotoMascota('${_escapar(m.foto_mascota_url)}', '${_escapar(nombre)}', '${emoji}')"
+        onclick="_abrirFotoMascota('${escHTML(m.foto_mascota_url)}', '${escHTML(nombre)}', '${emoji}')"
         style="
           position:relative;
           border-radius:14px;
@@ -85,8 +83,8 @@ function _renderGalleryGrid(container, mascotas) {
         ontouchend="this.style.transform='scale(1)'"
       >
         <img
-          src="${_escapar(m.foto_mascota_url)}"
-          alt="${_escapar(nombre)}"
+          src="${escHTML(m.foto_mascota_url)}"
+          alt="${escHTML(nombre)}"
           loading="lazy"
           style="
             width:100%;height:100%;
@@ -117,23 +115,14 @@ function _renderGalleryGrid(container, mascotas) {
             text-align:center;
             white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
             text-shadow:0 1px 4px rgba(0,0,0,0.4);
-          ">${emoji} ${_escapar(nombre)}</div>
+          ">${emoji} ${escHTML(nombre)}</div>
         </div>
       </div>
     `;
   }).join('');
 }
 
-/* ── Escapa comillas para evitar XSS en atributos onclick ── */
-function _escapar(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
+// escHTML → usa escHTML de config.js
 
 /* ── Modal lightbox para ver la foto ampliada ── */
 function _abrirFotoMascota(url, nombre, emoji) {
