@@ -301,8 +301,13 @@ function mediaCreateVideo() {
   }
 
   openCamera('video', async (blob) => {
-    // Mostrar loading
     _mediaShowLoading('Procesando video...');
+
+    // Timeout de seguridad: 30 segundos
+    const safetyTimeout = setTimeout(() => {
+      _mediaHideLoading();
+      _mediaShowToast('Tiempo de espera agotado. Intenta de nuevo.', 'error');
+    }, 30000);
 
     try {
       // Comprimir video
@@ -315,17 +320,20 @@ function mediaCreateVideo() {
       const videoPath = `${currentUser.id}/video_${Date.now()}.webm`;
       const { error: uploadErr1 } = await db.storage
         .from('media-videos')
-        .upload(videoPath, compressed, { contentType: 'video/webm' });
+        .upload(videoPath, compressed, { contentType: compressed.type || 'video/webm' });
 
       if (uploadErr1) throw uploadErr1;
 
-      // Subir thumbnail
-      const thumbPath = `${currentUser.id}/thumb_${Date.now()}.jpg`;
-      const { error: uploadErr2 } = await db.storage
-        .from('media-photos')
-        .upload(thumbPath, thumbnail, { contentType: 'image/jpeg' });
+      // Subir thumbnail (si se generó)
+      let thumbPath = null;
+      if (thumbnail) {
+        thumbPath = `${currentUser.id}/thumb_${Date.now()}.jpg`;
+        const { error: uploadErr2 } = await db.storage
+          .from('media-photos')
+          .upload(thumbPath, thumbnail, { contentType: 'image/jpeg' });
 
-      if (uploadErr2) throw uploadErr2;
+        if (uploadErr2) console.warn('Thumbnail upload error:', uploadErr2);
+      }
 
       // Guardar en BD
       const { error: dbErr } = await db.from('media_videos').insert({
@@ -342,6 +350,7 @@ function mediaCreateVideo() {
       // Actualizar shorts públicos
       await _updatePublicShort(videoPath, thumbPath);
 
+      clearTimeout(safetyTimeout);
       _mediaHideLoading();
       _mediaShowToast('Video guardado ✓');
 
@@ -350,6 +359,7 @@ function mediaCreateVideo() {
 
     } catch (err) {
       console.error('Error uploading video:', err);
+      clearTimeout(safetyTimeout);
       _mediaHideLoading();
       _mediaShowToast('Error al guardar video', 'error');
     }
@@ -365,6 +375,12 @@ function mediaCreatePhoto() {
 
   openCamera('photo', async (blob) => {
     _mediaShowLoading('Procesando foto...');
+
+    // Timeout de seguridad: 15 segundos
+    const safetyTimeout = setTimeout(() => {
+      _mediaHideLoading();
+      _mediaShowToast('Tiempo de espera agotado. Intenta de nuevo.', 'error');
+    }, 15000);
 
     try {
       // Comprimir foto
@@ -387,6 +403,7 @@ function mediaCreatePhoto() {
 
       if (dbErr) throw dbErr;
 
+      clearTimeout(safetyTimeout);
       _mediaHideLoading();
       _mediaShowToast('Foto guardada ✓');
 
@@ -395,6 +412,7 @@ function mediaCreatePhoto() {
 
     } catch (err) {
       console.error('Error uploading photo:', err);
+      clearTimeout(safetyTimeout);
       _mediaHideLoading();
       _mediaShowToast('Error al guardar foto', 'error');
     }
