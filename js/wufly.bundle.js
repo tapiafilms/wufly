@@ -8970,10 +8970,20 @@ async function _mediaShowGalleryPicker() {
   picker.innerHTML = html;
   document.body.appendChild(picker);
 
-  // Tap fuera para cerrar
+  // Cerrar con tap en el fondo oscuro
   picker.addEventListener('click', (e) => {
     if (e.target === picker) picker.remove();
   });
+
+  // Cerrar con gesto swipe down
+  let startY = 0;
+  picker.addEventListener('touchstart', (e) => {
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+  picker.addEventListener('touchend', (e) => {
+    const diff = e.changedTouches[0].clientY - startY;
+    if (diff > 80) picker.remove();
+  }, { passive: true });
 }
 
 async function mediaAddPhotoToGallery(galleryId, photoId, el) {
@@ -8996,12 +9006,6 @@ async function mediaAddPhotoToGallery(galleryId, photoId, el) {
       .eq('gallery_id', galleryId);
 
     await db.from('media_galleries').update({ photo_count: count || 0 }).eq('id', galleryId);
-
-    // Actualizar UI del picker
-    const check = el.querySelector('div:last-child');
-    check.style.background = 'rgba(255,255,255,0.1)';
-    check.textContent = '+';
-    el.style.background = 'transparent';
 
     _mediaShowToast('Foto removida de la galería');
   } else {
@@ -9037,14 +9041,14 @@ async function mediaAddPhotoToGallery(galleryId, photoId, el) {
       await db.from('media_galleries').update({ photo_count: count || 0 }).eq('id', galleryId);
     }
 
-    // Actualizar UI del picker
-    const check = el.querySelector('div:last-child');
-    check.style.background = 'var(--purple)';
-    check.textContent = '✓';
-    el.style.background = 'var(--purple-light, #2d1b69)';
-
     _mediaShowToast('Agregada a la galería ✓');
   }
+
+  // Cerrar el sheet después de un momento
+  setTimeout(() => {
+    const sheet = document.getElementById('gallery-picker-sheet');
+    if (sheet) sheet.remove();
+  }, 400);
 }
 
 
