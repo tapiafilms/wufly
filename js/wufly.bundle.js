@@ -6478,6 +6478,9 @@ async function cargarFotosMascotas() {
 
     _renderGalleryGrid(container, data);
 
+    const section = document.getElementById('pet-gallery-section');
+    if (section) section.style.display = '';
+
     const heroGrid = document.getElementById('hero-pet-grid');
     if (heroGrid) _renderGalleryGrid(heroGrid, data);
   } catch (err) {
@@ -8380,14 +8383,20 @@ function mediaCreatePhoto() {
     try {
       // Comprimir foto
       const compressed = await compressPhoto(blob);
+      console.log(`[media] Foto comprimida: ${(blob.size/1024).toFixed(0)}KB → ${(compressed.size/1024).toFixed(0)}KB`);
 
       // Subir foto
       const photoPath = `${currentUser.id}/photo_${Date.now()}.jpg`;
-      const { error: uploadErr } = await db.storage
+      console.log(`[media] Uploading photo: ${photoPath}`);
+      const { data: uploadData, error: uploadErr } = await db.storage
         .from('media-photos')
         .upload(photoPath, compressed, { contentType: 'image/jpeg' });
 
-      if (uploadErr) throw uploadErr;
+      if (uploadErr) {
+        console.error('[media] Photo upload error:', uploadErr);
+        throw uploadErr;
+      }
+      console.log('[media] Photo upload OK:', uploadData);
 
       // Guardar en BD
       const { error: dbErr } = await db.from('media_photos').insert({
@@ -8396,7 +8405,11 @@ function mediaCreatePhoto() {
         size_bytes: compressed.size
       });
 
-      if (dbErr) throw dbErr;
+      if (dbErr) {
+        console.error('[media] DB insert error:', dbErr);
+        throw dbErr;
+      }
+      console.log('[media] DB insert OK');
 
       clearTimeout(safetyTimeout);
       _mediaHideLoading();

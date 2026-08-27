@@ -39,6 +39,9 @@ async function cargarFotosMascotas() {
 
     _renderGalleryGrid(container, data);
 
+    const section = document.getElementById('pet-gallery-section');
+    if (section) section.style.display = '';
+
     const heroGrid = document.getElementById('hero-pet-grid');
     if (heroGrid) _renderGalleryGrid(heroGrid, data);
   } catch (err) {
