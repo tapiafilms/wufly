@@ -8445,7 +8445,9 @@ function mediaCreateVideo() {
       const thumbnail = await generateThumbnail(compressed);
 
       // Determinar MIME type correcto para Supabase
-      const videoMimeType = compressed.type.includes('mp4') ? 'video/mp4' : 'video/webm';
+      const rawType = compressed.type || '';
+      const videoMimeType = rawType.includes('mp4') ? 'video/mp4' : 'video/webm';
+      console.log(`[media] Video blob type: ${rawType}, using: ${videoMimeType}`);
 
       // Upload directo con fetch
       const videoPath = `${currentUser.id}/video_${Date.now()}.webm`;
