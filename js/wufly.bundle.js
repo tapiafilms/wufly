@@ -8315,11 +8315,10 @@ async function renderMediaGalerias() {
   }
 }
 
-/* ══ ABRIR GALERÍA — seleccionar fotos ══ */
+/* ══ ABRIR GALERÍA — ver fotos de la galería ══ */
 async function mediaOpenGallery(galleryId) {
   if (!currentUser) return;
 
-  // Cargar datos de la galería
   const { data: gallery } = await db
     .from('media_galleries')
     .select('*')
@@ -8328,28 +8327,33 @@ async function mediaOpenGallery(galleryId) {
 
   if (!gallery) return;
 
-  // Cargar fotos ya en la galería
+  // Cargar fotos de esta galería
   const { data: galleryPhotos } = await db
     .from('media_gallery_photos')
-    .select('photo_id')
-    .eq('gallery_id', galleryId);
+    .select('photo_id, position')
+    .eq('gallery_id', galleryId)
+    .order('position');
 
-  const selectedIds = new Set((galleryPhotos || []).map(gp => gp.photo_id));
+  const photoIds = (galleryPhotos || []).map(gp => gp.photo_id);
 
-  // Cargar todas las fotos del usuario
-  const { data: allPhotos } = await db
-    .from('media_photos')
-    .select('*')
-    .eq('user_id', currentUser.id)
-    .order('created_at', { ascending: false });
-
-  if (!allPhotos || allPhotos.length === 0) {
-    _mediaShowToast('No tenés fotos. Creá una primero.', 'error');
+  if (photoIds.length === 0) {
+    _mediaShowToast('Abrí una foto y tocá "Agregar a galería"');
     return;
   }
 
+  // Cargar datos de las fotos
+  const { data: photos } = await db
+    .from('media_photos')
+    .select('*')
+    .in('id', photoIds);
+
+  if (!photos || photos.length === 0) return;
+
+  // Ordenar según el orden guardado
+  const ordered = photoIds.map(id => photos.find(p => p.id === id)).filter(Boolean);
+
   const overlay = document.createElement('div');
-  overlay.id = 'gallery-picker-overlay';
+  overlay.id = 'gallery-viewer-overlay';
   overlay.style.cssText = `
     position:fixed; inset:0; z-index:99999;
     background:var(--bg, #0d0d1a);
@@ -8363,147 +8367,44 @@ async function mediaOpenGallery(galleryId) {
       display:flex; align-items:center; justify-content:space-between;
       border-bottom:1px solid var(--border-md);
     ">
-      <button id="gp-close" style="
+      <button id="gv-close" style="
         background:none; border:none; color:var(--text); font-size:14px;
         cursor:pointer; padding:4px;
       ">← Volver</button>
       <div style="font-weight:700;font-size:15px;color:var(--text);">
         ${gallery.name}
       </div>
-      <div id="gp-count" style="font-size:12px;color:var(--purple);font-weight:600;">
-        ${selectedIds.size} seleccionadas
+      <div style="font-size:12px;color:var(--text-muted);">
+        ${ordered.length} fotos
       </div>
     </div>
-    <div id="gp-grid" style="
+    <div style="
       flex:1; overflow-y:auto; padding:12px;
       display:grid; grid-template-columns:repeat(3,1fr); gap:4px;
       align-content:start;
     ">
   `;
 
-  allPhotos.forEach(p => {
-    const isSelected = selectedIds.has(p.id);
+  ordered.forEach(p => {
     html += `
-      <div class="gp-photo" data-id="${p.id}" onclick="mediaToggleGalleryPhoto('${galleryId}','${p.id}',this)" style="
-        aspect-ratio:1; border-radius:8px; overflow:hidden; position:relative;
-        border:3px solid ${isSelected ? 'var(--purple)' : 'transparent'};
-        cursor:pointer; transition:border-color 0.15s;
+      <div style="
+        aspect-ratio:1; border-radius:8px; overflow:hidden;
+        background:var(--surface); border:1px solid var(--border-md);
       ">
-        <img src="${_getMediaUrl(p.photo_url)}" style="width:100%;height:100%;object-fit:cover;opacity:${isSelected ? '0.7' : '1'};transition:opacity 0.15s;" alt="">
-        <div class="gp-check" style="
-          position:absolute; top:4px; right:4px;
-          width:22px; height:22px; border-radius:50%;
-          background:${isSelected ? 'var(--purple)' : 'rgba(0,0,0,0.4)'};
-          display:flex; align-items:center; justify-content:center;
-          color:white; font-size:12px; font-weight:700;
-          transition:background 0.15s;
-        ">${isSelected ? '✓' : ''}</div>
+        <img src="${_getMediaUrl(p.photo_url)}" style="width:100%;height:100%;object-fit:cover;" alt="">
       </div>
     `;
   });
 
   html += '</div>';
-
-  // Botón guardar
-  html += `
-    <div style="padding:16px; padding-bottom:max(env(safe-area-inset-bottom,16px),16px); border-top:1px solid var(--border-md);">
-      <button id="gp-save" onclick="mediaSaveGalleryPhotos('${galleryId}')" class="btn-primary" style="
-        width:100%; padding:14px; font-size:14px; font-weight:700;
-      ">Guardar</button>
-    </div>
-  `;
-
   overlay.innerHTML = html;
   document.body.appendChild(overlay);
   document.body.style.overflow = 'hidden';
 
-  // Estado temporal
-  window._gallerySelectedIds = selectedIds;
-  window._galleryAllPhotos = allPhotos;
-
-  // Close
-  overlay.querySelector('#gp-close').addEventListener('click', () => {
+  overlay.querySelector('#gv-close').addEventListener('click', () => {
     overlay.remove();
     document.body.style.overflow = '';
-    delete window._gallerySelectedIds;
-    delete window._galleryAllPhotos;
   });
-}
-
-function mediaToggleGalleryPhoto(galleryId, photoId, el) {
-  const selected = window._gallerySelectedIds;
-  if (!selected) return;
-
-  if (selected.has(photoId)) {
-    selected.delete(photoId);
-  } else {
-    selected.add(photoId);
-  }
-
-  // Actualizar UI del thumbnail
-  const img = el.querySelector('img');
-  const check = el.querySelector('.gp-check');
-  const isNow = selected.has(photoId);
-  el.style.borderColor = isNow ? 'var(--purple)' : 'transparent';
-  img.style.opacity = isNow ? '0.7' : '1';
-  check.style.background = isNow ? 'var(--purple)' : 'rgba(0,0,0,0.4)';
-  check.textContent = isNow ? '✓' : '';
-
-  // Actualizar contador
-  const counter = document.getElementById('gp-count');
-  if (counter) counter.textContent = `${selected.size} seleccionadas`;
-}
-
-async function mediaSaveGalleryPhotos(galleryId) {
-  const selected = window._gallerySelectedIds;
-  if (!selected) return;
-
-  _mediaShowLoading('Guardando...');
-
-  try {
-    // Eliminar todas las relaciones actuales
-    await db.from('media_gallery_photos').delete().eq('gallery_id', galleryId);
-
-    // Insertar las seleccionadas
-    if (selected.size > 0) {
-      const rows = Array.from(selected).map((photoId, i) => ({
-        gallery_id: galleryId,
-        photo_id: photoId,
-        position: i
-      }));
-
-      const { error } = await db.from('media_gallery_photos').insert(rows);
-      if (error) throw error;
-    }
-
-    // Actualizar photo_count y cover en la galería
-    const firstPhotoId = Array.from(selected)[0] || null;
-    const coverUrl = firstPhotoId
-      ? (window._galleryAllPhotos || []).find(p => p.id === firstPhotoId)?.photo_url || null
-      : null;
-
-    await db.from('media_galleries').update({
-      photo_count: selected.size,
-      cover_url: coverUrl
-    }).eq('id', galleryId);
-
-    _mediaHideLoading();
-    _mediaShowToast(`${selected.size} fotos guardadas ✓`);
-
-    // Cerrar overlay
-    const overlay = document.getElementById('gallery-picker-overlay');
-    if (overlay) overlay.remove();
-    document.body.style.overflow = '';
-    delete window._gallerySelectedIds;
-    delete window._galleryAllPhotos;
-
-    // Refrescar galerías
-    renderMediaGalerias();
-  } catch (err) {
-    console.error('Error saving gallery photos:', err);
-    _mediaHideLoading();
-    _mediaShowToast('Error al guardar', 'error');
-  }
 }
 
 /* ══ CREAR VIDEO ══ */
@@ -8902,6 +8803,21 @@ function mediaOpenPhoto(index) {
       background:rgba(255,255,255,0.12); color:white; font-size:20px;
       cursor:pointer; display:${_mediaPhotos.length > 1 ? 'flex' : 'none'}; align-items:center; justify-content:center;
     ">›</button>
+    <div style="
+      position:absolute; bottom:0; left:0; right:0;
+      padding:12px 16px max(env(safe-area-inset-bottom,16px),16px);
+      display:flex; justify-content:center;
+      background:linear-gradient(transparent, rgba(0,0,0,0.6));
+    ">
+      <button id="media-lightbox-add-gallery" style="
+        background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.2);
+        color:white; font-size:13px; font-weight:600;
+        padding:10px 20px; border-radius:24px; cursor:pointer;
+        display:flex; align-items:center; gap:6px;
+      ">
+        <span style="font-size:16px;">🖼️</span> Agregar a galería
+      </button>
+    </div>
   `;
 
   document.body.appendChild(overlay);
@@ -8922,6 +8838,12 @@ function mediaOpenPhoto(index) {
   overlay.querySelector('#media-lightbox-next').addEventListener('click', (e) => {
     e.stopPropagation();
     _mediaNavPhoto(1);
+  });
+
+  // Add to gallery
+  overlay.querySelector('#media-lightbox-add-gallery').addEventListener('click', (e) => {
+    e.stopPropagation();
+    _mediaShowGalleryPicker();
   });
 
   // Keyboard
@@ -8966,6 +8888,163 @@ function _mediaClosePhoto() {
   if (overlay._keyHandler) document.removeEventListener('keydown', overlay._keyHandler);
   overlay.remove();
   document.body.style.overflow = '';
+}
+
+/* ══ GALLERY PICKER — desde el lightbox ══ */
+async function _mediaShowGalleryPicker() {
+  if (!_mediaPhotos || !_mediaPhotos[_mediaPhotoIndex]) return;
+  const photoId = _mediaPhotos[_mediaPhotoIndex].id;
+
+  // Cargar galerías del usuario
+  const { data: galleries } = await db
+    .from('media_galleries')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false });
+
+  if (!galleries || galleries.length === 0) {
+    _mediaShowToast('Creá una galería primero', 'error');
+    return;
+  }
+
+  // Cargar en cuáles ya está esta foto
+  const { data: existing } = await db
+    .from('media_gallery_photos')
+    .select('gallery_id')
+    .eq('photo_id', photoId);
+
+  const photoInGalleries = new Set((existing || []).map(e => e.gallery_id));
+
+  const picker = document.createElement('div');
+  picker.id = 'gallery-picker-sheet';
+  picker.style.cssText = `
+    position:fixed; bottom:0; left:0; right:0; z-index:100000;
+    background:var(--surface, #1a1a2e);
+    border-radius:20px 20px 0 0;
+    padding:20px 16px max(env(safe-area-inset-bottom,20px),20px);
+    box-shadow:0 -8px 32px rgba(0,0,0,0.5);
+    animation:slideUp 0.25s ease;
+  `;
+
+  let html = `
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);margin:0 auto 12px;"></div>
+      <div style="font-weight:700;font-size:16px;color:var(--text);">Agregar a galería</div>
+    </div>
+  `;
+
+  galleries.forEach(g => {
+    const isIn = photoInGalleries.has(g.id);
+    html += `
+      <div onclick="mediaAddPhotoToGallery('${g.id}','${photoId}',this)" style="
+        display:flex; align-items:center; gap:12px;
+        padding:12px; border-radius:12px; margin-bottom:6px;
+        background:${isIn ? 'var(--purple-light, #2d1b69)' : 'transparent'};
+        cursor:pointer; transition:background 0.15s;
+      ">
+        <div style="
+          width:44px; height:44px; border-radius:10px;
+          background:var(--purple-light, #2d1b69);
+          display:flex; align-items:center; justify-content:center; flex-shrink:0;
+        ">
+          ${g.cover_url ? `
+            <img src="${_getMediaUrl(g.cover_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" alt="">
+          ` : `
+            <span style="font-size:18px;">🖼️</span>
+          `}
+        </div>
+        <div style="flex:1;">
+          <div style="font-weight:600;font-size:14px;color:var(--text);">${g.name}</div>
+          <div style="font-size:11px;color:var(--text-muted);">${g.photo_count || 0} fotos</div>
+        </div>
+        <div style="
+          width:24px; height:24px; border-radius:50%;
+          background:${isIn ? 'var(--purple)' : 'rgba(255,255,255,0.1)'};
+          display:flex; align-items:center; justify-content:center;
+          color:white; font-size:12px; font-weight:700;
+        ">${isIn ? '✓' : '+'}</div>
+      </div>
+    `;
+  });
+
+  picker.innerHTML = html;
+  document.body.appendChild(picker);
+
+  // Tap fuera para cerrar
+  picker.addEventListener('click', (e) => {
+    if (e.target === picker) picker.remove();
+  });
+}
+
+async function mediaAddPhotoToGallery(galleryId, photoId, el) {
+  // Verificar si ya está
+  const { data: existing } = await db
+    .from('media_gallery_photos')
+    .select('id')
+    .eq('gallery_id', galleryId)
+    .eq('photo_id', photoId)
+    .single();
+
+  if (existing) {
+    // Quitar de la galería
+    await db.from('media_gallery_photos').delete().eq('id', existing.id);
+
+    // Actualizar photo_count
+    const { count } = await db
+      .from('media_gallery_photos')
+      .select('*', { count: 'exact', head: true })
+      .eq('gallery_id', galleryId);
+
+    await db.from('media_galleries').update({ photo_count: count || 0 }).eq('id', galleryId);
+
+    // Actualizar UI del picker
+    const check = el.querySelector('div:last-child');
+    check.style.background = 'rgba(255,255,255,0.1)';
+    check.textContent = '+';
+    el.style.background = 'transparent';
+
+    _mediaShowToast('Foto removida de la galería');
+  } else {
+    // Agregar a la galería
+    const { count: currentCount } = await db
+      .from('media_gallery_photos')
+      .select('*', { count: 'exact', head: true })
+      .eq('gallery_id', galleryId);
+
+    await db.from('media_gallery_photos').insert({
+      gallery_id: galleryId,
+      photo_id: photoId,
+      position: currentCount || 0
+    });
+
+    // Actualizar photo_count y cover
+    const { count } = await db
+      .from('media_gallery_photos')
+      .select('*', { count: 'exact', head: true })
+      .eq('gallery_id', galleryId);
+
+    // Cover = primera foto si no tiene
+    const { data: g } = await db.from('media_galleries').select('cover_url').eq('id', galleryId).single();
+    if (!g || !g.cover_url) {
+      const photo = _mediaPhotos.find(p => p.id === photoId);
+      if (photo) {
+        await db.from('media_galleries').update({
+          photo_count: count || 0,
+          cover_url: photo.photo_url
+        }).eq('id', galleryId);
+      }
+    } else {
+      await db.from('media_galleries').update({ photo_count: count || 0 }).eq('id', galleryId);
+    }
+
+    // Actualizar UI del picker
+    const check = el.querySelector('div:last-child');
+    check.style.background = 'var(--purple)';
+    check.textContent = '✓';
+    el.style.background = 'var(--purple-light, #2d1b69)';
+
+    _mediaShowToast('Agregada a la galería ✓');
+  }
 }
 
 
