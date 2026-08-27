@@ -8308,7 +8308,21 @@ async function renderMediaGalerias() {
         `;
       });
 
-      container.innerHTML = html;
+      container.innerHTML = `
+        <div style="text-align:center;padding:16px 20px 8px;">
+          <button onclick="mediaCreateGallery()" class="btn-primary" style="
+            padding:12px 24px; font-size:13px;
+          ">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;margin-right:6px;">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <line x1="12" y1="8" x2="12" y2="16"/>
+              <line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            Nueva galería
+          </button>
+        </div>
+        ${html}
+      `;
     }
   } catch (err) {
     console.error('Error loading galleries:', err);
