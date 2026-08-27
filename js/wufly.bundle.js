@@ -588,8 +588,8 @@ db.auth.onAuthStateChange(async (event, session) => {
         await guardarPerfilEnDB(localProfile);
       }
     } catch { /* ignorar */ }
-    await sincronizarPerfil();
-    await sincronizarRecordatorios();
+    try { await sincronizarPerfil(); } catch { /* se reintentará en el próximo reload */ }
+    try { await sincronizarRecordatorios(); } catch { /* ignorar */ }
     _actualizarBotonesPublicar();
   }
 });
@@ -797,7 +797,8 @@ async function submitAuth() {
       });
       if (error) throw error;
       currentUser = data.user;
-      await sincronizarPerfil();
+      // sincronizarPerfil puede fallar (tabla profiles, RLS, red) pero la sesión ya está creada
+      try { await sincronizarPerfil(); } catch { /* perfil se sincronizará en el próximo reload */ }
       cerrarAuthModal();
       renderAuthBanner();
     }
@@ -1116,8 +1117,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (currentUser) {
     const modal = document.getElementById('authModal');
     if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
-    await sincronizarPerfil();
-    await sincronizarRecordatorios();
+    try { await sincronizarPerfil(); } catch { /* se reintentará */ }
+    try { await sincronizarRecordatorios(); } catch { /* ignorar */ }
     const overlay = document.getElementById('onboarding-overlay');
     if (overlay) overlay.remove();
   }
