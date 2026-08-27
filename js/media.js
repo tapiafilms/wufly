@@ -80,20 +80,30 @@ async function renderMediaVideos() {
         const horasRestantes = Math.max(0, Math.floor((expira - Date.now()) / (1000 * 60 * 60)));
         const sizeKB = Math.round(v.size_bytes / 1024);
 
+        const videoUrl = _getMediaUrl(v.video_url);
         html += `
           <div style="
             background:var(--surface); border-radius:14px; border:1.5px solid var(--border-md);
             margin-bottom:10px; overflow:hidden;
           ">
-            <div style="
+            <div onclick="mediaPlayVideo('${videoUrl.replace(/'/g, "\\'")}', '${(v.thumbnail_url ? _getMediaUrl(v.thumbnail_url) : '').replace(/'/g, "\\'")}')"
+              style="
               height:140px; background:linear-gradient(135deg,#1a1a2e,#16213e);
-              display:flex; align-items:center; justify-content:center; position:relative;
+              display:flex; align-items:center; justify-content:center; position:relative; cursor:pointer;
             ">
               ${v.thumbnail_url ? `
                 <img src="${_getMediaUrl(v.thumbnail_url)}" style="width:100%;height:100%;object-fit:cover;" alt="video">
               ` : `
                 <span style="font-size:40px;">🎬</span>
               `}
+              <div style="
+                position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+                width:52px; height:52px; background:rgba(255,255,255,0.92); border-radius:50%;
+                display:flex; align-items:center; justify-content:center;
+                box-shadow:0 4px 20px rgba(0,0,0,0.3);
+              ">
+                <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:#5C2FA8;margin-left:3px;"><polygon points="5,3 19,12 5,21"/></svg>
+              </div>
               <div style="
                 position:absolute; bottom:8px; right:8px;
                 background:rgba(0,0,0,0.7); padding:4px 8px; border-radius:6px;
@@ -707,6 +717,34 @@ async function mediaDeleteVideo(id) {
   } catch (err) {
     console.error('Error deleting video:', err);
   }
+}
+
+/* ══ REPRODUCIR VIDEO ══ */
+function mediaPlayVideo(videoUrl, thumbUrl) {
+  const prev = document.getElementById('media-video-overlay');
+  if (prev) prev.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'media-video-overlay';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9999;
+    background:rgba(0,0,0,0.95);
+    display:flex;align-items:center;justify-content:center;
+  `;
+  overlay.innerHTML = `
+    <button onclick="document.getElementById('media-video-overlay').remove()"
+      style="position:absolute;top:56px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.15);color:white;font-size:18px;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;">✕</button>
+    <div style="width:min(360px,85vw);position:relative;">
+      <div style="position:relative;aspect-ratio:9/16;border-radius:20px;overflow:hidden;background:#000;box-shadow:0 20px 60px rgba(0,0,0,0.8);">
+        <video id="media-video-player" src="${videoUrl}" controls autoplay playsinline
+          style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:2;"></video>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.remove();
+  });
 }
 
 /* ══ ELIMINAR FOTO ══ */

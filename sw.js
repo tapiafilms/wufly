@@ -8,7 +8,7 @@
 
 // ⚠️ IMPORTANTE: incrementar este número manualmente cada vez que se haga deploy
 // para que los usuarios reciban los archivos actualizados y no versiones cacheadas.
-const CACHE_NAME = 'wufly-v66';
+const CACHE_NAME = 'wufly-v67';
 const API_HOST         = 'divine-waterfall-d1dfsin-gluten-life.pablo77tapia.workers.dev';
 const SUPABASE_HOST    = 'ybnacudfqerbzpvqcjzc.supabase.co';
 const PUSH_WORKER_HOST = 'wufly-push.pablo77tapia.workers.dev';
