@@ -456,27 +456,44 @@ function mediaCreateVideo() {
       // Determinar MIME type correcto para Supabase
       const videoMimeType = compressed.type.includes('mp4') ? 'video/mp4' : 'video/webm';
 
-      // Subir video
+      // Upload directo con fetch
       const videoPath = `${currentUser.id}/video_${Date.now()}.webm`;
       console.log(`[media] Uploading video: ${videoPath}, size: ${(compressed.size / 1024).toFixed(0)}KB, type: ${videoMimeType}`);
-      const { error: uploadErr1 } = await db.storage
-        .from('media-videos')
-        .upload(videoPath, compressed, { contentType: videoMimeType });
 
-      if (uploadErr1) {
-        console.error('[media] Video upload error:', uploadErr1);
-        throw uploadErr1;
+      const stored = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF}-auth-token`) || 'null');
+      const token = stored?.access_token;
+
+      const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/media-videos/${videoPath}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': videoMimeType,
+          'x-upsert': 'true'
+        },
+        body: compressed
+      });
+
+      console.log('[media] Video upload response:', uploadRes.status);
+      if (!uploadRes.ok) {
+        const errText = await uploadRes.text();
+        console.error('[media] Video upload error:', errText);
+        throw new Error(`Upload failed: ${uploadRes.status}`);
       }
 
       // Subir thumbnail (si se generó)
       let thumbPath = null;
       if (thumbnail) {
         thumbPath = `${currentUser.id}/thumb_${Date.now()}.jpg`;
-        const { error: uploadErr2 } = await db.storage
-          .from('media-photos')
-          .upload(thumbPath, thumbnail, { contentType: 'image/jpeg' });
-
-        if (uploadErr2) console.warn('Thumbnail upload error:', uploadErr2);
+        const thumbRes = await fetch(`${SUPABASE_URL}/storage/v1/object/media-photos/${thumbPath}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'image/jpeg',
+            'x-upsert': 'true'
+          },
+          body: thumbnail
+        });
+        if (!thumbRes.ok) console.warn('Thumbnail upload error:', thumbRes.status);
       }
 
       // Guardar en BD
