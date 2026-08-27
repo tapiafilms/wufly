@@ -8304,13 +8304,20 @@ function mediaCreateVideo() {
       // Generar thumbnail
       const thumbnail = await generateThumbnail(compressed);
 
+      // Determinar MIME type correcto para Supabase
+      const videoMimeType = compressed.type.includes('mp4') ? 'video/mp4' : 'video/webm';
+
       // Subir video
       const videoPath = `${currentUser.id}/video_${Date.now()}.webm`;
+      console.log(`[media] Uploading video: ${videoPath}, size: ${(compressed.size / 1024).toFixed(0)}KB, type: ${videoMimeType}`);
       const { error: uploadErr1 } = await db.storage
         .from('media-videos')
-        .upload(videoPath, compressed, { contentType: compressed.type || 'video/webm' });
+        .upload(videoPath, compressed, { contentType: videoMimeType });
 
-      if (uploadErr1) throw uploadErr1;
+      if (uploadErr1) {
+        console.error('[media] Video upload error:', uploadErr1);
+        throw uploadErr1;
+      }
 
       // Subir thumbnail (si se generó)
       let thumbPath = null;
