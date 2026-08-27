@@ -119,7 +119,19 @@ async function renderMediaVideos() {
         `;
       });
 
-      container.innerHTML = html;
+      container.innerHTML = `
+        <div style="text-align:center;padding:16px 20px 8px;">
+          <button onclick="mediaCreateVideo()" class="btn-primary" style="
+            padding:12px 24px; font-size:13px;
+          ">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;margin-right:6px;">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            Grabar video
+          </button>
+        </div>
+        ${html}
+      `;
     }
   } catch (err) {
     console.error('Error loading videos:', err);
@@ -196,7 +208,20 @@ async function renderMediaFotos() {
       });
 
       html += '</div>';
-      container.innerHTML = html;
+      container.innerHTML = `
+        <div style="text-align:center;padding:16px 20px 8px;">
+          <button onclick="mediaCreatePhoto()" class="btn-primary" style="
+            padding:12px 24px; font-size:13px;
+          ">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;margin-right:6px;">
+              <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            Tomar foto
+          </button>
+        </div>
+        ${html}
+      `;
     }
   } catch (err) {
     console.error('Error loading photos:', err);
