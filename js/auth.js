@@ -210,9 +210,9 @@ function _actualizarModalModo(modo) {
     ? `¿Ya tienes una cuenta? <button onclick="setAuthModo('login')" style="background:none;border:none;color:var(--purple);font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;">Iniciar sesión</button>`
     : `¿No estás registrado? <button onclick="setAuthModo('register')" style="background:none;border:none;color:var(--purple);font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;">Crear cuenta aquí</button>`;
   document.getElementById('authError').style.display = 'none';
-  // Mostrar botón de Google solo en registro
+  // Mostrar botón de Google en ambos modos
   const googleBtn = document.getElementById('authGoogleBtn');
-  if (googleBtn) googleBtn.style.display = esRegistro ? 'block' : 'none';
+  if (googleBtn) googleBtn.style.display = 'block';
 }
 
 function _limpiarModal() {
@@ -252,30 +252,12 @@ async function submitAuth() {
       }
       return;
     } else {
-      // Login via REST directo para evitar bloqueo del SW
-      const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_ANON,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password: pass }),
+      // Login via Supabase client
+      const { data, error } = await db.auth.signInWithPassword({
+        email,
+        password: pass
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error_description || data.msg || 'Error al iniciar sesión');
-
-      // Guardar token en localStorage igual que lo hace el cliente de Supabase
-      const ref = SUPABASE_URL.replace('https://', '').split('.')[0];
-      const tokenData = {
-        access_token:  data.access_token,
-        refresh_token: data.refresh_token,
-        expires_at:    Math.floor(Date.now() / 1000) + data.expires_in,
-        token_type:    data.token_type,
-        user:          data.user,
-      };
-      localStorage.setItem(`sb-${ref}-auth-token`, JSON.stringify(tokenData));
-
-      // Cargar perfil y cerrar modal
+      if (error) throw error;
       currentUser = data.user;
       await cargarPerfil();
       cerrarAuthModal();
