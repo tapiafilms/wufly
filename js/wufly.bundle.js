@@ -7994,6 +7994,9 @@ window.generateThumbnail = generateThumbnail;
    Lógica principal: upload, galerías, shorts públicos
    ══════════════════════════════════════════════════════════════ */
 
+let _mediaPhotos = [];
+let _mediaPhotoIndex = 0;
+
 /* ══ SUB-TABS DE MEDIA ══ */
 function switchMediaTab(tab) {
   const subs = ['videos', 'fotos', 'galerias'];
@@ -8171,6 +8174,7 @@ async function renderMediaFotos() {
     if (error) throw error;
 
     if (photos && photos.length > 0) {
+      _mediaPhotos = photos;
       let html = `
         <div style="padding:0 2px 12px;">
           <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;margin-bottom:10px;">
@@ -8180,15 +8184,16 @@ async function renderMediaFotos() {
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:0 2px;">
       `;
 
-      photos.forEach(p => {
+      photos.forEach((p, idx) => {
         const sizeKB = Math.round(p.size_bytes / 1024);
         html += `
-          <div style="
+          <div onclick="mediaOpenPhoto(${idx})" style="
             aspect-ratio:1; border-radius:8px; overflow:hidden; position:relative;
             background:var(--surface); border:1px solid var(--border-md);
+            cursor:pointer;
           ">
             <img src="${_getMediaUrl(p.photo_url)}" style="width:100%;height:100%;object-fit:cover;" alt="foto">
-            <button onclick="mediaDeletePhoto('${p.id}')" style="
+            <button onclick="event.stopPropagation();mediaDeletePhoto('${p.id}')" style="
               position:absolute; top:4px; right:4px;
               width:20px; height:20px; border-radius:50%; border:none;
               background:rgba(0,0,0,0.6); color:white; font-size:10px;
@@ -8651,6 +8656,124 @@ function _mediaShowToast(msg, type = 'ok') {
   toast.textContent = msg;
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 2500);
+}
+
+/* ══ LIGHTBOX FOTOS — pantalla completa con swipe ══ */
+function mediaOpenPhoto(index) {
+  if (!_mediaPhotos || !_mediaPhotos.length) return;
+  _mediaPhotoIndex = index;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'media-photo-lightbox';
+  overlay.style.cssText = `
+    position:fixed; inset:0; z-index:99999;
+    background:rgba(0,0,0,0.95);
+    display:flex; align-items:center; justify-content:center;
+    touch-action:pan-y;
+  `;
+
+  overlay.innerHTML = `
+    <div id="media-lightbox-img" style="
+      width:100vw; height:100vh;
+      display:flex; align-items:center; justify-content:center;
+      transition:transform 0.3s ease;
+    ">
+      <img id="media-lightbox-photo" src="${_getMediaUrl(_mediaPhotos[_mediaPhotoIndex].photo_url)}"
+        style="max-width:100%; max-height:100%; object-fit:contain; user-select:none; -webkit-user-select:none;"
+        draggable="false">
+    </div>
+    <div style="
+      position:absolute; top:0; left:0; right:0;
+      padding:env(safe-area-inset-top,16px) 16px 12px;
+      display:flex; justify-content:space-between; align-items:center;
+      background:linear-gradient(rgba(0,0,0,0.6), transparent);
+      padding-top: max(env(safe-area-inset-top,16px), 16px);
+    ">
+      <div style="color:rgba(255,255,255,0.7); font-size:13px; font-weight:600;">
+        <span id="media-lightbox-counter">${_mediaPhotoIndex + 1} / ${_mediaPhotos.length}</span>
+      </div>
+      <button id="media-lightbox-close" style="
+        width:36px; height:36px; border-radius:50%; border:none;
+        background:rgba(255,255,255,0.15); color:white; font-size:18px;
+        cursor:pointer; display:flex; align-items:center; justify-content:center;
+      ">✕</button>
+    </div>
+    <button id="media-lightbox-prev" style="
+      position:absolute; left:8px; top:50%; transform:translateY(-50%);
+      width:44px; height:44px; border-radius:50%; border:none;
+      background:rgba(255,255,255,0.12); color:white; font-size:20px;
+      cursor:pointer; display:${_mediaPhotos.length > 1 ? 'flex' : 'none'}; align-items:center; justify-content:center;
+    ">‹</button>
+    <button id="media-lightbox-next" style="
+      position:absolute; right:8px; top:50%; transform:translateY(-50%);
+      width:44px; height:44px; border-radius:50%; border:none;
+      background:rgba(255,255,255,0.12); color:white; font-size:20px;
+      cursor:pointer; display:${_mediaPhotos.length > 1 ? 'flex' : 'none'}; align-items:center; justify-content:center;
+    ">›</button>
+  `;
+
+  document.body.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
+
+  // Close
+  const closeBtn = overlay.querySelector('#media-lightbox-close');
+  closeBtn.addEventListener('click', _mediaClosePhoto);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) _mediaClosePhoto();
+  });
+
+  // Nav buttons
+  overlay.querySelector('#media-lightbox-prev').addEventListener('click', (e) => {
+    e.stopPropagation();
+    _mediaNavPhoto(-1);
+  });
+  overlay.querySelector('#media-lightbox-next').addEventListener('click', (e) => {
+    e.stopPropagation();
+    _mediaNavPhoto(1);
+  });
+
+  // Keyboard
+  overlay._keyHandler = (e) => {
+    if (e.key === 'Escape') _mediaClosePhoto();
+    if (e.key === 'ArrowLeft') _mediaNavPhoto(-1);
+    if (e.key === 'ArrowRight') _mediaNavPhoto(1);
+  };
+  document.addEventListener('keydown', overlay._keyHandler);
+
+  // Swipe
+  let startX = 0;
+  overlay.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+  }, { passive: true });
+  overlay.addEventListener('touchend', (e) => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      _mediaNavPhoto(diff > 0 ? 1 : -1);
+    }
+  }, { passive: true });
+}
+
+function _mediaNavPhoto(dir) {
+  const newIndex = _mediaPhotoIndex + dir;
+  if (newIndex < 0 || newIndex >= _mediaPhotos.length) return;
+  _mediaPhotoIndex = newIndex;
+
+  const img = document.getElementById('media-lightbox-photo');
+  const counter = document.getElementById('media-lightbox-counter');
+  if (img) {
+    img.src = _getMediaUrl(_mediaPhotos[_mediaPhotoIndex].photo_url);
+  }
+  if (counter) {
+    counter.textContent = `${_mediaPhotoIndex + 1} / ${_mediaPhotos.length}`;
+  }
+}
+
+function _mediaClosePhoto() {
+  const overlay = document.getElementById('media-photo-lightbox');
+  if (!overlay) return;
+  if (overlay._keyHandler) document.removeEventListener('keydown', overlay._keyHandler);
+  overlay.remove();
+  document.body.style.overflow = '';
 }
 
 
