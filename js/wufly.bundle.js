@@ -8385,18 +8385,31 @@ function mediaCreatePhoto() {
       const compressed = await compressPhoto(blob);
       console.log(`[media] Foto comprimida: ${(blob.size/1024).toFixed(0)}KB → ${(compressed.size/1024).toFixed(0)}KB`);
 
-      // Subir foto
+      // Upload directo con fetch (más confiable que el cliente Supabase)
       const photoPath = `${currentUser.id}/photo_${Date.now()}.jpg`;
       console.log(`[media] Uploading photo: ${photoPath}`);
-      const { data: uploadData, error: uploadErr } = await db.storage
-        .from('media-photos')
-        .upload(photoPath, compressed, { contentType: 'image/jpeg' });
 
-      if (uploadErr) {
-        console.error('[media] Photo upload error:', uploadErr);
-        throw uploadErr;
+      const stored = JSON.parse(localStorage.getItem(`sb-${SUPABASE_REF}-auth-token`) || 'null');
+      const token = stored?.access_token;
+
+      const uploadUrl = `${SUPABASE_URL}/storage/v1/object/media-photos/${photoPath}`;
+      const uploadRes = await fetch(uploadUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'image/jpeg',
+          'x-upsert': 'true'
+        },
+        body: compressed
+      });
+
+      console.log('[media] Upload response:', uploadRes.status);
+      if (!uploadRes.ok) {
+        const errText = await uploadRes.text();
+        console.error('[media] Upload error:', errText);
+        throw new Error(`Upload failed: ${uploadRes.status}`);
       }
-      console.log('[media] Photo upload OK:', uploadData);
+      console.log('[media] Upload OK');
 
       // Guardar en BD
       const { error: dbErr } = await db.from('media_photos').insert({
